@@ -1,0 +1,21 @@
+// ✅ _base.scss
+@use 'variables';
+@use 'mixins';
+
+body {
+  font-family: variables.$font-stack;
+  margin: 0;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+input,
+button {
+  margin: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+}

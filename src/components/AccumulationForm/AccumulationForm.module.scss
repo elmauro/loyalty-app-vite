@@ -1,0 +1,33 @@
+@use '../../styles/_variables.scss' as *;
+
+.accumulation-form {
+    padding: 1rem;
+    border: 1px solid $gray;
+    margin-bottom: 1rem;
+    background-color: #fff;
+
+    h3 {
+        color: $primary;
+    }
+
+    input {
+        margin-right: 0.5rem;
+    }
+
+    button {
+        margin-right: 0.5rem;
+
+        &:first-of-type {
+        background-color: $success;
+        color: white;
+        border: none;
+        }
+
+        &:last-of-type {
+        background-color: $gray;
+        color: white;
+        border: none;
+        }
+    }
+}
+  
