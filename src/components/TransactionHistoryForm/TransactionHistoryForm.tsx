@@ -24,8 +24,8 @@ export default function TransactionHistory() {
     <section className={styles['transaction-history-form']}>
       <h3>Historial de Transacciones</h3>
       <input placeholder="Phone Number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+      <input data-testid="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+      <input data-testid="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       <button onClick={handleFind}>Buscar</button>
       <button onClick={() => { setPhoneNumber(''); setStartDate(''); setEndDate(''); setTransactions([]); }}>Limpiar</button>
 
