@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../../services/authService';
 import { useAuth } from '../../store/AuthContext';
+import { getLoginErrorMessage } from '../../utils/getLoginErrorMessage';
 import styles from './Login.module.scss';
 
 export default function Login() {
@@ -15,6 +16,12 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+
+    if (!loginValue || !password) {
+      setError('Credenciales inválidas');
+      return;
+    }
+
     try {
       const data = await login({
         loginTypeId: 1,
@@ -33,8 +40,12 @@ export default function Login() {
       if (role === '1') navigate('/administration');
       else if (role === '2') navigate('/user');
       else navigate('/');
-    } catch (err) {
-      setError('Credenciales inválidas');
+    } catch (err: any) {
+      if (err.response) {
+        setError(getLoginErrorMessage(err.response.status));
+      } else {
+        setError('Error de conexión. Intenta más tarde.');
+      }
     }
   };
 

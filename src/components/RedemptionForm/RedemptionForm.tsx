@@ -3,6 +3,7 @@ import { redeemPoints } from '../../services/transactionService';
 import { sendOtp } from '../../services/otpService';
 import { useToast } from '../../hooks/useToast';
 import styles from './RedemptionForm.module.scss';
+import { getRedemptionErrorMessage } from '../../utils/getRedemptionErrorMessage';
 
 export default function RedemptionForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -25,8 +26,12 @@ export default function RedemptionForm() {
       await redeemPoints({ phoneNumber, identificationTypeId: 1, otpCode, points: +points });
       success('Puntos redimidos');
       setOtpVisible(false);
-    } catch {
-      error('Error al redimir');
+    } catch (err: any) {
+      if (err.response) {
+        error(getRedemptionErrorMessage(err.response.status));
+      } else {
+        error('Error de conexión. Intenta más tarde.');
+      }
     }
   };
 

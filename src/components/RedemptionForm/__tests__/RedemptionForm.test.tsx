@@ -1,72 +1,126 @@
 // src/components/RedemptionForm/__tests__/RedemptionForm.test.tsx
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
 import RedemptionForm from '../RedemptionForm';
 import { renderWithProviders } from '../../../test-utils';
-import type { TransactionApiResponse } from '../../../types/Transaction';
+import { ToastContainer } from 'react-toastify';
+import { getMockResponse } from '../../../mocks/mockService';
 import * as otpService from '../../../services/otpService';
 import * as transactionService from '../../../services/transactionService';
 
-const mockTransactionResponse: TransactionApiResponse = {
-  type: 'success',
-  status: 'processed',
-};
-
 jest.mock('../../../services/otpService');
 jest.mock('../../../services/transactionService');
-
-jest.mock('../../../services/axiosInstance', () => {
-    return {
-      default: {
-        post: jest.fn(() => Promise.resolve({ data: { token: 'mock-token' } })),
-      },
-    };
-});
+jest.mock('../../../services/axiosInstance', () => ({
+  default: {
+    post: jest.fn(() => Promise.resolve({ data: { token: 'mock-token' } })),
+  },
+}));
 
 describe('RedemptionForm', () => {
-    test('renders fields and submits redemption', async () => {
-        const sendOtpMock = jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
-        type: 'success',
-        otp: '123456',
-        });
+  const setupRedemption = async () => {
+    renderWithProviders(
+      <>
+        <RedemptionForm />
+        <ToastContainer />
+      </>
+    );
 
-        const redeemMock = jest
-    .spyOn(transactionService, 'redeemPoints')
-    .mockResolvedValue(mockTransactionResponse);
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
+        target: { value: '3001234567' }
+      });
 
-    renderWithProviders(<RedemptionForm />);
+      fireEvent.change(screen.getByPlaceholderText(/Puntos/i), {
+        target: { value: '200' }
+      });
 
-    // Simula ingreso de número y puntos
-    fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
-      target: { value: '3001234567' }
+      fireEvent.click(screen.getByText('Redimir'));
     });
 
-    fireEvent.change(screen.getByPlaceholderText(/Puntos/i), {
-      target: { value: '200' }
-    });
-
-    // Click en el primer botón “Redimir” para solicitar OTP
-    fireEvent.click(screen.getByText('Redimir'));
-
-    // Espera a que aparezca el campo de OTP
     const otpInput = await screen.findByPlaceholderText(/Código OTP/i);
 
-    // Simula ingreso de OTP
-    fireEvent.change(otpInput, {
-      target: { value: '123456' }
+    await act(async () => {
+      fireEvent.change(otpInput, { target: { value: '123456' } });
+      fireEvent.click(screen.getByText('Confirmar'));
+    });
+  };
+
+  test('renders fields and submits redemption successfully (200)', async () => {
+    jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
+      type: 'success',
+      otp: '123456',
     });
 
-    // Confirmar redención
-    fireEvent.click(screen.getByText('Confirmar'));
+    jest.spyOn(transactionService, 'redeemPoints').mockResolvedValue(getMockResponse('redemptions', 'success'));
+
+    await setupRedemption();
 
     await waitFor(() => {
-      expect(sendOtpMock).toHaveBeenCalledWith({ phoneNumber: '3001234567' });
-
-      expect(redeemMock).toHaveBeenCalledWith({
+      expect(transactionService.redeemPoints).toHaveBeenCalledWith({
         phoneNumber: '3001234567',
         identificationTypeId: 1,
         otpCode: '123456',
         points: 200
       });
     });
+  });
+
+  test('shows error for 400 BAD REQUEST', async () => {
+    jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
+      type: 'success',
+      otp: '123456',
+    });
+
+    jest.spyOn(transactionService, 'redeemPoints').mockRejectedValue({
+      response: { status: 400, data: getMockResponse('common', 'badrequest') },
+    });
+
+    await setupRedemption();
+
+    expect(await screen.findByText(/Solicitud inválida/i)).toBeInTheDocument();
+  });
+
+  test('shows error for 401 UNAUTHORIZED', async () => {
+    jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
+      type: 'success',
+      otp: '123456',
+    });
+
+    jest.spyOn(transactionService, 'redeemPoints').mockRejectedValue({
+      response: { status: 401, data: getMockResponse('common', 'unauthorized') },
+    });
+
+    await setupRedemption();
+
+    expect(await screen.findByText(/No autorizado/i)).toBeInTheDocument();
+  });
+
+  test('shows error for 403 FORBIDDEN', async () => {
+    jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
+      type: 'success',
+      otp: '123456',
+    });
+
+    jest.spyOn(transactionService, 'redeemPoints').mockRejectedValue({
+      response: { status: 403, data: getMockResponse('common', 'forbidden') },
+    });
+
+    await setupRedemption();
+
+    expect(await screen.findByText(/Acceso denegado/i)).toBeInTheDocument();
+  });
+
+  test('shows error for 404 NOT FOUND', async () => {
+    jest.spyOn(otpService, 'sendOtp').mockResolvedValue({
+      type: 'success',
+      otp: '123456',
+    });
+
+    jest.spyOn(transactionService, 'redeemPoints').mockRejectedValue({
+      response: { status: 404 },
+    });
+
+    await setupRedemption();
+
+    expect(await screen.findByText(/Recurso no encontrado/i)).toBeInTheDocument();
   });
 });

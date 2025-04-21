@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "types": ["vite/client", "react", "react-dom", "jest", "node"],
     "strict": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "skipLibCheck": true,

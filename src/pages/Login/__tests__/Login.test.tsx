@@ -1,8 +1,9 @@
-// src/pages/Login/Login.test.tsx
+// src/pages/Login/__tests__/Login.test.tsx
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../Login';
 import { renderWithProviders } from '../../../test-utils';
 import * as authService from '../../../services/authService';
+import { getMockResponse } from '../../../mocks/mockService';
 
 jest.mock('../../../services/axiosInstance', () => {
   return {
@@ -26,38 +27,74 @@ describe('Login Page', () => {
   test('shows error when credentials are empty and Sign In is clicked', async () => {
     renderWithProviders(<Login />);
     fireEvent.click(screen.getByText('Sign In'));
-
-    // Puedes mejorar esto con `mockFetch` más adelante o usar MSW
     expect(await screen.findByText(/Credenciales inválidas/i)).toBeInTheDocument();
   });
 
-  test('calls login service with credentials', async () => {
-    const mockedLogin = jest.spyOn(authService, 'login').mockResolvedValue({
-      token: 'mock-token',
-      firstname: 'Test',
-      identification: '123',
-      identificationTypeId: 1,
-      roles: ['user'],
-      iscustomer: 1,
-      termsaccepted: 1
+  test('successful login', async () => {
+    const mockedLogin = jest.spyOn(authService, 'login').mockResolvedValue(
+      getMockResponse('auth', 'successUser')
+    );
+
+    renderWithProviders(<Login />);
+    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'hernan' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByText('Sign In'));
+
+    await waitFor(() => {
+      expect(mockedLogin).toHaveBeenCalledWith({
+        login: 'hernan',
+        pass: 'password123',
+        loginTypeId: 1,
+        identificationTypeId: 1
+      });
+    });
+  });
+
+  test('shows validation error (400)', async () => {
+    jest.spyOn(authService, 'login').mockRejectedValue({
+      response: {
+        status: 400,
+        data: getMockResponse('common', 'badrequest')
+      }
     });
 
     renderWithProviders(<Login />);
-    fireEvent.change(screen.getByPlaceholderText('Login'), {
-      target: { value: 'testuser' }
-    });
-    fireEvent.change(screen.getByPlaceholderText('Password'), {
-      target: { value: '1234' }
-    });
+    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'user' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'wrongpass' } });
     fireEvent.click(screen.getByText('Sign In'));
 
-    await waitFor(() =>
-      expect(mockedLogin).toHaveBeenCalledWith({
-        login: 'testuser',
-        pass: '1234',
-        loginTypeId: 1,
-        identificationTypeId: 1
-      })
-    );
+    expect(await screen.findByText(/Credenciales inválidas/i)).toBeInTheDocument();
+  });
+
+  test('shows forbidden error (403)', async () => {
+    jest.spyOn(authService, 'login').mockRejectedValue({
+      response: {
+        status: 403,
+        data: getMockResponse('common', 'forbidden')
+      }
+    });
+
+    renderWithProviders(<Login />);
+    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'blockeduser' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByText('Sign In'));
+
+    expect(await screen.findByText(/Acceso prohibido/i)).toBeInTheDocument();
+  });
+
+  test('shows not found error (404)', async () => {
+    jest.spyOn(authService, 'login').mockRejectedValue({
+      response: {
+        status: 404,
+        data: getMockResponse('common', 'notfound')
+      }
+    });
+
+    renderWithProviders(<Login />);
+    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'unknownuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByText('Sign In'));
+
+    expect(await screen.findByText(/Usuario no encontrado/i)).toBeInTheDocument();
   });
 });

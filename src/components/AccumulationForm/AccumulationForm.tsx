@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { accumulatePoints } from '../../services/transactionService';
 import { toast } from 'react-toastify';
+import { getAccumulationErrorMessage } from '../../utils/getAccumulationErrorMessage';
 import styles from './AccumulationForm.module.scss';
 
 export default function AccumulationForm() {
@@ -11,8 +12,12 @@ export default function AccumulationForm() {
     try {
       await accumulatePoints({ phoneNumber, identificationTypeId: 1, value: Number(value) });
       toast.success('Puntos acumulados');
-    } catch {
-      toast.error('Error al acumular puntos');
+    } catch (err: any) {
+      if (err.response) {
+        toast.error(getAccumulationErrorMessage(err.response.status));
+      } else {
+        toast.error('Error de conexión. Intenta más tarde.');
+      }
     }
   };
 

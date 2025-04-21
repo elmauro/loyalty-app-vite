@@ -1,0 +1,9 @@
+{
+    "firstname": "AdminUser",
+    "iscustomer": 0,
+    "termsaccepted": 0,
+    "identification": "8288221",
+    "identificationTypeId": 1,
+    "roles": ["1"],
+    "token": "admin-token"
+}  

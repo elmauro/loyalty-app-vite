@@ -1,0 +1,11 @@
+[
+    {
+      "id": "abc123",
+      "detail": "Deelite",
+      "transactionDate": "2023-10-04",
+      "type": "sale",
+      "points": 100,
+      "phoneNumber": "3001234567",
+      "tenantCode": "dlt789"
+    }
+]
