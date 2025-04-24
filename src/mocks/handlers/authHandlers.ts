@@ -15,6 +15,19 @@ export const authHandlers = [
       return HttpResponse.json(getMockResponse('auth', 'successUser'));
     }
 
-    return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 401 });
+    // Simulación según credenciales
+    if (body.login === 'bad' || body.pass === 'bad') {
+      return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
+    }
+
+    if (body.login === 'forbidden') {
+      return HttpResponse.json(getMockResponse('common', 'forbidden'), { status: 403 });
+    }
+
+    if (body.login === 'notfound') {
+      return HttpResponse.json(getMockResponse('common', 'notfound'), { status: 404 });
+    }
+
+    return HttpResponse.json(getMockResponse('common', 'unauthorized'), { status: 401 });
   }),
 ];

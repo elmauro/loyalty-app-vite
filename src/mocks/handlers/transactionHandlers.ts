@@ -15,16 +15,26 @@ export const transactionHandlers = [
       const body = await request.json();
 
       if (!body.otpCode || body.points <= 0) {
-        return HttpResponse.json<TransactionApiResponse>(
-          getMockResponse('common', 'badrequest'),
-          { status: 400 }
+        return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
+      }
+
+      // Simula errores según valores controlados
+      if (body.otpCode === '403403') {
+        return HttpResponse.json(
+          getMockResponse('common', 'forbidden'),
+          { status: 403 }
         );
       }
 
-      return HttpResponse.json<TransactionApiResponse>(
-        getMockResponse('redemptions', 'success')
-      );
-    }
+      if (body.otpCode === '404404') {
+        return HttpResponse.json(
+          getMockResponse('common', 'notfound'),
+          { status: 404 }
+        );
+      }
+
+        return HttpResponse.json(getMockResponse('redemptions', 'success'));
+      }
   ),
 
   http.post<never, AccumulatePointsRequest, TransactionApiResponse>(
@@ -33,15 +43,24 @@ export const transactionHandlers = [
       const body = await request.json();
 
       if (!body.value || body.value <= 0) {
-        return HttpResponse.json<TransactionApiResponse>(
-          getMockResponse('common', 'badrequest'),
-          { status: 400 }
+        return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
+      }
+
+      if (body.value === 403) {
+        return HttpResponse.json(
+          getMockResponse('common', 'forbidden'),
+          { status: 403 }
+        );
+      }
+  
+      if (body.value === 404) {
+        return HttpResponse.json(
+          getMockResponse('common', 'notfound'),
+          { status: 404 }
         );
       }
 
-      return HttpResponse.json<TransactionApiResponse>(
-        getMockResponse('accumulations', 'success')
-      );
+      return HttpResponse.json(getMockResponse('accumulations', 'success'));
     }
   ),
 

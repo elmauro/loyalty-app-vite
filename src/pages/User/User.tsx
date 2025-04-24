@@ -37,13 +37,16 @@ export default function UserPage() {
 
   return (
     <section className={styles.userPage}>
+      <h3>Historial de Transacciones</h3>
       <div className={styles.filterSection}>
         <input
+          data-testid="startDate"
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
         <input
+          data-testid="endDate"
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
