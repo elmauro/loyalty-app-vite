@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  /** Roles permitidos: ROLE_ADMIN ('1') = Administration, ROLE_CUSTOMER ('2') = Customer */
   allowedRoles: string[];
 }
 

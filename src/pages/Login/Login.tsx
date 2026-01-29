@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../../services/authService';
 import { useAuth } from '../../store/AuthContext';
 import { getLoginErrorMessage } from '../../utils/getLoginErrorMessage';
+import { ROLE_ADMIN, ROLE_CUSTOMER } from '../../constants/auth';
 import styles from './Login.module.scss';
 
 export default function Login() {
@@ -32,13 +33,13 @@ export default function Login() {
 
       dispatch({ type: 'LOGIN', payload: data });
 
-      if (rememberMe) {
-        localStorage.setItem('authData', JSON.stringify(data));
-      }
+      // Siempre guardar JWT en localStorage para usarlo en x-access-token en las peticiones
+      localStorage.setItem('authData', JSON.stringify(data));
 
+      // Rol 1 = Administration (iscustomer 0), Rol 2 = Customer (iscustomer 1)
       const role = data.roles?.[0];
-      if (role === '1') navigate('/administration');
-      else if (role === '2') navigate('/user');
+      if (role === ROLE_ADMIN) navigate('/administration');
+      else if (role === ROLE_CUSTOMER) navigate('/user');
       else navigate('/');
     } catch (err: any) {
       if (err.response) {

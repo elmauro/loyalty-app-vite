@@ -25,7 +25,7 @@ describe('TransactionHistory', () => {
     );
 
     await act(async () => {
-      fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
+      fireEvent.change(screen.getByPlaceholderText(/Document Number/i), {
         target: { value: '3001234567' },
       });
       fireEvent.change(screen.getByTestId('startDate'), {

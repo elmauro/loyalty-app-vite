@@ -12,12 +12,15 @@ export interface AuthRequest extends LoginRequestBody {
 }
 
 // Respuesta común para login y autenticación
+// roles: ['1'] = Administration (iscustomer 0), ['2'] = Customer (iscustomer 1)
 export interface AuthResponse {
   firstname: string;
+  /** 0 = Administration, 1 = Customer */
   iscustomer: number;
   termsaccepted: number;
   identification: string;
   identificationTypeId: number;
+  /** ['1'] = Administration, ['2'] = Customer */
   roles: string[];
   token: string;
 }

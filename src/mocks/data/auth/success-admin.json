@@ -1,9 +1,9 @@
 {
-    "firstname": "AdminUser",
-    "iscustomer": 0,
-    "termsaccepted": 0,
-    "identification": "8288221",
-    "identificationTypeId": 1,
-    "roles": ["1"],
-    "token": "admin-token"
-}  
+  "firstname": "AdminUser",
+  "iscustomer": 0,
+  "termsaccepted": 0,
+  "identification": "98632674",
+  "identificationTypeId": 1,
+  "roles": ["1"],
+  "token": "mock-admin-98632674-token"
+}

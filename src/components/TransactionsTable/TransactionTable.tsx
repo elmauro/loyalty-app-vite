@@ -21,7 +21,7 @@ export default function TransactionTable({ transactions }: Props) {
           <tr key={tx.id}>
             <td>{tx.detail}</td>
             <td>{tx.transactionDate}</td>
-            <td>{tx.type === 'sale' ? `- ${tx.points}` : `+ ${tx.points}`}</td>
+            <td>{tx.type === 'sale' ? `+ ${tx.points}` : `- ${tx.points}`}</td>
           </tr>
         ))}
       </tbody>

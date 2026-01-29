@@ -1,4 +1,6 @@
 // cypress/e2e/redemption.cy.ts
+import mockRedemptionSuccess from '../../src/mocks/data/redemptions/success.json';
+
 const phoneNumber = '3001234567';
 const points = '200';
 const otpCode = '123456';
@@ -6,6 +8,8 @@ const otpCode = '123456';
 describe('Redemption Form', () => {
   beforeEach(() => {
     cy.loginAsAdmin(); // Tu helper para autenticarse
+    // OTP request must succeed so "Código OTP" input appears after clicking Redimir
+    cy.intercept('POST', '**/otp53rv1c3-1', { statusCode: 200 }).as('sendOtp');
   });
 
   function fillAndRequestOtp() {
@@ -16,18 +20,20 @@ describe('Redemption Form', () => {
         cy.get('input[placeholder="Puntos"]').type(points);
         cy.contains('Redimir').click();
       });
-
-    cy.get('input[placeholder="Código OTP"]').type(otpCode);
+    cy.wait('@sendOtp');
+    cy.get('input[placeholder="Código OTP"]').should('be.visible').type(otpCode);
   }
 
   it('permite redimir exitosamente (200)', () => {
+    cy.intercept('POST', '**/expense53rv1c3/expense', { statusCode: 200, body: mockRedemptionSuccess }).as('redeem');
     fillAndRequestOtp();
-
     cy.contains('Confirmar').click();
+    cy.wait('@redeem');
     cy.contains('Puntos redimidos').should('exist');
   });
 
   it('muestra error por solicitud inválida (400)', () => {
+    cy.intercept('POST', '**/expense53rv1c3/expense', { statusCode: 400 }).as('redeemBad');
     cy.contains('Redención')
       .parent()
       .within(() => {
@@ -35,10 +41,10 @@ describe('Redemption Form', () => {
         cy.get('input[placeholder="Puntos"]').type('0');
         cy.contains('Redimir').click();
       });
-
-    cy.get('input[placeholder="Código OTP"]').type('000000');
+    cy.wait('@sendOtp');
+    cy.get('input[placeholder="Código OTP"]').should('be.visible').type('000000');
     cy.contains('Confirmar').click();
-
+    cy.wait('@redeemBad');
     cy.contains('Solicitud inválida').should('exist');
   });
 
@@ -53,8 +59,7 @@ describe('Redemption Form', () => {
   });
 
   it('redirecciona y muestra sesión expirada al recibir 403', () => {
-    cy.loginAsAdmin();
-  
+    cy.intercept('POST', '**/expense53rv1c3/expense', { statusCode: 403 }).as('redeemForbidden');
     cy.contains('Redención')
       .parent()
       .within(() => {
@@ -62,17 +67,19 @@ describe('Redemption Form', () => {
         cy.get('input[placeholder="Puntos"]').type('200');
         cy.contains('Redimir').click();
       });
-  
-    cy.get('input[placeholder="Código OTP"]').clear().type('403403');
+    cy.wait('@sendOtp');
+    cy.get('input[placeholder="Código OTP"]').should('be.visible').clear().type('403403');
     cy.contains('Confirmar').click();
-  
+    cy.wait('@redeemForbidden');
     cy.url().should('include', '/login');
   });
   
   it('muestra error 404 NOT FOUND (mock MSW)', () => {
+    cy.intercept('POST', '**/expense53rv1c3/expense', { statusCode: 404 }).as('redeemNotFound');
     fillAndRequestOtp();
     cy.get('input[placeholder="Código OTP"]').clear().type('404404');
     cy.contains('Confirmar').click();
+    cy.wait('@redeemNotFound');
     cy.contains('Recurso no encontrado').should('exist');
   });
 });

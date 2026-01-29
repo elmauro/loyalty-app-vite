@@ -36,18 +36,37 @@
 //   }
 // }
 
-Cypress.Commands.add('loginAsAdmin', () => {
+import mockAdmin from '../../src/mocks/data/auth/success-admin.json';
+import mockUser from '../../src/mocks/data/auth/success-user.json';
+
+  Cypress.Commands.add('loginAsAdmin', () => {
+    cy.intercept('POST', '**/api/authentications', (req) => {
+      const body = req.body as { login?: string; pass?: string };
+      if (body?.login === '98632674' && body?.pass === '2674') {
+        req.reply({ statusCode: 200, body: mockAdmin });
+      }
+    }).as('loginRequest');
     cy.visit('/login');
-    cy.get('input[placeholder="Login"]').type('8288221');
-    cy.get('input[placeholder="Password"]').type('8221');
-    cy.contains('Sign In').click();
-    cy.url().should('include', '/administration');
-  });
-  
-  Cypress.Commands.add('loginAsUser', () => {
-    cy.visit('/login');
+    cy.get('input[placeholder="Login"]').should('be.visible');
     cy.get('input[placeholder="Login"]').type('98632674');
     cy.get('input[placeholder="Password"]').type('2674');
     cy.contains('Sign In').click();
-    cy.url().should('include', '/user');
+    cy.wait('@loginRequest');
+    cy.url({ timeout: 10000 }).should('include', '/administration');
+  });
+
+  Cypress.Commands.add('loginAsUser', () => {
+    cy.intercept('POST', '**/api/authentications', (req) => {
+      const body = req.body as { login?: string; pass?: string };
+      if (body?.login === '55555555' && body?.pass === '5555') {
+        req.reply({ statusCode: 200, body: mockUser });
+      }
+    }).as('loginRequest');
+    cy.visit('/login');
+    cy.get('input[placeholder="Login"]').should('be.visible');
+    cy.get('input[placeholder="Login"]').type('55555555');
+    cy.get('input[placeholder="Password"]').type('5555');
+    cy.contains('Sign In').click();
+    cy.wait('@loginRequest');
+    cy.url({ timeout: 10000 }).should('include', '/user');
   });

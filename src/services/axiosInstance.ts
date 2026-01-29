@@ -1,49 +1,76 @@
 // src/services/axiosInstance.ts
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { toast } from 'react-toastify';
 import { getAuthToken } from '../utils/token';
+import { API_BASE_AUTH, API_BASE_APP, PROGRAM_ID, API_KEY } from './apiConfig';
 
-const axiosInstance = axios.create({
-  baseURL: import.meta.env.DEV ? '' : 'https://loyaleasy.com',
-  headers: {
-    'x-program-id': 'test',
-    'x-api-key': 'test',
-    'Content-Type': 'application/json',
-  },
-});
+const commonHeaders = {
+  'x-program-id': PROGRAM_ID,
+  'x-api-key': API_KEY,
+  'Content-Type': 'application/json',
+};
 
-// ✅ Interceptor de REQUEST: Agrega el token
-axiosInstance.interceptors.request.use((config) => {
-  const authData = localStorage.getItem('authData');
-  if (authData) {
-    const token = getAuthToken();
-    if (token) {
-      config.headers['x-access-token'] = token;
+function applyInterceptors(instance: AxiosInstance) {
+  instance.interceptors.request.use((config) => {
+    const isOtp = config.url?.includes('otp53rv1c3-1');
+    if (isOtp) {
+      delete config.headers['x-api-key'];
+      delete config.headers['x-program-id'];
+      delete config.headers['x-access-token'];
+      return config;
     }
-  }
-  return config;
-});
-
-// ✅ Interceptor de RESPONSE: Manejo de errores globales
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const status = error.response?.status;
-
-    if ((status === 401 || status === 403) && window.location.pathname !== '/login') {
-      toast.error('Sesión expirada...');
-      localStorage.removeItem('authData');
-      window.location.href = '/login';
-    } else if (status === 500) {
-      toast.error('Error interno del servidor');
-    } else if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
+    const isIncome = config.url?.includes('income53rv1c3/income');
+    if (isIncome) {
+      delete config.headers['x-api-key'];
     } else {
-      toast.error('Ha ocurrido un error en la solicitud');
+      config.headers.set('x-api-key', API_KEY);
     }
+    config.headers.set('x-program-id', PROGRAM_ID);
+    const authData = localStorage.getItem('authData');
+    if (authData) {
+      const token = getAuthToken();
+      if (token) {
+        config.headers.set('x-access-token', token);
+      }
+    }
+    return config;
+  });
 
-    return Promise.reject(error);
-  }
-);
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      const status = error.response?.status;
 
-export default axiosInstance;
+      if ((status === 401 || status === 403) && window.location.pathname !== '/login') {
+        toast.error('Sesión expirada...');
+        localStorage.removeItem('authData');
+        window.location.href = '/login';
+      } else if (status === 500) {
+        toast.error('Error interno del servidor');
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Ha ocurrido un error en la solicitud');
+      }
+
+      return Promise.reject(error);
+    }
+  );
+}
+
+// Auth y OTP → loyaleasy.com
+export const axiosAuth = axios.create({
+  baseURL: API_BASE_AUTH,
+  headers: commonHeaders,
+});
+applyInterceptors(axiosAuth);
+
+// Transacciones e historial → dev.loyaleasy.com
+export const axiosApp = axios.create({
+  baseURL: API_BASE_APP,
+  headers: commonHeaders,
+});
+applyInterceptors(axiosApp);
+
+// Por compatibilidad: export por defecto = instancia de app (transacciones)
+export default axiosApp;

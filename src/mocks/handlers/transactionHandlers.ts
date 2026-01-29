@@ -67,8 +67,6 @@ export const transactionHandlers = [
   http.get<{ typeId: string; document: string }, undefined, Transaction[]>(
     '/history53rv1c3/history/:typeId/:document',
     async ({ params }) => {
-      const { typeId } = params;
-
       const history = getMockResponse<'transactions', Transaction[]>(
         'transactions',
         'success'
@@ -76,5 +74,10 @@ export const transactionHandlers = [
 
       return HttpResponse.json(history);
     }
+  ),
+
+  http.get<{ typeId: string; document: string }>(
+    '/points53rv1c3/points/:typeId/:document',
+    () => HttpResponse.json({ points: 1500 })
   )
 ];

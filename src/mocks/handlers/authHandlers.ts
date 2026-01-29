@@ -12,6 +12,11 @@ export const authHandlers = [
     }
 
     if (body.login === '98632674' && body.pass === '2674') {
+      return HttpResponse.json(getMockResponse('auth', 'successAdmin'));
+    }
+
+    // Usuario tipo Customer para pruebas e2e (rol 2, iscustomer 1)
+    if (body.login === '55555555' && body.pass === '5555') {
       return HttpResponse.json(getMockResponse('auth', 'successUser'));
     }
 

@@ -8,8 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "cy:dev": "vite",
-    "cy:e2e": "start-server-and-test cy:dev http://localhost:51730 'cypress open'"
+    "cy:dev": "cross-env VITE_USE_MSW=true vite",
+    "cy:e2e": "start-server-and-test cy:dev http://localhost:51730 \"cypress open\"",
+    "cy:e2e:run": "start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\""
   },
   "dependencies": {
     "axios": "^1.8.4",
@@ -28,6 +29,7 @@
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
     "cypress": "^14.3.0",
     "cypress-vite": "^1.6.0",
     "eslint": "^9.21.0",

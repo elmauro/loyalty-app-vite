@@ -9,6 +9,7 @@ import User from '../pages/User/User';
 import ProtectedRoute from './ProtectedRoute';
 import ProtectedLayout from '../layouts/ProtectedLayout';
 import { paths } from './paths';
+import { ROLE_ADMIN, ROLE_CUSTOMER } from '../constants/auth';
 
 export default function AppRoutes() {
   return (
@@ -25,7 +26,7 @@ export default function AppRoutes() {
           <Route
             path={paths.administration}
             element={
-              <ProtectedRoute allowedRoles={['1']}>
+              <ProtectedRoute allowedRoles={[ROLE_ADMIN]}>
                 <Administration />
               </ProtectedRoute>
             }
@@ -33,7 +34,7 @@ export default function AppRoutes() {
           <Route
             path={paths.user}
             element={
-              <ProtectedRoute allowedRoles={['2']}>
+              <ProtectedRoute allowedRoles={[ROLE_CUSTOMER]}>
                 <User />
               </ProtectedRoute>
             }

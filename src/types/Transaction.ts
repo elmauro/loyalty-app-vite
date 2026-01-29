@@ -1,6 +1,7 @@
 // src/types/Transaction.ts
 
-export type TransactionType = 'sale' | 'income';
+/** sale = acumulación (positivo), redemption/income = canje (negativo) */
+export type TransactionType = 'sale' | 'income' | 'redemption';
 
 export interface Transaction {
   id: string;
@@ -40,6 +41,9 @@ interface TransactionError {
 
 export type TransactionApiResponse = TransactionSuccess | TransactionError;
 
-
+export interface PointsResponse {
+  points?: number;
+  balance?: number;
+}
 
   
