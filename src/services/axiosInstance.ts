@@ -12,6 +12,14 @@ const commonHeaders = {
 
 function applyInterceptors(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
+    // /api/authentications siempre debe llevar x-api-key; si no, API Gateway 403 sin CORS → "Provisional headers".
+    const isAuth = config.url?.includes('/api/authentications');
+    if (isAuth) {
+      config.headers.set('x-api-key', API_KEY);
+      config.headers.set('x-program-id', PROGRAM_ID);
+      return config;
+    }
+
     const isOtp = config.url?.includes('otp53rv1c3-1');
     if (isOtp) {
       delete config.headers['x-api-key'];
