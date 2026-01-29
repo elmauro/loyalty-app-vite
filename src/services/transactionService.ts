@@ -9,6 +9,7 @@ import {
   TRANSACTION_TYPE_EXPENSE,
 } from './apiConfig';
 import { getAuthToken } from '../utils/token';
+import { formatPhoneWithCountryCode } from '../utils/formatPhone';
 import {
   AccumulatePointsRequest,
   RedeemPointsRequest,
@@ -18,7 +19,8 @@ import {
 
 export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
-  const response = await axiosApp.post('/income53rv1c3/income', data, {
+  const payload = { ...data, phoneNumber: formatPhoneWithCountryCode(data.phoneNumber) };
+  const response = await axiosApp.post('/income53rv1c3/income', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
@@ -31,7 +33,8 @@ export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{
 
 export async function redeemPoints(data: RedeemPointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
-  const response = await axiosApp.post('/expense53rv1c3/expense', data, {
+  const payload = { ...data, phoneNumber: formatPhoneWithCountryCode(data.phoneNumber) };
+  const response = await axiosApp.post('/expense53rv1c3/expense', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,

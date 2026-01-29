@@ -31,3 +31,6 @@ export const TENANT_CODE = getEnv('VITE_TENANT_CODE', 'dlt789');
 export const TRANSACTION_TYPE_INCOME = getEnv('VITE_TRANSACTION_TYPE_INCOME', 'sale');
 /** Expense (canje) endpoint usa 'redemption'. */
 export const TRANSACTION_TYPE_EXPENSE = getEnv('VITE_TRANSACTION_TYPE_EXPENSE', 'redemption');
+
+/** Código de país para teléfonos (ej. 57 Colombia). Se concatena al número en acumulación, OTP y redención. */
+export const PHONE_COUNTRY_CODE = getEnv('VITE_PHONE_COUNTRY_CODE', '57');

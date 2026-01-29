@@ -70,3 +70,14 @@ import mockUser from '../../src/mocks/data/auth/success-user.json';
     cy.wait('@loginRequest');
     cy.url({ timeout: 10000 }).should('include', '/user');
   });
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      loginAsAdmin(): Chainable<void>;
+      loginAsUser(): Chainable<void>;
+    }
+  }
+}
+
+export {};
