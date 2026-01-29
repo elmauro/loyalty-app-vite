@@ -2,6 +2,10 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Despliegue en AWS (S3 + CloudFront + Route 53)
+
+Hay un flujo de GitHub Actions para desplegar en AWS. Ver **[docs/DEPLOY-AWS.md](docs/DEPLOY-AWS.md)** para secrets, configuración S3/CloudFront y uso.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
