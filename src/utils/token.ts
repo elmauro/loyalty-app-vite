@@ -9,6 +9,7 @@ export function getAuthToken(): string | null {
 /** Objeto tenant del JWT (payload.sub.id.tenants[n]). */
 export interface JwtTenant {
   tenantCode?: string;
+  name?: string;
   [key: string]: unknown;
 }
 

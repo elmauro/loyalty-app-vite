@@ -1,12 +1,15 @@
 import { useAuth } from '@/store/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { getTenantForRequest } from '@/utils/token';
 import { LogOut, Award } from 'lucide-react';
 
 export default function TopBar() {
   const { state, dispatch } = useAuth();
   const navigate = useNavigate();
   const user = state.user;
+  const tenant = getTenantForRequest();
+  const tenantName = tenant?.name;
 
   const handleLogout = () => {
     dispatch({ type: 'LOGOUT' });
@@ -21,7 +24,12 @@ export default function TopBar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
             <Award className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold text-foreground">Loyalty Platform</span>
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
+            <span className="text-lg font-semibold text-foreground">Loyalty Platform</span>
+            {tenantName && (
+              <span className="text-sm font-medium text-muted-foreground">{tenantName}</span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
