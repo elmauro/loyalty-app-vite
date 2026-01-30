@@ -3,8 +3,8 @@
 import mockAdmin from '../../src/mocks/data/auth/success-admin.json';
 import mockUser from '../../src/mocks/data/auth/success-user.json';
 
-// Programmatic login - sets auth data directly in localStorage
-// This is more reliable than UI-based login for e2e tests
+// Programmatic login - sets auth data directly in localStorage.
+// tenants viene del JWT; getTenantCodeForRequest lo decodifica si no está en authData.
 Cypress.Commands.add('loginAsAdmin', () => {
   cy.window().then((win) => {
     win.localStorage.setItem('authData', JSON.stringify(mockAdmin));

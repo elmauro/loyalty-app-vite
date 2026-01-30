@@ -22,6 +22,7 @@ export interface AuthResponse {
   identificationTypeId: number;
   /** ['1'] = Administration, ['2'] = Customer */
   roles: string[];
+  /** Tenants vienen en el JWT (no en la respuesta). Se extraen al persistir. */
   token: string;
 }
 

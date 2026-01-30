@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 // Variables de entorno (prefijo VITE_): VITE_API_BASE_AUTH, VITE_API_BASE_APP,
-// VITE_PROGRAM_ID, VITE_API_KEY, VITE_TENANT_CODE, VITE_TRANSACTION_TYPE_*,
+// VITE_PROGRAM_ID, VITE_API_KEY, VITE_TRANSACTION_TYPE_*,
 // VITE_USE_MSW (solo e2e). Ver .env.example
 export default defineConfig({
   envPrefix: 'VITE_',

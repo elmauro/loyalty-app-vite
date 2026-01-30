@@ -1,9 +1,9 @@
 {
-    "firstname": "User986",
-    "iscustomer": 1,
-    "termsaccepted": 0,
-    "identification": "55555555",
-    "identificationTypeId": 1,
-    "roles": ["2"],
-    "token": "user-token"
+  "firstname": "User986",
+  "iscustomer": 1,
+  "termsaccepted": 0,
+  "identification": "55555555",
+  "identificationTypeId": 1,
+  "roles": ["2"],
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOnsiaWQiOnsidGVuYW50cyI6W119fSwicm9sZXMiOlsiMiJdfQ==.c2lnbmVk"
 }

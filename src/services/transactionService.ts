@@ -4,11 +4,10 @@
 import axiosApp from './axiosInstance';
 import {
   PROGRAM_ID,
-  TENANT_CODE,
   TRANSACTION_TYPE_INCOME,
   TRANSACTION_TYPE_EXPENSE,
 } from './apiConfig';
-import { getAuthToken } from '../utils/token';
+import { getAuthToken, getTenantCodeForRequest } from '../utils/token';
 import { formatPhoneWithCountryCode } from '../utils/formatPhone';
 import {
   AccumulatePointsRequest,
@@ -19,12 +18,13 @@ import {
 
 export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
+  const tenantCode = getTenantCodeForRequest();
   const payload = { ...data, phoneNumber: formatPhoneWithCountryCode(data.phoneNumber) };
   const response = await axiosApp.post('/income53rv1c3/income', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
-      'x-tenant-code': TENANT_CODE,
+      'x-tenant-code': tenantCode,
       'x-transaction-type': TRANSACTION_TYPE_INCOME,
     },
   });
@@ -33,12 +33,13 @@ export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{
 
 export async function redeemPoints(data: RedeemPointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
+  const tenantCode = getTenantCodeForRequest();
   const payload = { ...data, phoneNumber: formatPhoneWithCountryCode(data.phoneNumber) };
   const response = await axiosApp.post('/expense53rv1c3/expense', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
-      'x-tenant-code': TENANT_CODE,
+      'x-tenant-code': tenantCode,
       'x-transaction-type': TRANSACTION_TYPE_EXPENSE,
     },
   });
@@ -57,8 +58,6 @@ export async function getTransactions(
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
-      'x-tenant-code': TENANT_CODE,
-      'x-transaction-type': 'sale',
     },
   });
   return response.data;

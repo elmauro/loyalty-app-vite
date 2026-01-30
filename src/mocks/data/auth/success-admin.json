@@ -5,5 +5,5 @@
   "identification": "98632674",
   "identificationTypeId": 1,
   "roles": ["1"],
-  "token": "mock-admin-98632674-token"
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOnsiaWQiOnsidGVuYW50cyI6W3sidGVuYW50Q29kZSI6ImRsdDc4OSJ9XX19LCJyb2xlcyI6WyIxIl19.c2lnbmVk"
 }

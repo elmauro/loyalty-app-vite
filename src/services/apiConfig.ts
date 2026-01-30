@@ -24,9 +24,6 @@ export const API_KEY = getEnv(
   'XltDmAkEaf73Pa63gQuPD9S8WCr83Ry73LF7g9wz'
 );
 
-/** Header x-tenant-code (income, expense, history). */
-export const TENANT_CODE = getEnv('VITE_TENANT_CODE', 'dlt789');
-
 /** Header x-transaction-type por contexto. Income endpoint usa 'sale'. */
 export const TRANSACTION_TYPE_INCOME = getEnv('VITE_TRANSACTION_TYPE_INCOME', 'sale');
 /** Expense (canje) endpoint usa 'redemption'. */
