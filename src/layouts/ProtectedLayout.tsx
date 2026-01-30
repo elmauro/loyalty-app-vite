@@ -1,14 +1,13 @@
 import { Outlet } from 'react-router-dom';
 import TopBar from '../components/TopBar/TopBar';
-import styles from './ProtectedLayout.module.scss';
 
 export default function ProtectedLayout() {
   return (
-    <div className={styles.protectedLayout}>
+    <div className="min-h-screen bg-background">
       <TopBar />
-      <div className={styles.content}>
+      <main className="container py-6 animate-fade-in">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

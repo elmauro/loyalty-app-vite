@@ -3,19 +3,21 @@
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react-jsx",
-    "types": ["vite/client", "react", "react-dom", "jest", "node"],
+    "types": ["vite/client", "node", "jest"],
     "strict": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "baseUrl": "src",
+    "noEmit": true,
+    "baseUrl": ".",
     "paths": {
-      "@components/*": ["components/*"],
-      "@services/*": ["services/*"],
-      "@styles/*": ["styles/*"],
-      "@types/*": ["types/*"],
-      "@utils/*": ["utils/*"]
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@services/*": ["src/services/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"],
+      "lucide-react": ["node_modules/lucide-react"]
     }
   },
   "include": ["src"]

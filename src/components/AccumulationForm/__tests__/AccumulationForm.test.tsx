@@ -2,7 +2,6 @@
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import AccumulationForm from '../AccumulationForm';
 import { renderWithProviders } from '../../../test-utils';
-import { ToastContainer } from 'react-toastify';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
 
@@ -16,16 +15,11 @@ jest.mock('../../../services/transactionService');
 
 describe('AccumulationForm', () => {
   const setup = () => {
-    renderWithProviders(
-      <>
-        <AccumulationForm />
-        <ToastContainer />
-      </>
-    );
+    renderWithProviders(<AccumulationForm />);
     fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
       target: { value: '3001234567' }
     });
-    fireEvent.change(screen.getByPlaceholderText(/Valor \$/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Valor/i), {
       target: { value: '100' }
     });
     fireEvent.click(screen.getByText('Acumular'));

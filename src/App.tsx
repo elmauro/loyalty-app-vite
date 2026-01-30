@@ -1,14 +1,13 @@
 import AppRoutes from './routes/AppRoutes';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Estilos necesarios
-import './App.css';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 function App() {
   return (
-    <>
+    <TooltipProvider>
       <AppRoutes />
-      <ToastContainer position="top-right" autoClose={3000} />
-    </>
+      <Toaster position="top-right" richColors />
+    </TooltipProvider>
   );
 }
 

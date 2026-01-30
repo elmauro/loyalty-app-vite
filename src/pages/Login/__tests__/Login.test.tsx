@@ -19,8 +19,8 @@ describe('Login Page', () => {
   test('renders login form', () => {
     renderWithProviders(<Login />);
     expect(screen.getByText('Login')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Login')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Número de documento')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Tu contraseña')).toBeInTheDocument();
     expect(screen.getByText('Sign In')).toBeInTheDocument();
   });
 
@@ -36,8 +36,8 @@ describe('Login Page', () => {
     );
 
     renderWithProviders(<Login />);
-    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'hernan' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Número de documento'), { target: { value: 'hernan' } });
+    fireEvent.change(screen.getByPlaceholderText('Tu contraseña'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByText('Sign In'));
 
     await waitFor(() => {
@@ -59,8 +59,8 @@ describe('Login Page', () => {
     });
 
     renderWithProviders(<Login />);
-    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'user' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'wrongpass' } });
+    fireEvent.change(screen.getByPlaceholderText('Número de documento'), { target: { value: 'user' } });
+    fireEvent.change(screen.getByPlaceholderText('Tu contraseña'), { target: { value: 'wrongpass' } });
     fireEvent.click(screen.getByText('Sign In'));
 
     expect(await screen.findByText(/Credenciales inválidas/i)).toBeInTheDocument();
@@ -75,8 +75,8 @@ describe('Login Page', () => {
     });
 
     renderWithProviders(<Login />);
-    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'blockeduser' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password' } });
+    fireEvent.change(screen.getByPlaceholderText('Número de documento'), { target: { value: 'blockeduser' } });
+    fireEvent.change(screen.getByPlaceholderText('Tu contraseña'), { target: { value: 'password' } });
     fireEvent.click(screen.getByText('Sign In'));
 
     expect(await screen.findByText(/Acceso prohibido/i)).toBeInTheDocument();
@@ -91,8 +91,8 @@ describe('Login Page', () => {
     });
 
     renderWithProviders(<Login />);
-    fireEvent.change(screen.getByPlaceholderText('Login'), { target: { value: 'unknownuser' } });
-    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password' } });
+    fireEvent.change(screen.getByPlaceholderText('Número de documento'), { target: { value: 'unknownuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Tu contraseña'), { target: { value: 'password' } });
     fireEvent.click(screen.getByText('Sign In'));
 
     expect(await screen.findByText(/Usuario no encontrado/i)).toBeInTheDocument();

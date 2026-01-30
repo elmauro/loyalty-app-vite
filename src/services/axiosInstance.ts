@@ -1,6 +1,6 @@
 // src/services/axiosInstance.ts
 import axios, { AxiosInstance } from 'axios';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { getAuthToken } from '../utils/token';
 import { API_BASE_AUTH, API_BASE_APP, PROGRAM_ID, API_KEY } from './apiConfig';
 

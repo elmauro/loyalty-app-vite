@@ -2,7 +2,6 @@
 import { screen, fireEvent, waitFor, act } from '@testing-library/react';
 import RedemptionForm from '../RedemptionForm';
 import { renderWithProviders } from '../../../test-utils';
-import { ToastContainer } from 'react-toastify';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as otpService from '../../../services/otpService';
 import * as transactionService from '../../../services/transactionService';
@@ -17,12 +16,7 @@ jest.mock('../../../services/axiosInstance', () => ({
 
 describe('RedemptionForm', () => {
   const setupRedemption = async () => {
-    renderWithProviders(
-      <>
-        <RedemptionForm />
-        <ToastContainer />
-      </>
-    );
+    renderWithProviders(<RedemptionForm />);
 
     await act(async () => {
       fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {

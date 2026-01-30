@@ -4,7 +4,6 @@ import TransactionHistory from '../TransactionHistoryForm';
 import { renderWithProviders } from '../../../test-utils';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
-import { ToastContainer } from 'react-toastify';
 import { Transaction } from '../../../types/Transaction';
 
 jest.mock('../../../services/axiosInstance', () => ({
@@ -17,12 +16,7 @@ jest.mock('../../../services/transactionService');
 
 describe('TransactionHistory', () => {
   const setupTransactionHistory = async () => {
-    renderWithProviders(
-      <>
-        <TransactionHistory />
-        <ToastContainer />
-      </>
-    );
+    renderWithProviders(<TransactionHistory />);
 
     await act(async () => {
       fireEvent.change(screen.getByPlaceholderText(/Document Number/i), {

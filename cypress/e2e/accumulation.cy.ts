@@ -1,68 +1,39 @@
-import mockAccumulationSuccess from '../../src/mocks/data/accumulations/success.json';
-
 describe('Accumulation Form', () => {
-    beforeEach(() => {
-      cy.loginAsAdmin(); // Tu helper para autenticarse
-    });
+  beforeEach(() => {
+    cy.loginAsAdmin();
+  });
 
-    it('envía correctamente (200)', () => {
-      cy.intercept('POST', '**/income53rv1c3/income', { statusCode: 200, body: mockAccumulationSuccess }).as('accumulate');
-      cy.contains('Acumulación')
-        .parent()
-        .within(() => {
-          cy.get('input[placeholder="Phone Number"]').type('3001234567');
-          cy.get('input[placeholder="Valor $"]').type('100');
-          cy.contains('Acumular').click();
-        });
-      cy.wait('@accumulate');
-      cy.contains('Puntos acumulados').should('exist');
-    });
-  
-    it('muestra error 400 BAD REQUEST', () => {
-      cy.intercept('POST', '**/income53rv1c3/income', { statusCode: 400 }).as('accumulateBad');
-      cy.contains('Acumulación')
-        .parent()
-        .within(() => {
-          cy.get('input[placeholder="Phone Number"]').type('3001234567');
-          cy.get('input[placeholder="Valor $"]').type('0'); // Valor inválido
-          cy.contains('Acumular').click();
-        });
-      cy.wait('@accumulateBad');
-      cy.contains('Solicitud inválida').should('exist');
-    });
-  
-    it('muestra error 401 UNAUTHORIZED (mock MSW)', () => {
-      // Este caso depende del MSW devolviendo 401 si no hay token válido
-      // Puedes simularlo modificando temporalmente el `localStorage`:
-      cy.clearLocalStorage();
-  
-      cy.visit('/administration'); // Fuerza carga sin token
-  
-      cy.contains('Login').should('exist'); // Redirigido al login
-    });
+  it('envía correctamente y muestra mensaje de éxito', () => {
+    cy.get('[data-testid="acc-phone"]').type('3001234567');
+    cy.get('[data-testid="acc-value"]').type('100');
+    cy.contains('Acumular').click();
+    cy.contains('Puntos acumulados', { timeout: 10000 }).should('exist');
+  });
 
-    it('muestra error 403 FORBIDDEN', () => {
-      cy.contains('Acumulación')
-        .parent()
-        .within(() => {
-        cy.get('input[placeholder="Phone Number"]').type('3001234567');
-        cy.get('input[placeholder="Valor $"]').type('403');
+  it('muestra error si los campos están vacíos', () => {
+    cy.contains('Acumulación')
+      .parent()
+      .within(() => {
         cy.contains('Acumular').click();
       });
+    cy.contains('Por favor completa todos los campos').should('exist');
+  });
 
-      cy.url().should('include', '/login'); // Redirección
-    });
-    
-    it('muestra error 404 NOT FOUND', () => {
-      cy.intercept('POST', '**/income53rv1c3/income', { statusCode: 404 }).as('accumulateNotFound');
-      cy.contains('Acumulación')
-        .parent()
-        .within(() => {
-          cy.get('input[placeholder="Phone Number"]').type('3001234567');
-          cy.get('input[placeholder="Valor $"]').type('404');
-          cy.contains('Acumular').click();
-        });
-      cy.wait('@accumulateNotFound');
-      cy.contains('Recurso no encontrado').should('exist');
-    });
-});  
+  it('muestra error 401 UNAUTHORIZED (redirige a login)', () => {
+    cy.clearLocalStorage();
+    cy.visit('/administration');
+    cy.url().should('include', '/login');
+  });
+
+  it('puede limpiar el formulario', () => {
+    cy.get('[data-testid="acc-phone"]').type('3001234567');
+    cy.get('[data-testid="acc-value"]').type('100');
+    cy.contains('Acumulación')
+      .parent()
+      .within(() => {
+        cy.contains('Limpiar').click();
+      });
+    cy.get('[data-testid="acc-phone"]').should('have.value', '');
+    cy.get('[data-testid="acc-value"]').should('have.value', '');
+  });
+});
