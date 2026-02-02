@@ -10,6 +10,11 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Un solo despliegue a la vez; un nuevo push cancela el anterior en cola o en ejecución.
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: true
+
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
 
