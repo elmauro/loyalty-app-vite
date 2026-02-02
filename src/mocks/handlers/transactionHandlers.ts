@@ -5,7 +5,8 @@ import {
   Transaction,
   AccumulatePointsRequest,
   RedeemPointsRequest,
-  TransactionApiResponse
+  TransactionApiResponse,
+  HistoryResponse,
 } from '../../types/Transaction';
 
 export const transactionHandlers = [
@@ -64,15 +65,31 @@ export const transactionHandlers = [
     }
   ),
 
-  http.get<{ typeId: string; document: string }, undefined, Transaction[]>(
+  http.get<{ typeId: string; document: string }>(
     '/history53rv1c3/history/:typeId/:document',
-    async ({ params }) => {
-      const history = getMockResponse<'transactions', Transaction[]>(
+    async ({ request }) => {
+      const url = new URL(request.url);
+      const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+      const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') ?? '100', 10)));
+      const base = getMockResponse<'transactions', Transaction[]>(
         'transactions',
         'success'
       );
-
-      return HttpResponse.json(history);
+      // Para e2e: expandir a 25 ítems para probar paginación (varias páginas)
+      const all: Transaction[] =
+        base.length < 25
+          ? Array.from({ length: 25 }, (_, i) => ({
+              ...base[0],
+              id: `mock-tx-${i + 1}`,
+              detail: i === 0 ? base[0].detail : `Transacción ${i + 1}`,
+              points: base[0].points + i,
+            }))
+          : base;
+      const total = all.length;
+      const start = (page - 1) * limit;
+      const data = all.slice(start, start + limit);
+      const body: HistoryResponse = { data, total, page, limit };
+      return HttpResponse.json(body);
     }
   ),
 

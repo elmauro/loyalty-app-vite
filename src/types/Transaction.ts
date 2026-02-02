@@ -46,4 +46,12 @@ export interface PointsResponse {
   balance?: number;
 }
 
+/** Respuesta paginada del historial de transacciones */
+export interface HistoryResponse {
+  data: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
   

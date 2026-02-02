@@ -1,19 +1,40 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { BACKEND_CHUNK_SIZE } from '../../constants/pagination';
 import { getTransactions } from '../../services/transactionService';
 import { toast } from 'sonner';
 import { Transaction } from '../../types/Transaction';
 import { getErrorStatus } from '../../utils/getErrorStatus';
-import TransactionTable from '../TransactionsTable/TransactionTable';
+import TransactionTableWithPagination from '../TransactionsTable/TransactionTableWithPagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { History, Search, RotateCcw } from 'lucide-react';
 
+const DEFAULT_PAGE_SIZE = 20;
+
 export default function TransactionHistoryForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [total, setTotal] = useState(0);
+  const [chunk, setChunk] = useState<Transaction[]>([]);
+  const [backendPage, setBackendPage] = useState(0);
+  const [frontendPage, setFrontendPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [lastSearchParams, setLastSearchParams] = useState<{
+    document: string;
+    startDate: string;
+    endDate: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPagingLoading, setIsPagingLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const totalFrontendPages = Math.max(1, Math.ceil(total / pageSize));
+  const requiredBackendPage = total > 0 ? Math.ceil(((frontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE) : 0;
+  const displaySlice = useMemo(() => {
+    if (chunk.length === 0 || backendPage !== requiredBackendPage) return [];
+    const offsetInChunk = (frontendPage - 1) * pageSize - (requiredBackendPage - 1) * BACKEND_CHUNK_SIZE;
+    return chunk.slice(offsetInChunk, offsetInChunk + pageSize);
+  }, [chunk, backendPage, frontendPage, pageSize, requiredBackendPage]);
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,9 +52,14 @@ export default function TransactionHistoryForm() {
     setHasSearched(true);
 
     try {
-      const data = await getTransactions('1', documentNumber, startDate, endDate);
-      setTransactions(data);
-      if (data.length === 0) {
+      const res = await getTransactions('1', documentNumber, startDate, endDate, 1, BACKEND_CHUNK_SIZE);
+      setTotal(res.total);
+      setChunk(res.data);
+      setBackendPage(1);
+      setFrontendPage(1);
+      setPageSize(DEFAULT_PAGE_SIZE);
+      setLastSearchParams({ document: documentNumber, startDate, endDate });
+      if (res.data.length === 0) {
         toast.info('No se encontraron transacciones');
       }
     } catch (err: unknown) {
@@ -44,15 +70,70 @@ export default function TransactionHistoryForm() {
       } else {
         toast.error('Error al consultar transacciones');
       }
-      setTransactions([]);
+      setTotal(0);
+      setChunk([]);
+      setBackendPage(0);
+      setLastSearchParams(null);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handlePageChange = (newFrontendPage: number) => {
+    if (!lastSearchParams) return;
+    const required = Math.ceil(((newFrontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE);
+    if (required !== backendPage) {
+      setIsPagingLoading(true);
+      getTransactions(
+        '1',
+        lastSearchParams.document,
+        lastSearchParams.startDate,
+        lastSearchParams.endDate,
+        required,
+        BACKEND_CHUNK_SIZE
+      )
+        .then((res) => {
+          setChunk(res.data);
+          setBackendPage(required);
+          setFrontendPage(newFrontendPage);
+        })
+        .catch(() => toast.error('Error al cargar la página'))
+        .finally(() => setIsPagingLoading(false));
+    } else {
+      setFrontendPage(newFrontendPage);
+    }
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    if (!lastSearchParams) return;
+    setPageSize(newPageSize);
+    setFrontendPage(1);
+    if (backendPage !== 1) {
+      setIsPagingLoading(true);
+      getTransactions(
+        '1',
+        lastSearchParams.document,
+        lastSearchParams.startDate,
+        lastSearchParams.endDate,
+        1,
+        BACKEND_CHUNK_SIZE
+      )
+        .then((res) => {
+          setChunk(res.data);
+          setBackendPage(1);
+        })
+        .catch(() => toast.error('Error al cargar'))
+        .finally(() => setIsPagingLoading(false));
+    }
+  };
+
   const handleClear = () => {
     formRef.current?.reset();
-    setTransactions([]);
+    setTotal(0);
+    setChunk([]);
+    setBackendPage(0);
+    setFrontendPage(1);
+    setLastSearchParams(null);
     setHasSearched(false);
   };
 
@@ -119,7 +200,15 @@ export default function TransactionHistoryForm() {
 
       {hasSearched && (
         <div className="mt-6 animate-fade-in">
-          <TransactionTable transactions={transactions} />
+          <TransactionTableWithPagination
+            data={displaySlice}
+            total={total}
+            page={frontendPage}
+            limit={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            isLoading={isPagingLoading}
+          />
         </div>
       )}
     </div>

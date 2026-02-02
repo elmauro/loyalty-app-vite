@@ -9,12 +9,16 @@ import {
 } from './apiConfig';
 import { getAuthToken, getTenantCodeForRequest } from '../utils/token';
 import { formatPhoneWithCountryCode } from '../utils/formatPhone';
+import { BACKEND_CHUNK_SIZE } from '../constants/pagination';
 import {
   AccumulatePointsRequest,
   RedeemPointsRequest,
   Transaction,
-  PointsResponse
+  PointsResponse,
+  HistoryResponse,
 } from '../types/Transaction';
+
+export { BACKEND_CHUNK_SIZE };
 
 export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
@@ -46,20 +50,27 @@ export async function redeemPoints(data: RedeemPointsRequest): Promise<{ status:
   return response.data;
 }
 
+const DEFAULT_PAGE = 1;
+
 export async function getTransactions(
   typeId: string,
   document: string,
   startDate: string,
-  endDate: string
-): Promise<Transaction[]> {
+  endDate: string,
+  page: number = DEFAULT_PAGE,
+  limit: number = BACKEND_CHUNK_SIZE
+): Promise<HistoryResponse> {
   const token = getAuthToken();
-  const response = await axiosApp.get(`/history53rv1c3/history/${typeId}/${document}`, {
-    params: { startDate, endDate },
-    headers: {
-      'x-access-token': token ?? '',
-      'x-program-id': PROGRAM_ID,
-    },
-  });
+  const response = await axiosApp.get<HistoryResponse>(
+    `/history53rv1c3/history/${typeId}/${document}`,
+    {
+      params: { startDate, endDate, page, limit },
+      headers: {
+        'x-access-token': token ?? '',
+        'x-program-id': PROGRAM_ID,
+      },
+    }
+  );
   return response.data;
 }
 

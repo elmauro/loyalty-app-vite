@@ -5,6 +5,7 @@ import { renderWithProviders } from '../../../test-utils';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
 import { Transaction } from '../../../types/Transaction';
+import { BACKEND_CHUNK_SIZE } from '../../../constants/pagination';
 
 jest.mock('../../../services/axiosInstance', () => ({
   default: {
@@ -22,10 +23,10 @@ describe('TransactionHistory', () => {
       fireEvent.change(screen.getByPlaceholderText(/Document Number/i), {
         target: { value: '3001234567' },
       });
-      fireEvent.change(screen.getByTestId('startDate'), {
+      fireEvent.change(screen.getByTestId('th-startDate'), {
         target: { value: '2023-10-01' },
       });
-      fireEvent.change(screen.getByTestId('endDate'), {
+      fireEvent.change(screen.getByTestId('th-endDate'), {
         target: { value: '2023-10-10' },
       });
       fireEvent.click(screen.getByText(/Buscar/i));
@@ -33,9 +34,15 @@ describe('TransactionHistory', () => {
   };
 
   test('renders and fetches transactions successfully (200)', async () => {
+    const transactions = getMockResponse('transactions', 'success') as Transaction[];
     const mockGetTransactions = jest
       .spyOn(transactionService, 'getTransactions')
-      .mockResolvedValue(getMockResponse('transactions', 'success') as Transaction[]);
+      .mockResolvedValue({
+        data: transactions,
+        total: transactions.length,
+        page: 1,
+        limit: BACKEND_CHUNK_SIZE,
+      });
 
     await setupTransactionHistory();
 
@@ -44,7 +51,9 @@ describe('TransactionHistory', () => {
         '1',
         '3001234567',
         '2023-10-01',
-        '2023-10-10'
+        '2023-10-10',
+        1,
+        BACKEND_CHUNK_SIZE
       );
       expect(screen.getByText(/Deelite/i)).toBeInTheDocument();
     });

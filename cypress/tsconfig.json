@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["cypress", "node"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["e2e/**/*.ts", "support/**/*.ts"]
+}
