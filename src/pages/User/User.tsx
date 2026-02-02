@@ -50,7 +50,6 @@ export default function UserPage() {
       setFrontendPage(1);
       setPageSize(DEFAULT_PAGE_SIZE);
       setLastSearchParams({ startDate, endDate });
-      toast.success('Transacciones cargadas');
     } catch {
       toast.error('Error al consultar transacciones');
     } finally {

@@ -14,7 +14,6 @@ describe('User flow (rol 2)', () => {
     cy.get('[data-testid="user-endDate"]').type('2023-10-10');
     cy.contains('Find').click();
     cy.contains('Deelite', { timeout: 10000 }).should('exist');
-    cy.contains('Transacciones cargadas').should('exist');
   });
 
   it('puede cerrar sesión', () => {

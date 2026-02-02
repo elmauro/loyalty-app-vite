@@ -47,8 +47,6 @@ export default function Login() {
       dispatch({ type: 'LOGIN', payload: data });
       localStorage.setItem('authData', JSON.stringify(data));
 
-      toast.success('Inicio de sesión exitoso');
-
       const role = data.roles?.[0];
       if (role === ROLE_ADMIN) navigate('/administration');
       else if (role === ROLE_CUSTOMER) navigate('/user');

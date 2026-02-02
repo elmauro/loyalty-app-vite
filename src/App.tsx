@@ -6,7 +6,13 @@ function App() {
   return (
     <TooltipProvider>
       <AppRoutes />
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="top-right"
+        richColors
+        visibleToasts={5}
+        gap={16}
+        expand
+      />
     </TooltipProvider>
   );
 }
