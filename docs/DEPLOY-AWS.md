@@ -206,6 +206,44 @@ Si faltan secrets obligatorios, el workflow fallará; revisa el job **Build & De
 
 ---
 
+## Qué revisar en AWS cuando falla el deploy
+
+Si el workflow llega a ejecutarse pero falla con *Internal server error* o errores de S3/CloudFront, revisa en AWS lo siguiente.
+
+### 1. IAM (usuario de la access key)
+
+- **Access key activa:** IAM → Users → tu usuario → Security credentials → Access keys. La key usada en GitHub no debe estar *Inactive* ni eliminada.
+- **Permisos:** La política del usuario debe incluir al menos `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`, `s3:ListBucket` sobre tu bucket y `cloudfront:CreateInvalidation` (y opcionalmente `cloudfront:GetInvalidation`) sobre tu distribución. Ver [Permisos IAM del usuario de despliegue](#permisos-iam-del-usuario-de-despliegue).
+- **Recursos correctos:** Los ARN de la política deben usar el mismo **nombre de bucket** que el secret `S3_BUCKET` y el mismo **distribution ID** que `CLOUDFRONT_DISTRIBUTION_ID`.
+
+### 2. S3
+
+- **Bucket existe** y el nombre coincide exactamente con el secret `S3_BUCKET` (sin espacios, mismo valor).
+- **Región:** El bucket está en la región que usas en el workflow (por defecto `us-east-1` si no defines `AWS_REGION`).
+- **OAC/OAI:** Si el bucket es privado, CloudFront debe tener configurado Origin Access Control (OAC) o Origin Access Identity (OAI) y el bucket policy debe permitir el acceso desde esa identidad. El deploy solo escribe en S3; este punto afecta a que la web se sirva bien, no al fallo del *sync*.
+
+### 3. CloudFront
+
+- **Distribución existe** y el **Distribution ID** (ej. `E1ABC2DEF3GHI`) coincide con el secret `CLOUDFRONT_DISTRIBUTION_ID`.
+- **Límite de invalidaciones:** Solo pueden existir **3 invalidaciones en curso** a la vez. Si hay invalidaciones anteriores atascadas o muchas seguidas, una nueva puede fallar. En CloudFront → tu distribución → Invalidations: revisa si hay varias "In progress" y espera a que terminen antes de volver a desplegar.
+- **Estado:** La distribución debe estar *Deployed*; si está en *In progress* por un cambio reciente, en raros casos puede afectar.
+
+### 4. Errores y logs (opcional)
+
+- **CloudWatch:** Si tienes logging de S3 o CloudFront, revisa si en la hora del deploy aparecen 5xx o errores de acceso.
+- **IAM:** En IAM → Users → tu usuario → Access Advisor (o en CloudTrail) puedes ver si hubo llamadas denegadas a S3 o CloudFront en el momento del fallo.
+
+### 5. Resumen rápido
+
+| Revisión | Dónde |
+|----------|--------|
+| Access key activa y política con S3 + CloudFront | IAM → Users → Security credentials / Permissions |
+| Nombre del bucket = `S3_BUCKET` | S3 → Buckets |
+| Distribution ID = `CLOUDFRONT_DISTRIBUTION_ID` | CloudFront → Distributions |
+| Menos de 3 invalidaciones en curso | CloudFront → Invalidations |
+
+---
+
 ## Resumen de archivos
 
 | Archivo | Descripción |
