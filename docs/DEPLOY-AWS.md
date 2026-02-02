@@ -244,6 +244,45 @@ Si el workflow llega a ejecutarse pero falla con *Internal server error* o error
 
 ---
 
+## Cómo comprobar en AWS si la sincronización se ejecutó
+
+Cuando un run del workflow falla (timeout, *Internal server error*, etc.), puedes comprobar en AWS si el job llegó a ejecutar el *sync* a S3 y la invalidación en CloudFront.
+
+### 1. S3: fecha de última modificación
+
+- **Consola:** S3 → tu bucket → abre la carpeta raíz y revisa la columna **Last modified** de `index.html` y de algunos archivos en `assets/`.
+- **Qué indica:** Si la fecha/hora coincide con el momento de un **run fallido**, la sincronización sí se ejecutó (el fallo fue después, p. ej. en la invalidación o por timeout). Si la última modificación es de un **run exitoso** anterior (p. ej. "Add pagination to history component"), el run fallido **no llegó** al paso de S3 (por ejemplo, se quedó sin runner o hizo timeout antes).
+- **CLI (opcional):**  
+  `aws s3 ls s3://TU-BUCKET/ --recursive | head -20`  
+  para ver fechas de los objetos.
+
+### 2. CloudFront: historial de invalidaciones
+
+- **Consola:** CloudFront → Distributions → tu distribución → pestaña **Invalidations**.
+- **Qué indica:** Cada deploy exitoso crea una invalidación con path `/*`. Revisa la columna **Create time** y **Status**.
+  - Si la invalidación más reciente es de hace días (cuando el último deploy en verde fue exitoso) y **no** hay una nueva invalidación en la hora del run fallido, ese run **no llegó** al paso "Invalidate CloudFront" (falló antes: sin runner, timeout en build o en S3, etc.).
+  - Si aparece una invalidación nueva en la hora del fallo, el sync a S3 sí se completó y el fallo fue en o después de la invalidación (o la invalidación se creó pero el job falló por otro motivo).
+
+### 3. Resumen rápido
+
+| Si quieres saber… | Dónde mirar en AWS |
+|------------------|--------------------|
+| Si el *sync* a S3 se ejecutó en el run fallido | S3 → bucket → *Last modified* de `index.html` y assets |
+| Si la invalidación se llegó a lanzar | CloudFront → tu distribución → Invalidations → *Create time* |
+
+Con esto puedes distinguir si el fallo fue **antes** de tocar AWS (sin runner, timeout en build) o **durante** S3/CloudFront (sync o invalidación).
+
+### 4. Opcional: CloudTrail
+
+Si tienes **CloudTrail** con eventos de datos de S3 (y/o CloudFront) habilitados, en la consola de CloudTrail puedes filtrar por:
+- **Event source:** `s3.amazonaws.com` (operaciones como `PutObject`, `DeleteObject`, `ListBucket`) y/o `cloudfront.amazonaws.com` (`CreateInvalidation`).
+- **Time range:** la hora del run fallido.
+- **User:** el usuario IAM que usa la access key del deploy.
+
+Así ves si en ese intervalo hubo llamadas desde GitHub Actions a S3 y CloudFront; si no hay ninguna, el job no llegó a esos pasos.
+
+---
+
 ## Resumen de archivos
 
 | Archivo | Descripción |
