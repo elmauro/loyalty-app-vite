@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "cy:dev": "cross-env VITE_USE_MSW=true vite",
     "cy:e2e": "start-server-and-test cy:dev http://localhost:51730 \"cypress open\"",
-    "cy:e2e:run": "start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\""
+    "cy:e2e:run": "start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\"",
+    "cy:dev:real": "vite",
+    "cy:e2e:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress open\"",
+    "cy:e2e:run:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress run --e2e\""
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",

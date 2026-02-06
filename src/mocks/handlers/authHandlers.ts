@@ -1,4 +1,5 @@
 // src/mocks/handlers/authHandlers.ts
+// Alineado con auth-api/docs/swagger.yaml: 200 (token, firstname, roles…), 400/403/404/401.
 import { http, HttpResponse } from 'msw';
 import { LoginRequestBody } from '../../types/Auth';
 import { getMockResponse } from '../../mocks/mockService';

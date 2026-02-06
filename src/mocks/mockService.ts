@@ -3,6 +3,8 @@ import badrequest from './data/common/badrequest.json';
 import unauthorized from './data/common/unauthorized.json';
 import forbidden from './data/common/forbidden.json';
 import notfound from './data/common/notfound.json';
+import conflict from './data/common/conflict.json';
+import tooManyRequests from './data/common/too-many-requests.json';
 
 import transactionsSuccess from './data/transactions/success.json';
 import accumulationsSuccess from './data/accumulations/success.json';
@@ -17,6 +19,8 @@ const mocks = {
     unauthorized,
     forbidden,
     notfound,
+    conflict,
+    tooManyRequests,
   },
   transactions: {
     success: transactionsSuccess,

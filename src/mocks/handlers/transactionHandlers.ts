@@ -1,5 +1,6 @@
 // src/mocks/handlers/transactionHandlers.ts
 import { http, HttpResponse } from 'msw';
+// Alineado con transaction-api Swagger: income, expense, history, points.
 import { getMockResponse } from '../../mocks/mockService';
 import {
   Transaction,
@@ -33,9 +34,15 @@ export const transactionHandlers = [
           { status: 404 }
         );
       }
-
-        return HttpResponse.json(getMockResponse('redemptions', 'success'));
+      if (body.otpCode === '409409') {
+        return HttpResponse.json(getMockResponse('common', 'conflict'), { status: 409 });
       }
+      if (body.otpCode === '429429') {
+        return HttpResponse.json(getMockResponse('common', 'tooManyRequests'), { status: 429 });
+      }
+
+      return HttpResponse.json(getMockResponse('redemptions', 'success'));
+    }
   ),
 
   http.post<never, AccumulatePointsRequest, TransactionApiResponse>(
@@ -60,6 +67,9 @@ export const transactionHandlers = [
           { status: 404 }
         );
       }
+      if (body.value === 429) {
+        return HttpResponse.json(getMockResponse('common', 'tooManyRequests'), { status: 429 });
+      }
 
       return HttpResponse.json(getMockResponse('accumulations', 'success'));
     }
@@ -70,7 +80,9 @@ export const transactionHandlers = [
     async ({ request }) => {
       const url = new URL(request.url);
       const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
-      const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') ?? '100', 10)));
+      const rawLimit = parseInt(url.searchParams.get('limit') ?? '100', 10);
+      const allowedLimits = [10, 20, 50, 100];
+      const limit = allowedLimits.includes(rawLimit) ? rawLimit : 100;
       const base = getMockResponse<'transactions', Transaction[]>(
         'transactions',
         'success'
