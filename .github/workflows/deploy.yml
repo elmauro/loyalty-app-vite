@@ -48,6 +48,9 @@ jobs:
           VITE_TRANSACTION_TYPE_INCOME: ${{ secrets.VITE_TRANSACTION_TYPE_INCOME || vars.VITE_TRANSACTION_TYPE_INCOME || 'sale' }}
           VITE_TRANSACTION_TYPE_EXPENSE: ${{ secrets.VITE_TRANSACTION_TYPE_EXPENSE || vars.VITE_TRANSACTION_TYPE_EXPENSE || 'redemption' }}
           VITE_PHONE_COUNTRY_CODE: ${{ secrets.VITE_PHONE_COUNTRY_CODE || vars.VITE_PHONE_COUNTRY_CODE || '57' }}
+          VITE_COGNITO_USER_POOL_ID: ${{ secrets.VITE_COGNITO_USER_POOL_ID || vars.VITE_COGNITO_USER_POOL_ID || '' }}
+          VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID || vars.VITE_COGNITO_CLIENT_ID || '' }}
+          VITE_COGNITO_REGION: ${{ secrets.VITE_COGNITO_REGION || vars.VITE_COGNITO_REGION || 'us-east-1' }}
         run: npm run build
 
       - name: Configure AWS credentials

@@ -122,6 +122,8 @@ En el repositorio: **Settings → Secrets and variables → Actions**.
 
 Si quieres override de env en producción, define **variables** o **secrets** con los nombres `VITE_*` (por ejemplo `VITE_API_BASE_AUTH`, `VITE_API_BASE_APP`, etc.). Ver [.env.example](../.env.example). Si no defines nada, se usan los fallbacks de `apiConfig.ts`.
 
+**Para Cognito (login/registro/recuperación de contraseña):** define `VITE_COGNITO_USER_POOL_ID` y `VITE_COGNITO_CLIENT_ID` (y opcionalmente `VITE_COGNITO_REGION`). Sin ellos, el frontend usa solo el flujo tradicional (login con documento). Usa **secrets** para estos valores.
+
 **Importante:** no pongas API keys sensibles en variables (son visibles en la UI). Usa **secrets** para `VITE_API_KEY` y datos sensibles.
 
 ---
