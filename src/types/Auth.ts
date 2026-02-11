@@ -11,6 +11,13 @@ export interface AuthRequest extends LoginRequestBody {
   identificationTypeId: number;
 }
 
+/** Tenant en la respuesta de autenticación. */
+export interface AuthTenant {
+  tenantId: string;
+  tenantCode: string;
+  name: string;
+}
+
 // Respuesta común para login y autenticación
 // roles: ['1'] = Administration (iscustomer 0), ['2'] = Customer (iscustomer 1)
 export interface AuthResponse {
@@ -22,7 +29,8 @@ export interface AuthResponse {
   identificationTypeId: number;
   /** ['1'] = Administration, ['2'] = Customer */
   roles: string[];
-  /** Tenants vienen en el JWT (no en la respuesta). Se extraen al persistir. */
+  /** Tenants del usuario (también en JWT). */
+  tenants?: AuthTenant[];
   token: string;
 }
 

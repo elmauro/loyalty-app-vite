@@ -6,9 +6,10 @@ export function getAuthToken(): string | null {
   return authData ? JSON.parse(authData)?.token : null;
 }
 
-/** Objeto tenant del JWT (payload.sub.id.tenants[n]). */
+/** Objeto tenant del JWT (payload.tenants[n] o payload.sub.id.tenants[n]). */
 export interface JwtTenant {
   tenantCode?: string;
+  tenantId?: string;
   name?: string;
   [key: string]: unknown;
 }
@@ -27,8 +28,24 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
 }
 
 /**
+ * Obtiene el array de tenants del payload JWT.
+ * Soporta formato nuevo (Cognito-like) y antiguo:
+ * - Nuevo: payload.tenants[]
+ * - Antiguo: payload.sub.id.tenants[]
+ */
+function getTenantsFromPayload(payload: Record<string, unknown> | null): JwtTenant[] | undefined {
+  if (!payload) return undefined;
+  const atRoot = payload.tenants as JwtTenant[] | undefined;
+  if (Array.isArray(atRoot) && atRoot.length > 0) return atRoot;
+  const sub = payload.sub as Record<string, unknown> | undefined;
+  const id = sub?.id as Record<string, unknown> | undefined;
+  const fromSub = id?.tenants as JwtTenant[] | undefined;
+  return Array.isArray(fromSub) ? fromSub : undefined;
+}
+
+/**
  * Devuelve el primer tenant del JWT para usuarios admin.
- * Estructura en JWT: payload.sub.id.tenants[0]
+ * Soporta JWT nuevo (payload.tenants) y antiguo (payload.sub.id.tenants).
  * - Admin: objeto tenant completo (tenantCode, etc.).
  * - No admin: undefined (permite consultar transacciones de todos los tenants).
  */
@@ -41,9 +58,7 @@ export function getTenantForRequest(): JwtTenant | undefined {
   if (!token) return undefined;
 
   const payload = decodeJwtPayload(token);
-  const sub = payload?.sub as Record<string, unknown> | undefined;
-  const id = sub?.id as Record<string, unknown> | undefined;
-  const tenants = id?.tenants as JwtTenant[] | undefined;
+  const tenants = getTenantsFromPayload(payload);
   const tenant = tenants?.[0];
 
   const isAdmin = roles?.includes(ROLE_ADMIN);

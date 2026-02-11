@@ -1,9 +1,1 @@
-{
-  "firstname": "AdminUser",
-  "iscustomer": 0,
-  "termsaccepted": 0,
-  "identification": "98632674",
-  "identificationTypeId": 1,
-  "roles": ["1"],
-  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOnsiaWQiOnsidGVuYW50cyI6W3sidGVuYW50Q29kZSI6ImRsdDc4OSIsIm5hbWUiOiJEZW1vIFRlbmFudCJ9XX19LCJyb2xlcyI6WyIxIl19.c2lnbmVk"
-}
+{"firstname":"AdminUser","iscustomer":0,"termsaccepted":0,"identification":"98632674","identificationTypeId":1,"roles":["1"],"tenants":[{"tenantId":"demo-tenant-1","tenantCode":"dlt789","name":"Demo Tenant"}],"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOnsiaWQiOnsidGVuYW50cyI6W3sidGVuYW50Q29kZSI6ImRsdDc4OSIsIm5hbWUiOiJEZW1vIFRlbmFudCJ9XX19LCJyb2xlcyI6WyIxIl19.c2lnbmVk"}
