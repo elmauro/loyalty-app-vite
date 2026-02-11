@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "cy:dev": "cross-env VITE_USE_MSW=true vite",
     "cy:e2e": "start-server-and-test cy:dev http://localhost:51730 \"cypress open\"",
-    "cy:e2e:run": "start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\"",
+    "cy:pre:e2e": "npx --yes kill-port 51730 || exit 0",
+    "cy:e2e:run": "npm run cy:pre:e2e && start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\"",
     "cy:dev:real": "vite",
     "cy:e2e:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress open\"",
     "cy:e2e:run:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress run --e2e\""
@@ -20,6 +21,7 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "amazon-cognito-identity-js": "^6.3.16",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

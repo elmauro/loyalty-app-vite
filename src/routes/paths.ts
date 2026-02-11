@@ -4,6 +4,8 @@ export const paths = {
     login: '/login',
     registration: '/registration',
     forgotPassword: '/forgot-password',
+    resetPassword: '/reset-password',
+    changePassword: '/change-password',
     administration: '/administration',
     user: '/user',
 } as const;

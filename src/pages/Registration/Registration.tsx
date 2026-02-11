@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signUp, confirmSignUp, isCognitoEnabled } from '@/services/cognitoService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 
 export default function Registration() {
   const navigate = useNavigate();
+  const [step, setStep] = useState<'form' | 'confirm'>('form');
   const [formData, setFormData] = useState({
     phoneNumber: '',
     birthDate: '',
@@ -17,6 +19,7 @@ export default function Registration() {
     password: '',
     acceptTerms: false,
   });
+  const [confirmationCode, setConfirmationCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,8 +38,8 @@ export default function Registration() {
     if (!formData.email || !formData.email.includes('@')) {
       newErrors.email = 'Ingresa un email válido';
     }
-    if (!formData.password || formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    if (!formData.password || formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
     }
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'Debes aceptar los términos y condiciones';
@@ -54,11 +57,66 @@ export default function Registration() {
     }
 
     setIsLoading(true);
-    // Simular envío; en producción llamarías al API de registro
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast.success('Registro enviado. Ahora puedes iniciar sesión.');
-    navigate('/login');
+    setErrors({});
+
+    try {
+      if (isCognitoEnabled()) {
+        await signUp({
+          email: formData.email,
+          password: formData.password,
+          givenName: formData.phoneNumber ? 'Usuario' : undefined,
+          familyName: formData.documentNumber ? `Doc ${formData.documentNumber}` : undefined,
+          phoneNumber: formData.phoneNumber || undefined,
+          identTypeId: '1',
+          docNumber: formData.documentNumber,
+          programId: undefined,
+          isCustomer: '1',
+          termsaccepted: formData.acceptTerms ? '1' : '0',
+          roles: '2',
+        });
+        setStep('confirm');
+        toast.success('Código enviado a tu email. Verifica tu bandeja de entrada.');
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        toast.success('Registro enviado. Ahora puedes iniciar sesión.');
+        navigate('/login');
+      }
+    } catch (err: unknown) {
+      const message = (err as { message?: string })?.message || '';
+      if (message.includes('UsernameExistsException') || message.includes('already exists')) {
+        setErrors({ email: 'Este email ya está registrado. Inicia sesión o recupera tu contraseña.' });
+        toast.error('Este email ya está registrado.');
+      } else if (message.toLowerCase().includes('phone') || message.toLowerCase().includes('teléfono')) {
+        setErrors({ phoneNumber: message || 'Formato de teléfono inválido. Usa 10 dígitos (ej. 3001234567).' });
+        toast.error(message || 'Formato de teléfono inválido');
+      } else {
+        setErrors({ email: message || 'Error al registrar. Intenta de nuevo.' });
+        toast.error(message || 'Error al registrar');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConfirmCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!confirmationCode.trim()) {
+      toast.error('Ingresa el código de verificación');
+      return;
+    }
+    setIsLoading(true);
+    setErrors({});
+    try {
+      await confirmSignUp(formData.email, confirmationCode.trim());
+      toast.success('Cuenta registrada. Ya puedes iniciar sesión.');
+      navigate('/login');
+    } catch (err: unknown) {
+      const message = (err as { message?: string })?.message || '';
+      setErrors({ confirmationCode: message || 'Código inválido. Intenta de nuevo.' });
+      toast.error(message || 'Código inválido');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -94,6 +152,47 @@ export default function Registration() {
             <p className="mt-2 text-muted-foreground">Crea tu cuenta para comenzar</p>
           </div>
 
+          {step === 'confirm' ? (
+            <form onSubmit={handleConfirmCode} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="code">Código de verificación</Label>
+                <Input
+                  id="code"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Código de 6 dígitos"
+                  value={confirmationCode}
+                  onChange={(e) => setConfirmationCode(e.target.value)}
+                  maxLength={6}
+                  className={errors.confirmationCode ? 'border-destructive' : ''}
+                />
+                {errors.confirmationCode && (
+                  <p className="text-xs text-destructive">{errors.confirmationCode}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Revisa tu email ({formData.email}) para el código.
+                </p>
+              </div>
+              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    Verificando...
+                  </>
+                ) : (
+                  'Confirmar cuenta'
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setStep('form')}
+              >
+                Volver al formulario
+              </Button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
@@ -157,7 +256,7 @@ export default function Registration() {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
@@ -200,6 +299,7 @@ export default function Registration() {
               )}
             </Button>
           </form>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{' '}

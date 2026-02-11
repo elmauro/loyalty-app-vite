@@ -1,12 +1,18 @@
 // src/mocks/handlers/authHandlers.ts
 // Alineado con auth-api/docs/swagger.yaml: 200 (token, firstname, roles…), 400/403/404/401.
+// Soporta: { login, pass } (tradicional) y { idToken } (Cognito).
 import { http, HttpResponse } from 'msw';
 import { LoginRequestBody } from '../../types/Auth';
 import { getMockResponse } from '../../mocks/mockService';
 
 export const authHandlers = [
   http.post('/api/authentications', async ({ request }) => {
-    const body = await request.json() as LoginRequestBody;
+    const body = (await request.json()) as LoginRequestBody & { idToken?: string };
+
+    // Flujo Cognito: idToken → responde como usuario normal (rol 2)
+    if (body.idToken && typeof body.idToken === 'string') {
+      return HttpResponse.json(getMockResponse('auth', 'successUser'));
+    }
 
     if (body.login === '8288221' && body.pass === '8221') {
       return HttpResponse.json(getMockResponse('auth', 'successAdmin'));

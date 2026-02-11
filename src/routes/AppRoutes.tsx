@@ -4,6 +4,8 @@ import Home from '../pages/Home/Home';
 import Login from '../pages/Login/Login';
 import Registration from '../pages/Registration/Registration';
 import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword/ResetPassword';
+import ChangePassword from '../pages/ChangePassword/ChangePassword';
 import Administration from '../pages/Administration/Administration';
 import User from '../pages/User/User';
 import ProtectedRoute from './ProtectedRoute';
@@ -20,6 +22,7 @@ export default function AppRoutes() {
         <Route path={paths.login} element={<Login />} />
         <Route path={paths.registration} element={<Registration />} />
         <Route path={paths.forgotPassword} element={<ForgotPassword />} />
+        <Route path={paths.resetPassword} element={<ResetPassword />} />
 
         {/* Rutas protegidas */}
         <Route element={<ProtectedLayout />}>
@@ -36,6 +39,14 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={[ROLE_CUSTOMER]}>
                 <User />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={paths.changePassword}
+            element={
+              <ProtectedRoute allowedRoles={[ROLE_ADMIN, ROLE_CUSTOMER]}>
+                <ChangePassword />
               </ProtectedRoute>
             }
           />

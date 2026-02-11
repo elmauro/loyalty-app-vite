@@ -72,4 +72,19 @@ export function getTenantForRequest(): JwtTenant | undefined {
 export function getTenantCodeForRequest(): string {
   return getTenantForRequest()?.tenantCode ?? '';
 }
+
+/** Obtiene el email del usuario desde authData/JWT (para Cognito changePassword). */
+export function getEmailFromAuth(): string | null {
+  const token = getAuthToken();
+  if (!token) return null;
+  const payload = decodeJwtPayload(token);
+  if (!payload) return null;
+  const email = payload.email as string | undefined;
+  if (email) return email;
+  const sub = payload.sub;
+  if (typeof sub === 'string' && sub.includes('@')) return sub;
+  const subObj = sub as Record<string, unknown> | undefined;
+  const id = subObj?.id as Record<string, unknown> | undefined;
+  return (id?.email as string) ?? null;
+}
   

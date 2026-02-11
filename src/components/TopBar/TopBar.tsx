@@ -1,8 +1,10 @@
 import { useAuth } from '@/store/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { getTenantForRequest } from '@/utils/token';
-import { LogOut, Award } from 'lucide-react';
+import { isCognitoEnabled, signOut as cognitoSignOut } from '@/services/cognitoService';
+import { paths } from '@/routes/paths';
+import { LogOut, Award, KeyRound } from 'lucide-react';
 
 export default function TopBar() {
   const { state, dispatch } = useAuth();
@@ -12,6 +14,7 @@ export default function TopBar() {
   const tenantName = tenant?.name;
 
   const handleLogout = () => {
+    cognitoSignOut();
     dispatch({ type: 'LOGOUT' });
     localStorage.removeItem('authData');
     navigate('/login');
@@ -32,10 +35,18 @@ export default function TopBar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="text-sm text-muted-foreground hidden sm:inline">
             Bienvenido, <span className="font-medium text-foreground">{user?.firstname ?? user?.identification}</span>
           </span>
+          {isCognitoEnabled() && (
+            <Link to={paths.changePassword}>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <KeyRound className="h-4 w-4" />
+                <span className="hidden sm:inline">Cambiar contraseña</span>
+              </Button>
+            </Link>
+          )}
           <Button
             variant="ghost"
             size="sm"

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '@/services/authService';
+import { login, loginWithCognitoToken } from '@/services/authService';
+import { signIn as cognitoSignIn, isCognitoEnabled } from '@/services/cognitoService';
 import { useAuth } from '@/store/AuthContext';
 import { getLoginErrorMessage } from '@/utils/getLoginErrorMessage';
 import { getErrorStatus } from '@/utils/getErrorStatus';
@@ -11,6 +12,10 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+
+function isEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
 export default function Login() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -26,7 +31,7 @@ export default function Login() {
     setError('');
 
     const formData = new FormData(e.currentTarget);
-    const loginValue = (formData.get('login') as string) || '';
+    const loginValue = (formData.get('login') as string)?.trim() || '';
     const password = (formData.get('password') as string) || '';
 
     if (!loginValue || !password) {
@@ -37,12 +42,19 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const data = await login({
-        loginTypeId: 1,
-        identificationTypeId: 1,
-        login: loginValue,
-        pass: password,
-      });
+      let data;
+
+      if (isCognitoEnabled() && isEmail(loginValue)) {
+        const idToken = await cognitoSignIn(loginValue, password);
+        data = await loginWithCognitoToken(idToken);
+      } else {
+        data = await login({
+          loginTypeId: 1,
+          identificationTypeId: 1,
+          login: loginValue,
+          pass: password,
+        });
+      }
 
       dispatch({ type: 'LOGIN', payload: data });
       localStorage.setItem('authData', JSON.stringify(data));
@@ -53,8 +65,17 @@ export default function Login() {
       else navigate('/');
     } catch (err: unknown) {
       const status = getErrorStatus(err);
-      setError(status != null ? getLoginErrorMessage(status) : 'Error de conexión. Intenta más tarde.');
-      toast.error(status != null ? getLoginErrorMessage(status) : 'Error de conexión');
+      const message = (err as { message?: string })?.message;
+      if (message === 'User does not exist.' || message?.includes('UserNotFoundException')) {
+        setError('Usuario no encontrado. Verifica tu email o número de documento.');
+      } else if (message === 'Incorrect username or password.' || message?.includes('NotAuthorizedException')) {
+        setError('Contraseña incorrecta.');
+      } else if (message === 'User is not confirmed.') {
+        setError('Debes confirmar tu cuenta. Revisa tu email.');
+      } else {
+        setError(status != null ? getLoginErrorMessage(status) : message || 'Error de conexión. Intenta más tarde.');
+      }
+      toast.error(status != null ? getLoginErrorMessage(status) : message || 'Error de conexión');
     } finally {
       setIsLoading(false);
     }
@@ -85,13 +106,15 @@ export default function Login() {
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="login">Login (Identificación)</Label>
+              <Label htmlFor="login">
+                {isCognitoEnabled() ? 'Email o número de documento' : 'Login (Identificación)'}
+              </Label>
               <Input
                 id="login"
                 name="login"
                 type="text"
-                inputMode="numeric"
-                placeholder="Número de documento"
+                inputMode={isCognitoEnabled() ? 'email' : 'numeric'}
+                placeholder={isCognitoEnabled() ? 'tu@email.com o número de documento' : 'Número de documento'}
                 className="h-11"
                 data-testid="login-username"
               />

@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { forgotPassword, isCognitoEnabled } from '@/services/cognitoService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Award, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { paths } from '@/routes/paths';
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,12 +26,28 @@ export default function ForgotPassword() {
 
     setIsLoading(true);
 
-    // Aquí podrías llamar a un endpoint o simularlo con MSW
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    setIsLoading(false);
-    setIsSubmitted(true);
-    toast.success('Si el email existe, recibirás instrucciones en breve.');
+    try {
+      if (isCognitoEnabled()) {
+        await forgotPassword(email.trim());
+        setIsSubmitted(true);
+        toast.success('Código enviado a tu email. Revisa tu bandeja de entrada.');
+        navigate(`${paths.resetPassword}?email=${encodeURIComponent(email.trim())}`);
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsSubmitted(true);
+        toast.success('Si el email existe, recibirás instrucciones en breve.');
+      }
+    } catch (err: unknown) {
+      const message = (err as { message?: string })?.message || '';
+      if (message.includes('UserNotFoundException') || message.includes('User does not exist')) {
+        setError('No existe una cuenta con este email.');
+      } else {
+        setError(message || 'Error al enviar. Intenta de nuevo.');
+      }
+      toast.error(message || 'Error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
