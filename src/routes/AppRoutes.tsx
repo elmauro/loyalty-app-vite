@@ -7,11 +7,12 @@ import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword/ResetPassword';
 import ChangePassword from '../pages/ChangePassword/ChangePassword';
 import Administration from '../pages/Administration/Administration';
+import ProgramAdministration from '../pages/ProgramAdministration/ProgramAdministration';
 import User from '../pages/User/User';
 import ProtectedRoute from './ProtectedRoute';
 import ProtectedLayout from '../layouts/ProtectedLayout';
 import { paths } from './paths';
-import { ROLE_ADMIN, ROLE_CUSTOMER } from '../constants/auth';
+import { ROLE_ADMIN, ROLE_CUSTOMER, ROLE_PROGRAM_ADMIN } from '../constants/auth';
 
 export default function AppRoutes() {
   return (
@@ -45,7 +46,7 @@ export default function AppRoutes() {
           <Route
             path={paths.changePassword}
             element={
-              <ProtectedRoute allowedRoles={[ROLE_ADMIN, ROLE_CUSTOMER]}>
+              <ProtectedRoute allowedRoles={[ROLE_ADMIN, ROLE_CUSTOMER, ROLE_PROGRAM_ADMIN]}>
                 <ChangePassword />
               </ProtectedRoute>
             }

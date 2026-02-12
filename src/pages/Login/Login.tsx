@@ -6,7 +6,7 @@ import { useAuth } from '@/store/AuthContext';
 import { buildUserFromToken } from '@/utils/token';
 import { getLoginErrorMessage } from '@/utils/getLoginErrorMessage';
 import { getErrorStatus } from '@/utils/getErrorStatus';
-import { ROLE_ADMIN, ROLE_CUSTOMER } from '@/constants/auth';
+import { getDefaultPathForRole } from '@/constants/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,9 +62,7 @@ export default function Login() {
       localStorage.setItem('authData', JSON.stringify(data));
 
       const role = user.roles?.[0];
-      if (role === ROLE_ADMIN) navigate('/administration');
-      else if (role === ROLE_CUSTOMER) navigate('/user');
-      else navigate('/');
+      navigate(getDefaultPathForRole(role ?? ''));
     } catch (err: unknown) {
       const status = getErrorStatus(err);
       const message = (err as { message?: string })?.message;
