@@ -6,18 +6,24 @@ import { useAuth } from '@/store/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { paths } from '@/routes/paths';
 
 export default function ChangePassword() {
   const navigate = useNavigate();
   const { state } = useAuth();
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,16 +33,20 @@ export default function ChangePassword() {
     e.preventDefault();
     setError('');
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
       setError('Completa todos los campos');
       return;
     }
-    if (newPassword.length < 8) {
+    if (formData.newPassword.length < 8) {
       setError('La nueva contraseña debe tener al menos 8 caracteres');
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (formData.newPassword !== formData.confirmPassword) {
       setError('Las contraseñas no coinciden');
+      return;
+    }
+    if (formData.currentPassword === formData.newPassword) {
+      setError('La nueva contraseña debe ser diferente a la actual');
       return;
     }
 
@@ -52,7 +62,7 @@ export default function ChangePassword() {
 
     setIsLoading(true);
     try {
-      await changePassword(email, oldPassword, newPassword);
+      await changePassword(email, formData.currentPassword, formData.newPassword);
       toast.success('Contraseña actualizada correctamente.');
       navigate(state.user ? paths.user : paths.home);
     } catch (err: unknown) {
@@ -70,9 +80,9 @@ export default function ChangePassword() {
 
   if (!state.user) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-[50vh] items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-muted-foreground mb-4">Debes iniciar sesión para cambiar tu contraseña.</p>
+          <p className="mb-4 text-muted-foreground">Debes iniciar sesión para cambiar tu contraseña.</p>
           <Link to={paths.login}>
             <Button>Iniciar sesión</Button>
           </Link>
@@ -82,116 +92,121 @@ export default function ChangePassword() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm">
-          <Link
-            to={paths.user}
-            className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </Link>
+    <div className="mx-auto max-w-md">
+      <Link
+        to={state.user ? paths.user : paths.home}
+        className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Volver
+      </Link>
 
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Award className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-semibold text-foreground">Loyalty Platform</span>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Lock className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Cambiar contraseña</h1>
-            <p className="mt-2 text-muted-foreground">
-              Ingresa tu contraseña actual y la nueva contraseña
-            </p>
+            <div>
+              <CardTitle>Cambiar Contraseña</CardTitle>
+              <CardDescription>Actualiza tu contraseña de acceso</CardDescription>
+            </div>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="oldPassword">Contraseña actual</Label>
+              <Label htmlFor="currentPassword">Contraseña Actual</Label>
               <div className="relative">
                 <Input
-                  id="oldPassword"
-                  type={showOldPassword ? 'text' : 'password'}
+                  id="currentPassword"
+                  type={showPasswords.current ? 'text' : 'password'}
+                  value={formData.currentPassword}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                  className="h-11 pr-10"
                   placeholder="Tu contraseña actual"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  className="pr-10"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  onClick={() => setShowPasswords((p) => ({ ...p, current: !p.current }))}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showOldPassword ? 'Ocultar' : 'Mostrar'}
+                  aria-label={showPasswords.current ? 'Ocultar' : 'Mostrar'}
                 >
-                  {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">Nueva contraseña</Label>
+              <Label htmlFor="newPassword">Nueva Contraseña</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
-                  type={showNewPassword ? 'text' : 'password'}
+                  type={showPasswords.new ? 'text' : 'password'}
+                  value={formData.newPassword}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, newPassword: e.target.value }))}
+                  className="h-11 pr-10"
                   placeholder="Mínimo 8 caracteres"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  minLength={8}
-                  className="pr-10"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  onClick={() => setShowPasswords((p) => ({ ...p, new: !p.new }))}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showNewPassword ? 'Ocultar' : 'Mostrar'}
+                  aria-label={showPasswords.new ? 'Ocultar' : 'Mostrar'}
                 >
-                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar nueva contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repite la nueva contraseña"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showPasswords.confirm ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="h-11 pr-10"
+                  placeholder="Repite la nueva contraseña"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasswords((p) => ({ ...p, confirm: !p.confirm }))}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPasswords.confirm ? 'Ocultar' : 'Mostrar'}
+                >
+                  {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive animate-fade-in">
-                {error}
-              </div>
+              <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive animate-fade-in">{error}</div>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                  Actualizando...
-                </>
-              ) : (
-                'Cambiar contraseña'
-              )}
-            </Button>
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" className="flex-1" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    Actualizando...
+                  </>
+                ) : (
+                  'Cambiar Contraseña'
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(state.user ? paths.user : paths.home)}
+              >
+                Cancelar
+              </Button>
+            </div>
           </form>
-        </div>
-      </div>
-
-      <div className="hidden lg:flex lg:flex-1 hero-gradient relative items-center justify-center">
-        <div className="text-center text-primary-foreground p-12">
-          <Award className="h-24 w-24 mx-auto mb-6 opacity-90" />
-          <h2 className="text-3xl font-bold mb-4">Seguridad</h2>
-          <p className="text-primary-foreground/80 max-w-md">
-            Mantén tu cuenta segura actualizando tu contraseña periódicamente.
-          </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
