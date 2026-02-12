@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { login, loginWithCognitoToken } from '@/services/authService';
 import { signIn as cognitoSignIn, isCognitoEnabled } from '@/services/cognitoService';
 import { useAuth } from '@/store/AuthContext';
+import { buildUserFromToken } from '@/utils/token';
 import { getLoginErrorMessage } from '@/utils/getLoginErrorMessage';
 import { getErrorStatus } from '@/utils/getErrorStatus';
 import { ROLE_ADMIN, ROLE_CUSTOMER } from '@/constants/auth';
@@ -56,10 +57,11 @@ export default function Login() {
         });
       }
 
-      dispatch({ type: 'LOGIN', payload: data });
+      const user = buildUserFromToken(data.token, data.firstname, data.oauthid);
+      dispatch({ type: 'LOGIN', payload: user });
       localStorage.setItem('authData', JSON.stringify(data));
 
-      const role = data.roles?.[0];
+      const role = user.roles?.[0];
       if (role === ROLE_ADMIN) navigate('/administration');
       else if (role === ROLE_CUSTOMER) navigate('/user');
       else navigate('/');

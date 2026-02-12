@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { buildUserFromToken, decodeJwtPayload, getOauthidFromPayload } from '@/utils/token';
+import type { AuthUser } from '@/types/Auth';
 
-// Define tipos
 interface AuthState {
-  user: any | null;
+  user: AuthUser | null;
   isLoading: boolean;
 }
 
-type AuthAction = { type: 'LOGIN'; payload: any } | { type: 'LOGOUT' } | { type: 'STOP_LOADING' };
+type AuthAction = { type: 'LOGIN'; payload: AuthUser } | { type: 'LOGOUT' } | { type: 'STOP_LOADING' };
 
 interface AuthContextType {
   state: AuthState;
@@ -33,16 +34,29 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
+/** Convierte respuesta mínima o legada a AuthUser completo. */
+function toAuthUser(data: Record<string, unknown>): AuthUser | null {
+  const token = data?.token as string | undefined;
+  const firstname = data?.firstname as string | undefined;
+  if (!token || !firstname) return null;
+  const oauthid =
+    (data?.oauthid as string) ||
+    (data?.sub as string) ||
+    getOauthidFromPayload(decodeJwtPayload(token)) ||
+    'legacy';
+  return buildUserFromToken(token, firstname, oauthid);
+}
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // ✅ Restaurar sesión automáticamente
   useEffect(() => {
     const storedData = localStorage.getItem('authData');
     if (storedData) {
-      const user = JSON.parse(storedData);
-      dispatch({ type: 'LOGIN', payload: user });
+      const data = JSON.parse(storedData) as Record<string, unknown>;
+      const user = toAuthUser(data);
+      if (user) dispatch({ type: 'LOGIN', payload: user });
+      else dispatch({ type: 'STOP_LOADING' });
     } else {
       dispatch({ type: 'STOP_LOADING' });
     }

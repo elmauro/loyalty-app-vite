@@ -18,20 +18,21 @@ export interface AuthTenant {
   name: string;
 }
 
-// Respuesta común para login y autenticación
-// roles: ['1'] = Administration (iscustomer 0), ['2'] = Customer (iscustomer 1)
+/** Respuesta mínima de /api/authentications (el resto se obtiene del JWT). */
 export interface AuthResponse {
   firstname: string;
-  /** 0 = Administration, 1 = Customer */
+  oauthid: string;
+  token: string;
+}
+
+/** Usuario completo construido desde el token (para uso en la app). */
+export interface AuthUser extends AuthResponse {
   iscustomer: number;
   termsaccepted: number;
   identification: string;
   identificationTypeId: number;
-  /** ['1'] = Administration, ['2'] = Customer */
   roles: string[];
-  /** Tenants del usuario (también en JWT). */
   tenants?: AuthTenant[];
-  token: string;
 }
 
 // Alias de AuthResponse (sin duplicar estructura)
