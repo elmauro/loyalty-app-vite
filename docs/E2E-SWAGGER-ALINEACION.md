@@ -25,7 +25,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 **Frontend:** `authService.login()` envía `loginTypeId: 1`, `identificationTypeId: 1`, `login`, `pass`. **Alineado.**
 
-**Mocks (MSW):** `authHandlers.ts` devuelve success para `8288221/8221` (admin) y `55555555/5555` (user). Los campos de la respuesta mock deben coincidir con lo que el frontend usa (token, roles, firstname, etc.) según `AuthResponse`.
+**Mocks (MSW):** `authHandlers.ts` devuelve success para `8288221/8221` (admin) y `55555555/5555` (user). La respuesta es mínima (`firstname`, `oauthid`, `token`); el frontend construye el usuario desde el JWT (`buildUserFromToken`).
 
 ---
 

@@ -4,6 +4,17 @@ Este proyecto incluye un flujo de GitHub Actions para desplegar la app en una in
 
 ---
 
+## Orden de despliegue (frontend + backend)
+
+Si hay cambios en **ambos** (frontend y backend) en el mismo release:
+
+1. **Backend primero:** `loyalty-program-serverless` → `./deploy-backend.sh` o ` deploy-backend.ps1` (layer, auth-api, transaction-api, etc.).
+2. **Frontend después:** este workflow (GitHub Actions o `npm run build` + deploy manual).
+
+El frontend espera la respuesta mínima de `/api/authentications` (`firstname`, `oauthid`, `token`); el backend debe devolverla antes de desplegar el frontend.
+
+---
+
 ## Pasos para configurar GitHub Actions
 
 ### 1. Usuario IAM en AWS
