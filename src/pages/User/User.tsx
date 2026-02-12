@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { BACKEND_CHUNK_SIZE } from '../../constants/pagination';
-import { getTransactions } from '../../services/transactionService';
+import { getTransactions, getPoints } from '../../services/transactionService';
 import { useAuth } from '../../store/AuthContext';
 import TransactionTableWithPagination from '../../components/TransactionsTable/TransactionTableWithPagination';
 import { toast } from 'sonner';
@@ -8,7 +8,7 @@ import { Transaction } from '../../types/Transaction';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User as UserIcon, Search, RotateCcw, Calendar } from 'lucide-react';
+import { User as UserIcon, Search, RotateCcw, Calendar, Star, TrendingUp } from 'lucide-react';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -23,9 +23,31 @@ export default function UserPage() {
   const [lastSearchParams, setLastSearchParams] = useState<{ startDate: string; endDate: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPagingLoading, setIsPagingLoading] = useState(false);
+  const [availablePoints, setAvailablePoints] = useState<number | null>(null);
+  const [isLoadingPoints, setIsLoadingPoints] = useState(true);
 
   const user = state.user;
   const phoneNumber = user?.identification ?? '';
+
+  useEffect(() => {
+    const fetchPoints = async () => {
+      if (!phoneNumber) {
+        setIsLoadingPoints(false);
+        return;
+      }
+      setIsLoadingPoints(true);
+      try {
+        const res = await getPoints('1', phoneNumber);
+        setAvailablePoints(res.points ?? res.balance ?? 0);
+      } catch {
+        toast.error('Error al consultar puntos');
+        setAvailablePoints(null);
+      } finally {
+        setIsLoadingPoints(false);
+      }
+    };
+    fetchPoints();
+  }, [phoneNumber]);
 
   const totalFrontendPages = Math.max(1, Math.ceil(total / pageSize));
   const requiredBackendPage = total > 0 ? Math.ceil(((frontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE) : 0;
@@ -123,6 +145,25 @@ export default function UserPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Mi Cuenta</h1>
           <p className="text-muted-foreground">Consulta tu historial de transacciones</p>
+        </div>
+      </div>
+
+      <div className="card-elevated flex items-center gap-4 p-6 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+          <Star className="h-6 w-6 text-primary" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-muted-foreground">Puntos Disponibles</p>
+          {isLoadingPoints ? (
+            <div className="mt-1 h-8 w-24 animate-pulse rounded bg-muted" />
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-bold text-foreground">
+                {availablePoints != null ? availablePoints.toLocaleString('es-CO') : '-'}
+              </span>
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
+          )}
         </div>
       </div>
 
