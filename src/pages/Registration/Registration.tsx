@@ -32,7 +32,8 @@ export default function Registration() {
     if (!formData.birthDate) {
       newErrors.birthDate = 'La fecha de nacimiento es requerida';
     }
-    if (!formData.documentNumber) {
+    const docTrimmed = formData.documentNumber?.trim() ?? '';
+    if (!docTrimmed) {
       newErrors.documentNumber = 'El número de documento es requerido';
     }
     if (!formData.email || !formData.email.includes('@')) {
@@ -86,6 +87,12 @@ export default function Registration() {
       if (message.includes('UsernameExistsException') || message.includes('already exists')) {
         setErrors({ email: 'Este email ya está registrado. Inicia sesión o recupera tu contraseña.' });
         toast.error('Este email ya está registrado.');
+      } else if (message.includes('DOCUMENT_ALREADY_REGISTERED')) {
+        setErrors({ documentNumber: 'Este documento ya está registrado.' });
+        toast.error('Este documento ya está registrado.');
+      } else if (message.includes('DOCUMENT_REQUIRED')) {
+        setErrors({ documentNumber: 'El número de documento es requerido.' });
+        toast.error('El número de documento es requerido.');
       } else if (message.toLowerCase().includes('phone') || message.toLowerCase().includes('teléfono')) {
         setErrors({ phoneNumber: message || 'Formato de teléfono inválido. Usa 10 dígitos (ej. 3001234567).' });
         toast.error(message || 'Formato de teléfono inválido');

@@ -44,7 +44,7 @@ export async function signUp(params: {
   phoneNumber?: string;
   /** Tipo identificación: 1 = Cédula de Ciudadanía. Default 1 */
   identTypeId?: string;
-  /** Número de documento */
+  /** Número de documento (requerido, no puede estar vacío) */
   docNumber?: string;
   /** Programa (default: VITE_PROGRAM_ID) */
   programId?: string;
@@ -72,10 +72,15 @@ export async function signUp(params: {
     attributes.push(new CognitoUserAttribute({ Name: 'phone_number', Value: e164 }));
   }
 
+  const docTrimmed = (params.docNumber ?? '').trim();
+  if (!docTrimmed) {
+    throw new Error('DOCUMENT_REQUIRED');
+  }
+
   // Atributos custom (deben existir en el User Pool de Cognito)
   const customAttrs: Array<[string, string]> = [
     ['custom:identTypeId', params.identTypeId ?? '1'],
-    ['custom:docNumber', params.docNumber ?? ''],
+    ['custom:docNumber', docTrimmed],
     ['custom:programId', params.programId ?? PROGRAM_ID],
     ['custom:isCustomer', params.isCustomer ?? '1'],
     ['custom:termsaccepted', params.termsaccepted ?? '0'],

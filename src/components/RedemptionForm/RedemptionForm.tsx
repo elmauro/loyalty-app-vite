@@ -20,7 +20,7 @@ export default function RedemptionForm() {
   const handleRedeemRequest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const doc = (formData.get('documentNumber') as string) || '';
+    const doc = ((formData.get('documentNumber') as string) || '').trim();
     const pts = (formData.get('points') as string) || '';
 
     if (!doc || !pts) {

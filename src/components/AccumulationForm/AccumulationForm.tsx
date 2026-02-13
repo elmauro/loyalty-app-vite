@@ -15,7 +15,7 @@ export default function AccumulationForm() {
   const handleAccumulate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const documentNumber = (formData.get('documentNumber') as string) || '';
+    const documentNumber = ((formData.get('documentNumber') as string) || '').trim();
     const value = (formData.get('value') as string) || '';
 
     if (!documentNumber || !value) {
