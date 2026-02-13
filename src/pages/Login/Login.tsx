@@ -45,7 +45,11 @@ export default function Login() {
     try {
       let data;
 
-      if (isCognitoEnabled() && isEmail(loginValue)) {
+      if (isCognitoEnabled()) {
+        if (!isEmail(loginValue)) {
+          setError('Usa tu email para iniciar sesión. El login con número de documento ya no está disponible.');
+          return;
+        }
         const idToken = await cognitoSignIn(loginValue, password);
         data = await loginWithCognitoToken(idToken);
       } else {
@@ -66,12 +70,16 @@ export default function Login() {
     } catch (err: unknown) {
       const status = getErrorStatus(err);
       const message = (err as { message?: string })?.message;
+      const responseData = (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data;
+      const backendMessage = responseData?.message;
       if (message === 'User does not exist.' || message?.includes('UserNotFoundException')) {
         setError('Usuario no encontrado. Verifica tu email o número de documento.');
       } else if (message === 'Incorrect username or password.' || message?.includes('NotAuthorizedException')) {
         setError('Contraseña incorrecta.');
       } else if (message === 'User is not confirmed.') {
         setError('Debes confirmar tu cuenta. Revisa tu email.');
+      } else if (responseData?.error === 'CognitoRequired' || backendMessage?.includes('Cognito')) {
+        setError(backendMessage || 'El login requiere Cognito. Configura las variables de entorno de Cognito.');
       } else {
         setError(status != null ? getLoginErrorMessage(status) : message || 'Error de conexión. Intenta más tarde.');
       }
@@ -107,14 +115,14 @@ export default function Login() {
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="login">
-                {isCognitoEnabled() ? 'Email o número de documento' : 'Login (Identificación)'}
+                {isCognitoEnabled() ? 'Email' : 'Login (Identificación)'}
               </Label>
               <Input
                 id="login"
                 name="login"
                 type="text"
                 inputMode={isCognitoEnabled() ? 'email' : 'numeric'}
-                placeholder={isCognitoEnabled() ? 'tu@email.com o número de documento' : 'Número de documento'}
+                placeholder={isCognitoEnabled() ? 'tu@email.com' : 'Número de documento'}
                 className="h-11"
                 data-testid="login-username"
               />
