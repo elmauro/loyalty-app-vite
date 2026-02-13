@@ -11,7 +11,7 @@ import { Gift, RotateCcw, ShieldCheck, X } from 'lucide-react';
 
 export default function RedemptionForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [documentNumber, setDocumentNumber] = useState('');
   const [points, setPoints] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpVisible, setOtpVisible] = useState(false);
@@ -20,22 +20,22 @@ export default function RedemptionForm() {
   const handleRedeemRequest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const phone = (formData.get('phoneNumber') as string) || '';
+    const doc = (formData.get('documentNumber') as string) || '';
     const pts = (formData.get('points') as string) || '';
 
-    if (!phone || !pts) {
+    if (!doc || !pts) {
       toast.error('Por favor completa todos los campos');
       return;
     }
-    
-    setPhoneNumber(phone);
+
+    setDocumentNumber(doc);
     setPoints(pts);
-    
+
     setIsLoading(true);
     try {
-      await sendOtp({ phoneNumber: phone });
+      await sendOtp({ documentNumber: doc });
       setOtpVisible(true);
-      toast.success('Código OTP enviado');
+      toast.success('Código OTP enviado por correo');
     } catch {
       toast.error('Error solicitando OTP');
     } finally {
@@ -51,7 +51,7 @@ export default function RedemptionForm() {
     setIsLoading(true);
     try {
       await redeemPoints({
-        phoneNumber,
+        documentNumber,
         identificationTypeId: 1,
         otpCode,
         points: Number(points),
@@ -67,7 +67,7 @@ export default function RedemptionForm() {
   };
 
   const handleCancel = () => {
-    setPhoneNumber('');
+    setDocumentNumber('');
     setPoints('');
     setOtpCode('');
     setOtpVisible(false);
@@ -85,14 +85,14 @@ export default function RedemptionForm() {
         <form ref={formRef} onSubmit={handleRedeemRequest} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="red-phone">Phone Number</Label>
+              <Label htmlFor="red-document">Documento</Label>
               <Input
-                id="red-phone"
-                name="phoneNumber"
-                type="tel"
+                id="red-document"
+                name="documentNumber"
+                type="text"
                 inputMode="numeric"
-                placeholder="Phone Number"
-                data-testid="red-phone"
+                placeholder="Documento"
+                data-testid="red-document"
               />
             </div>
             <div className="space-y-2">
@@ -133,7 +133,7 @@ export default function RedemptionForm() {
           <div className="rounded-lg bg-secondary/50 p-4">
             <p className="text-sm text-muted-foreground mb-1">Redimiendo</p>
             <p className="font-semibold text-foreground">{points} puntos</p>
-            <p className="text-sm text-muted-foreground">Teléfono: {phoneNumber}</p>
+            <p className="text-sm text-muted-foreground">Documento: {documentNumber}</p>
           </div>
 
           <div className="space-y-2">

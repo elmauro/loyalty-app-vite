@@ -38,9 +38,9 @@ export interface AuthUser extends AuthResponse {
 // Alias de AuthResponse (sin duplicar estructura)
 export type LoginResponseBody = AuthResponse;
 
-// OTP request
+// OTP request (email/phone se obtienen de Cognito por documentNumber)
 export interface OtpRequest {
-  phoneNumber: string;
+  documentNumber: string;
 }
 
 // OTP response con discriminated union

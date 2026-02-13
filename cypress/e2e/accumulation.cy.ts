@@ -4,7 +4,7 @@ describe('Accumulation Form', () => {
   });
 
   it('envía correctamente y muestra mensaje de éxito', () => {
-    cy.get('[data-testid="acc-phone"]').type('3001234567');
+    cy.get('[data-testid="acc-document"]').type('12345678');
     cy.get('[data-testid="acc-value"]').type('100');
     cy.contains('Acumular').click();
     cy.contains('Puntos acumulados', { timeout: 10000 }).should('exist');
@@ -26,14 +26,14 @@ describe('Accumulation Form', () => {
   });
 
   it('puede limpiar el formulario', () => {
-    cy.get('[data-testid="acc-phone"]').type('3001234567');
+    cy.get('[data-testid="acc-document"]').type('12345678');
     cy.get('[data-testid="acc-value"]').type('100');
     cy.contains('Acumulación')
       .parent()
       .within(() => {
         cy.contains('Limpiar').click();
       });
-    cy.get('[data-testid="acc-phone"]').should('have.value', '');
+    cy.get('[data-testid="acc-document"]').should('have.value', '');
     cy.get('[data-testid="acc-value"]').should('have.value', '');
   });
 });

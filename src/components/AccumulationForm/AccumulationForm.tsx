@@ -15,17 +15,17 @@ export default function AccumulationForm() {
   const handleAccumulate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const phoneNumber = (formData.get('phoneNumber') as string) || '';
+    const documentNumber = (formData.get('documentNumber') as string) || '';
     const value = (formData.get('value') as string) || '';
 
-    if (!phoneNumber || !value) {
+    if (!documentNumber || !value) {
       toast.error('Por favor completa todos los campos');
       return;
     }
     setIsLoading(true);
     try {
       await accumulatePoints({
-        phoneNumber,
+        documentNumber,
         identificationTypeId: 1,
         value: Number(value),
       });
@@ -53,14 +53,14 @@ export default function AccumulationForm() {
       <form ref={formRef} onSubmit={handleAccumulate} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="acc-phone">Phone Number</Label>
+            <Label htmlFor="acc-document">Documento</Label>
             <Input
-              id="acc-phone"
-              name="phoneNumber"
-              type="tel"
+              id="acc-document"
+              name="documentNumber"
+              type="text"
               inputMode="numeric"
-              placeholder="Phone Number"
-              data-testid="acc-phone"
+              placeholder="Documento"
+              data-testid="acc-document"
             />
           </div>
           <div className="space-y-2">

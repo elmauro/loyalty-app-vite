@@ -4,7 +4,7 @@ describe('Redemption Form', () => {
   });
 
   it('permite solicitar OTP y muestra el campo de código', () => {
-    cy.get('[data-testid="red-phone"]').type('3001234567');
+    cy.get('[data-testid="red-document"]').type('12345678');
     cy.get('[data-testid="red-points"]').type('200');
     cy.contains('Redimir').click();
     cy.get('[data-testid="otp-code"]', { timeout: 10000 }).should('be.visible');
@@ -12,7 +12,7 @@ describe('Redemption Form', () => {
   });
 
   it('permite completar redención con OTP válido', () => {
-    cy.get('[data-testid="red-phone"]').type('3001234567');
+    cy.get('[data-testid="red-document"]').type('12345678');
     cy.get('[data-testid="red-points"]').type('200');
     cy.contains('Redimir').click();
     cy.get('[data-testid="otp-code"]', { timeout: 10000 }).should('be.visible').type('123456');
@@ -36,11 +36,11 @@ describe('Redemption Form', () => {
   });
 
   it('puede cancelar la operación después de solicitar OTP', () => {
-    cy.get('[data-testid="red-phone"]').type('3001234567');
+    cy.get('[data-testid="red-document"]').type('12345678');
     cy.get('[data-testid="red-points"]').type('200');
     cy.contains('Redimir').click();
     cy.get('[data-testid="otp-code"]', { timeout: 10000 }).should('be.visible');
     cy.contains('Cancelar').click();
-    cy.get('[data-testid="red-phone"]').should('be.visible');
+    cy.get('[data-testid="red-document"]').should('be.visible');
   });
 });

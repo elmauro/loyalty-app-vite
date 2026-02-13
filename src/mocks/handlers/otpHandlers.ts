@@ -8,14 +8,14 @@ export const otpHandlers = [
   http.post<never, OtpRequest, OtpApiResponse>(
     '/otp53rv1c3-1',
     async ({ request }) => {
-      const body = (await request.json()) as { phoneNumber?: string };
+      const body = (await request.json()) as { documentNumber?: string };
 
-      if (!body?.phoneNumber) {
+      if (!body?.documentNumber) {
         return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
       }
 
-      // Swagger 429: rate limit (ej. mismo número en poco tiempo). Trigger para e2e: número termina en 429.
-      if (String(body.phoneNumber).endsWith('429')) {
+      // Swagger 429: rate limit. Trigger para e2e: documentNumber termina en 429.
+      if (String(body.documentNumber).endsWith('429')) {
         return HttpResponse.json(getMockResponse('common', 'tooManyRequests'), { status: 429 });
       }
 

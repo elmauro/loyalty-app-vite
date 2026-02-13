@@ -14,9 +14,9 @@ export const transactionHandlers = [
   http.post<never, RedeemPointsRequest, TransactionApiResponse>(
     '/expense53rv1c3/expense',
     async ({ request }) => {
-      const body = await request.json();
+      const body = (await request.json()) as RedeemPointsRequest;
 
-      if (!body.otpCode || body.points <= 0) {
+      if (!body.documentNumber || !body.otpCode || body.points <= 0) {
         return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
       }
 
@@ -48,9 +48,9 @@ export const transactionHandlers = [
   http.post<never, AccumulatePointsRequest, TransactionApiResponse>(
     '/income53rv1c3/income',
     async ({ request }) => {
-      const body = await request.json();
+      const body = (await request.json()) as AccumulatePointsRequest;
 
-      if (!body.value || body.value <= 0) {
+      if (!body.documentNumber || !body.value || body.value <= 0) {
         return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
       }
 

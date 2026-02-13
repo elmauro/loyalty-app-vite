@@ -13,17 +13,17 @@ export interface Transaction {
   tenantCode?: string;
 }
 
-// Base común para requests que usan phone + idType
-interface BasePointsRequest {
+// Base común para requests de acumulación (documentNumber)
+export interface AccumulatePointsRequest {
   identificationTypeId: number;
-  phoneNumber: string;
-}
-
-export interface AccumulatePointsRequest extends BasePointsRequest {
+  documentNumber: string;
   value: number;
 }
 
-export interface RedeemPointsRequest extends BasePointsRequest {
+// Redención: documentNumber, otpCode (email/phone de Cognito)
+export interface RedeemPointsRequest {
+  identificationTypeId: number;
+  documentNumber: string;
   points: number;
   otpCode: string;
 }

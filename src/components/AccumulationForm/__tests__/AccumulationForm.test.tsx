@@ -16,8 +16,8 @@ jest.mock('../../../services/transactionService');
 describe('AccumulationForm', () => {
   const setup = () => {
     renderWithProviders(<AccumulationForm />);
-    fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
-      target: { value: '3001234567' }
+    fireEvent.change(screen.getByPlaceholderText(/Documento/i), {
+      target: { value: '12345678' }
     });
     fireEvent.change(screen.getByPlaceholderText(/Valor/i), {
       target: { value: '100' }
@@ -34,7 +34,7 @@ describe('AccumulationForm', () => {
 
     await waitFor(() => {
       expect(accumulateMock).toHaveBeenCalledWith({
-        phoneNumber: '3001234567',
+        documentNumber: '12345678',
         identificationTypeId: 1,
         value: 100
       });
