@@ -7,7 +7,11 @@ export async function sendOtp(data: OtpRequest): Promise<OtpApiResponse> {
   if (!trimmed) {
     throw new Error('documentNumber is required');
   }
-  const response = await axiosAuth.post<OtpApiResponse>('/otp53rv1c3-1', { documentNumber: trimmed });
+  const payload = {
+    documentNumber: trimmed,
+    identificationTypeId: data.identificationTypeId ?? 1,
+  };
+  const response = await axiosAuth.post<OtpApiResponse>('/otp53rv1c3-1', payload);
   return response.data;
 }
 

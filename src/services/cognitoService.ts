@@ -74,7 +74,7 @@ export async function signUp(params: {
 
   const docTrimmed = (params.docNumber ?? '').trim();
   if (!docTrimmed) {
-    throw new Error('DOCUMENT_REQUIRED');
+    throw new Error('VALIDATION_ERROR');
   }
 
   // Atributos custom (deben existir en el User Pool de Cognito)

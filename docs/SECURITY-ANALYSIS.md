@@ -75,7 +75,7 @@ Este documento contiene los riesgos de seguridad identificados en la aplicación
 
 **Impacto:** Posibles inyecciones, datos malformados enviados al backend.
 
-**Mitigaciones aplicadas (feb 2025):** `documentNumber` se valida en frontend y backend (no vacío, trim); Pre Sign-up Lambda en Cognito valida unicidad y documento requerido; expense, income y OTP rechazan documentNumber vacío.
+**Mitigaciones aplicadas (feb 2025):** `documentNumber` se valida en frontend y backend (no vacío, trim); Pre Sign-up Lambda en Cognito valida unicidad y documento requerido; expense, income y OTP rechazan documentNumber vacío. **Mensajes genéricos:** registro, OTP y expense/income devuelven mensajes que no revelan si un documento/teléfono/email existe (evita enumeración).
 
 **Estado:** ⬜ Pendiente (sanitización profunda pendiente)
 

@@ -84,21 +84,26 @@ export default function Registration() {
       }
     } catch (err: unknown) {
       const message = (err as { message?: string })?.message || '';
-      if (message.includes('UsernameExistsException') || message.includes('already exists')) {
-        setErrors({ email: 'Este email ya está registrado. Inicia sesión o recupera tu contraseña.' });
-        toast.error('Este email ya está registrado.');
-      } else if (message.includes('DOCUMENT_ALREADY_REGISTERED')) {
-        setErrors({ documentNumber: 'Este documento ya está registrado.' });
-        toast.error('Este documento ya está registrado.');
-      } else if (message.includes('DOCUMENT_REQUIRED')) {
-        setErrors({ documentNumber: 'El número de documento es requerido.' });
-        toast.error('El número de documento es requerido.');
+      const genericError = 'No se pudo completar el registro. Verifica los datos e intenta de nuevo.';
+      const validationError = 'Verifica que todos los campos requeridos estén completos.';
+      if (message.includes('VALIDATION_ERROR') || message.includes('DOCUMENT_REQUIRED')) {
+        setErrors({ documentNumber: validationError });
+        toast.error(validationError);
+      } else if (
+        message.includes('UsernameExistsException') ||
+        message.includes('REGISTRATION_FAILED') ||
+        message.includes('DOCUMENT_ALREADY_REGISTERED') ||
+        message.includes('PHONE_ALREADY_REGISTERED') ||
+        message.includes('already exists')
+      ) {
+        setErrors({});
+        toast.error(genericError);
       } else if (message.toLowerCase().includes('phone') || message.toLowerCase().includes('teléfono')) {
-        setErrors({ phoneNumber: message || 'Formato de teléfono inválido. Usa 10 dígitos (ej. 3001234567).' });
-        toast.error(message || 'Formato de teléfono inválido');
+        setErrors({ phoneNumber: genericError });
+        toast.error(genericError);
       } else {
-        setErrors({ email: message || 'Error al registrar. Intenta de nuevo.' });
-        toast.error(message || 'Error al registrar');
+        setErrors({});
+        toast.error(genericError);
       }
     } finally {
       setIsLoading(false);

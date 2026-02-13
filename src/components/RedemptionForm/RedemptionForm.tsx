@@ -9,9 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Gift, RotateCcw, ShieldCheck, X } from 'lucide-react';
 
+const DEFAULT_IDENTIFICATION_TYPE_ID = 1;
+
 export default function RedemptionForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [documentNumber, setDocumentNumber] = useState('');
+  const [identificationTypeId, setIdentificationTypeId] = useState(DEFAULT_IDENTIFICATION_TYPE_ID);
   const [points, setPoints] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpVisible, setOtpVisible] = useState(false);
@@ -30,10 +33,11 @@ export default function RedemptionForm() {
 
     setDocumentNumber(doc);
     setPoints(pts);
+    setIdentificationTypeId(DEFAULT_IDENTIFICATION_TYPE_ID);
 
     setIsLoading(true);
     try {
-      await sendOtp({ documentNumber: doc });
+      await sendOtp({ documentNumber: doc, identificationTypeId: DEFAULT_IDENTIFICATION_TYPE_ID });
       setOtpVisible(true);
       toast.success('Código OTP enviado por correo');
     } catch {
@@ -68,6 +72,7 @@ export default function RedemptionForm() {
 
   const handleCancel = () => {
     setDocumentNumber('');
+    setIdentificationTypeId(DEFAULT_IDENTIFICATION_TYPE_ID);
     setPoints('');
     setOtpCode('');
     setOtpVisible(false);
