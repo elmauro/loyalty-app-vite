@@ -22,6 +22,11 @@ export const API_KEY = getEnv(
 
 /** Header x-transaction-type por contexto. Income endpoint usa 'sale'. */
 export const TRANSACTION_TYPE_INCOME = getEnv('VITE_TRANSACTION_TYPE_INCOME', 'sale');
+
+/** Base path GET reglas (engine-api getRules). */
+export const RULES_GET_API_PATH = getEnv('VITE_RULES_GET_API_PATH', 'rulesGet53rv1c3');
+/** Base path PUT reglas (engine-api updateRules). */
+export const RULES_UPDATE_API_PATH = getEnv('VITE_RULES_UPDATE_API_PATH', 'rulesPat53rv1c3');
 /** Expense (canje) endpoint usa 'redemption'. */
 export const TRANSACTION_TYPE_EXPENSE = getEnv('VITE_TRANSACTION_TYPE_EXPENSE', 'redemption');
 

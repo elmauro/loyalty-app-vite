@@ -8,6 +8,7 @@ export const paths = {
   changePassword: '/change-password',
   administration: '/administration',
   programAdministration: '/program-administration',
+  rules: '/rules',
   user: '/user',
 } as const;
   

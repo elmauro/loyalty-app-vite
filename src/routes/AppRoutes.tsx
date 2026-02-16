@@ -8,6 +8,7 @@ import ResetPassword from '../pages/ResetPassword/ResetPassword';
 import ChangePassword from '../pages/ChangePassword/ChangePassword';
 import Administration from '../pages/Administration/Administration';
 import ProgramAdministration from '../pages/ProgramAdministration/ProgramAdministration';
+import Rules from '../pages/Rules/Rules';
 import User from '../pages/User/User';
 import ProtectedRoute from './ProtectedRoute';
 import ProtectedLayout from '../layouts/ProtectedLayout';
@@ -32,6 +33,14 @@ export default function AppRoutes() {
             element={
               <ProtectedRoute allowedRoles={[ROLE_ADMIN]}>
                 <Administration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={paths.rules}
+            element={
+              <ProtectedRoute allowedRoles={[ROLE_ADMIN, ROLE_PROGRAM_ADMIN]}>
+                <Rules />
               </ProtectedRoute>
             }
           />

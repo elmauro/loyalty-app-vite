@@ -89,6 +89,25 @@ Mismo contrato y mismas consideraciones que en el historial de transacciones.
 
 ---
 
+### 6. Reglas (`rules` – engine-api)
+
+| Funcionalidad | Endpoint | Documentación |
+|---------------|----------|---------------|
+| Obtener reglas | `GET /rulesGet53rv1c3/engines/jsonrule` | `engine-api/docs/ENGINE-API-POSTMAN.md` |
+| Guardar reglas | `PUT /rulesPat53rv1c3/engines/jsonrule` | Idem |
+| Ejecutar reglas (simulador) | `POST /rules53rv1c3-post/engines/jsonrule` | Idem |
+
+**Contrato:**
+- **Headers:** `x-access-token`, `x-program-id`, `x-transaction-type`, `x-tenant-id` (opcional).
+- **GET response:** plain JSON `{ attributes, decisions }` según json-rules-engine.
+- **PUT body:** mismo formato. La API usa DocumentClient; no hay formato DynamoDB en la capa REST.
+
+**Frontend:** `rulesService.getRules()` y `rulesService.updateRules()` con paths `rulesGet53rv1c3` y `rulesPat53rv1c3`. **Alineado.**
+
+**Nota:** No hay E2E de Cypress para Rules actualmente. Al añadirlas, usar los mismos headers y formato que el resto de la app.
+
+---
+
 ## Resumen de alineación
 
 | Área | Swagger | Frontend (servicios) | Mocks (MSW) | Notas |
@@ -99,6 +118,7 @@ Mismo contrato y mismas consideraciones que en el historial de transacciones.
 | History | ✅ | ✅ | ✅ | Path: Swagger usa `docType`/`documentNumber` (number); frontend envía string; revisar si el backend acepta string. |
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
+| Rules (engine-api) | ENGINE-API-POSTMAN.md | ✅ | — | GET/PUT plain JSON; sin E2E aún. |
 
 ---
 

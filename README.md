@@ -1,6 +1,11 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación de fidelización (loyalty) con acumulación, redención, historial y administración de reglas.
+
+## Módulos principales
+
+- **Acumulación / Redención:** Formularios para registrar compras y canjear puntos.
+- **Reglas:** Administración de reglas de bonificación (engine-api). GET/PUT plain JSON; ver `loyalty-program-serverless/docs/REQUERIMIENTOS-FRONTEND-JSON-RULES.md`.
 
 ## Despliegue en AWS (S3 + CloudFront + Route 53)
 

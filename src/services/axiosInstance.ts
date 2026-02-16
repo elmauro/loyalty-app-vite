@@ -2,7 +2,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { toast } from 'sonner';
 import { getAuthToken } from '../utils/token';
-import { API_BASE_AUTH, API_BASE_APP, PROGRAM_ID, API_KEY } from './apiConfig';
+import { API_BASE_AUTH, API_BASE_APP, PROGRAM_ID, API_KEY, RULES_GET_API_PATH, RULES_UPDATE_API_PATH } from './apiConfig';
 
 const commonHeaders = {
   'x-program-id': PROGRAM_ID,
@@ -28,7 +28,10 @@ function applyInterceptors(instance: AxiosInstance) {
       return config;
     }
     const isIncome = config.url?.includes('income53rv1c3/income');
-    if (isIncome) {
+    const isRules =
+      config.url?.includes(`${RULES_GET_API_PATH}/engines`) ||
+      config.url?.includes(`${RULES_UPDATE_API_PATH}/engines`);
+    if (isIncome || isRules) {
       delete config.headers['x-api-key'];
     } else {
       config.headers.set('x-api-key', API_KEY);
