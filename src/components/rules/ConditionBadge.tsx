@@ -2,8 +2,8 @@ import { RuleCondition, FACT_LABELS, OPERATOR_LABELS, formatValue } from '@/type
 
 export function ConditionBadge({ condition }: { condition: RuleCondition }) {
   const cond = condition ?? { fact: '', operator: '', value: '' };
-  const factLabel = FACT_LABELS[cond.fact] || cond.fact;
   const opLabel = OPERATOR_LABELS[cond.operator] || cond.operator;
+  const factLabel = FACT_LABELS[cond.fact] || cond.fact;
 
   return (
     <div className="flex items-center gap-2 rounded-md bg-muted/60 px-3 py-1.5 text-sm">

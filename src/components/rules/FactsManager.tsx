@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RuleAttribute, FACT_LABELS } from '@/types/rules';
+import { RuleAttribute, DEFAULT_ATTRIBUTES, FACT_LABELS, Decision } from '@/types/rules';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Decision } from '@/types/rules';
+
+const DEFAULT_FACT_KEYS = Object.keys(DEFAULT_ATTRIBUTES);
 
 interface FactsManagerProps {
   attributes: Record<string, RuleAttribute>;
@@ -70,7 +71,8 @@ export function FactsManager({ attributes, decisions, onAttributesChange }: Fact
                 size="icon"
                 className="h-5 w-5 ml-1 text-destructive hover:text-destructive"
                 onClick={() => handleDelete(key)}
-                disabled={usedFacts.has(key)}
+                disabled={usedFacts.has(key) || DEFAULT_FACT_KEYS.includes(key)}
+                title={DEFAULT_FACT_KEYS.includes(key) ? 'Fact por defecto del body Income, no se puede eliminar' : undefined}
               >
                 <Trash2 className="h-3 w-3" />
               </Button>

@@ -54,13 +54,18 @@ export const OPERATOR_LABELS: Record<string, string> = {
 
 export const OPERATORS = Object.keys(OPERATOR_LABELS);
 
+/** Facts por defecto del body de Income. Se guardan con nombres técnicos en el backend. */
+export const DEFAULT_ATTRIBUTES: Record<string, RuleAttribute> = {
+  identificationTypeId: { type: 'number', name: 'identificationTypeId' },
+  documentNumber: { type: 'string', name: 'documentNumber' },
+  value: { type: 'number', name: 'value' },
+};
+
+/** Labels solo para facts por defecto. Solo para visualización; el backend recibe siempre el nombre técnico. */
 export const FACT_LABELS: Record<string, string> = {
   value: 'Monto',
   identificationTypeId: 'Tipo documento',
   documentNumber: 'Número documento',
-  season: 'Temporada',
-  transactionDate: 'Fecha transacción',
-  promoCode: 'Código promocional',
 };
 
 export function formatValue(value: string | number | (string | number)[]): string {

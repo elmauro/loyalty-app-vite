@@ -6,7 +6,7 @@ import { BookOpen, Layers, Plus, Info, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { paths } from '@/routes/paths';
 import { toast } from 'sonner';
-import { Decision, RulesPayload, RuleAttribute } from '@/types/rules';
+import { Decision, RulesPayload, RuleAttribute, DEFAULT_ATTRIBUTES } from '@/types/rules';
 import { RuleCard } from '@/components/rules/RuleCard';
 import { RuleFormDialog } from '@/components/rules/RuleFormDialog';
 import { FactsManager } from '@/components/rules/FactsManager';
@@ -31,10 +31,12 @@ export default function Rules() {
 
   useEffect(() => {
     let cancelled = false;
-    getRules()
+        getRules()
       .then((data) => {
         if (!cancelled) {
-          setRules({ attributes: data.attributes ?? {}, decisions: data.decisions ?? [] });
+          const attrs = data.attributes ?? {};
+          const merged = Object.keys(attrs).length ? { ...DEFAULT_ATTRIBUTES, ...attrs } : DEFAULT_ATTRIBUTES;
+          setRules({ attributes: merged, decisions: data.decisions ?? [] });
         }
       })
       .catch(() => {

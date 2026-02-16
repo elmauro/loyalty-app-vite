@@ -1,4 +1,4 @@
-import { Decision, FACT_LABELS, OPERATOR_LABELS, formatValue } from '@/types/rules';
+import { Decision } from '@/types/rules';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
