@@ -6,7 +6,7 @@ import axiosApp from './axiosInstance';
 import { PROGRAM_ID, RULES_GET_API_PATH, RULES_UPDATE_API_PATH, TRANSACTION_TYPE_INCOME } from './apiConfig';
 import { getAuthToken } from '../utils/token';
 import { getTenantForRequest } from '../utils/token';
-import type { RulesPayload } from '../types/rules';
+import type { RulesPayload, RuleAttribute } from '../types/rules';
 
 const ENGINE = 'jsonrule';
 
@@ -22,15 +22,16 @@ function getRulesHeaders() {
 }
 
 /** Parsea attributes (plain JSON): objeto { [name]: { type, name } } */
-function parseAttributes(attrs: unknown): Record<string, { type: string; name: string }> {
+function parseAttributes(attrs: unknown): Record<string, RuleAttribute> {
   if (!attrs || typeof attrs !== 'object') return {};
-  const result: Record<string, { type: string; name: string }> = {};
+  const result: Record<string, RuleAttribute> = {};
   const obj = attrs as Record<string, unknown>;
   for (const [k, v] of Object.entries(obj)) {
     const item = v && typeof v === 'object' ? (v as Record<string, unknown>) : {};
     const name = String(item?.name ?? k);
-    const type = String(item?.type ?? 'string');
-    if (name) result[name] = { type: type || 'string', name };
+    const typeRaw = String(item?.type ?? 'string');
+    const type: RuleAttribute['type'] = typeRaw === 'number' ? 'number' : 'string';
+    if (name) result[name] = { type, name };
   }
   return result;
 }
