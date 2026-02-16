@@ -33,7 +33,14 @@ export default function AccumulationForm() {
       formRef.current?.reset();
     } catch (err: unknown) {
       const status = getErrorStatus(err);
-      toast.error(status != null ? getAccumulationErrorMessage(status) : 'Error de conexión. Intenta más tarde.');
+      const errorData = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { error?: string } } }).response?.data
+        : undefined;
+      toast.error(
+        status != null
+          ? getAccumulationErrorMessage(status, errorData)
+          : 'Error de conexión. Intenta más tarde.'
+      );
     } finally {
       setIsLoading(false);
     }

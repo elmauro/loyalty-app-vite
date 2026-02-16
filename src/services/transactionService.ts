@@ -22,7 +22,12 @@ export { BACKEND_CHUNK_SIZE };
 export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{ status: string }> {
   const token = getAuthToken();
   const tenantCode = getTenantCodeForRequest();
-  const payload = { ...data, phoneNumber: data.documentNumber };
+  if (!tenantCode?.trim()) {
+    throw Object.assign(new Error('Tenant no configurado'), {
+      response: { status: 400, data: { error: 'x-tenant-code requerido' } },
+    });
+  }
+  const payload = { ...data };
   const response = await axiosApp.post('/income53rv1c3/income', payload, {
     headers: {
       'x-access-token': token ?? '',

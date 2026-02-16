@@ -50,7 +50,7 @@ export const transactionHandlers = [
     async ({ request }) => {
       const body = (await request.json()) as AccumulatePointsRequest;
 
-      if (!body.documentNumber || !body.value || body.value <= 0) {
+      if (!body.documentNumber || body.identificationTypeId == null || !body.value || body.value <= 0) {
         return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
       }
 

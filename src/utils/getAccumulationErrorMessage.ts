@@ -1,4 +1,7 @@
-export function getAccumulationErrorMessage(status: number): string {
+export function getAccumulationErrorMessage(status: number, errorData?: { error?: string }): string {
+    if (status === 400 && errorData?.error?.toLowerCase().includes('tenant')) {
+      return 'No tienes un tenant asignado. Inicia sesión con un usuario que tenga oficina/tenant configurado.';
+    }
     switch (status) {
       case 400: return 'Solicitud inválida';
       case 401: return 'No autorizado';
