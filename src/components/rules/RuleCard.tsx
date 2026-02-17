@@ -13,9 +13,10 @@ interface RuleCardProps {
   onToggle: (index: number) => void;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
+  'data-testid'?: string;
 }
 
-export function RuleCard({ decision, index, onToggle, onEdit, onDelete }: RuleCardProps) {
+export function RuleCard({ decision, index, onToggle, onEdit, onDelete, 'data-testid': testId }: RuleCardProps) {
   const conditionsObj = decision?.conditions ?? {};
   const conditions = conditionsObj.all || conditionsObj.any || [];
   const isAny = !!conditionsObj.any;
@@ -25,7 +26,7 @@ export function RuleCard({ decision, index, onToggle, onEdit, onDelete }: RuleCa
   const enabled = decision?.enabled !== false;
 
   return (
-    <Card className={`overflow-hidden border-border/60 transition-all ${!enabled ? 'opacity-50' : 'hover:shadow-md'}`}>
+    <Card className={`overflow-hidden border-border/60 transition-all ${!enabled ? 'opacity-50' : 'hover:shadow-md'}`} data-testid={testId}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
@@ -74,7 +75,7 @@ export function RuleCard({ decision, index, onToggle, onEdit, onDelete }: RuleCa
             <span className="text-muted-foreground">puntos</span>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(index)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(index)} data-testid="rule-card-edit">
               <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button
@@ -82,6 +83,7 @@ export function RuleCard({ decision, index, onToggle, onEdit, onDelete }: RuleCa
               size="icon"
               className="h-8 w-8 text-destructive hover:text-destructive"
               onClick={() => onDelete(index)}
+              data-testid="rule-card-delete"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>

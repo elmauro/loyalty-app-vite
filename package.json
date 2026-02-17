@@ -12,6 +12,7 @@
     "cy:e2e": "start-server-and-test cy:dev http://localhost:51730 \"cypress open\"",
     "cy:pre:e2e": "npx --yes kill-port 51730 || exit 0",
     "cy:e2e:run": "npm run cy:pre:e2e && start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e\"",
+    "cy:e2e:run:rules": "npm run cy:pre:e2e && start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e --spec cypress/e2e/rules.cy.ts\"",
     "cy:dev:real": "vite",
     "cy:e2e:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress open\"",
     "cy:e2e:run:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress run --e2e\""

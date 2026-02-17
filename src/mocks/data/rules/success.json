@@ -1,0 +1,18 @@
+{
+  "attributes": {
+    "identificationTypeId": { "type": "number", "name": "identificationTypeId" },
+    "documentNumber": { "type": "string", "name": "documentNumber" },
+    "value": { "type": "number", "name": "value" }
+  },
+  "decisions": [
+    {
+      "conditions": {
+        "all": [
+          { "fact": "value", "operator": "greaterThanInclusive", "value": 10000 }
+        ]
+      },
+      "event": { "type": "2000", "params": { "rule": "CompraGrande" } },
+      "enabled": true
+    }
+  ]
+}

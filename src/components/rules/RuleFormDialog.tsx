@@ -127,7 +127,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" aria-describedby={undefined}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" aria-describedby={undefined} data-testid="rule-form-dialog">
         <DialogHeader>
           <DialogTitle>{decision ? 'Editar regla' : 'Nueva regla'}</DialogTitle>
         </DialogHeader>
@@ -137,6 +137,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
             <div className="space-y-1.5">
               <Label>Nombre de la regla</Label>
               <Input
+                data-testid="rule-form-name"
                 value={form.event.params.rule}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, event: { ...prev.event, params: { rule: e.target.value } } }))
@@ -147,6 +148,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
             <div className="space-y-1.5">
               <Label>Puntos a otorgar</Label>
               <Input
+                data-testid="rule-form-points"
                 type="number"
                 value={form.event.type}
                 onChange={(e) =>
@@ -192,7 +194,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
                 <div className="flex-1 space-y-1">
                   <Label className="text-xs text-muted-foreground">Fact</Label>
                   <Select value={cond.fact} onValueChange={(v) => updateCondition(idx, { fact: v })}>
-                    <SelectTrigger>
+                    <SelectTrigger data-testid={idx === 0 ? 'rule-form-condition-fact' : undefined}>
                       <SelectValue placeholder="Seleccionar..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,6 +226,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
                 <div className="flex-1 space-y-1">
                   <Label className="text-xs text-muted-foreground">Valor</Label>
                   <Input
+                    data-testid={idx === 0 ? 'rule-form-condition-value' : undefined}
                     value={String(cond.value)}
                     onChange={(e) => updateCondition(idx, { value: e.target.value })}
                     placeholder="ej. 10000 o [1,2,3]"
@@ -246,10 +249,10 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} data-testid="rule-form-cancel">
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} data-testid="rule-form-save">
             {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
             {decision ? 'Guardar cambios' : 'Crear regla'}
           </Button>

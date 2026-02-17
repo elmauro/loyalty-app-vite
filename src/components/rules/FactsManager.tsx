@@ -67,6 +67,7 @@ export function FactsManager({ attributes, decisions, onAttributesChange }: Fact
               <span className="font-mono text-xs">{FACT_LABELS[key] || key}</span>
               <span className="text-muted-foreground">({attr.type})</span>
               <Button
+                data-testid={`facts-delete-${key}`}
                 variant="ghost"
                 size="icon"
                 className="h-5 w-5 ml-1 text-destructive hover:text-destructive"
@@ -80,15 +81,20 @@ export function FactsManager({ attributes, decisions, onAttributesChange }: Fact
           ))}
         </div>
 
-        <div className="flex items-end gap-3 rounded-lg border border-dashed border-border p-3">
+        <div className="flex items-end gap-3 rounded-lg border border-dashed border-border p-3" data-testid="facts-add-form">
           <div className="flex-1 space-y-1">
             <Label className="text-xs">Nombre (camelCase)</Label>
-            <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="ej. promoCode" />
+            <Input
+              data-testid="facts-add-name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="ej. promoCode"
+            />
           </div>
           <div className="w-32 space-y-1">
             <Label className="text-xs">Tipo</Label>
             <Select value={newType} onValueChange={(v: 'string' | 'number') => setNewType(v)}>
-              <SelectTrigger>
+              <SelectTrigger data-testid="facts-add-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -97,7 +103,7 @@ export function FactsManager({ attributes, decisions, onAttributesChange }: Fact
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleAdd} size="sm">
+          <Button data-testid="facts-add-btn" onClick={handleAdd} size="sm">
             <Plus className="h-3.5 w-3.5 mr-1" /> Añadir
           </Button>
         </div>

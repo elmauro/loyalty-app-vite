@@ -165,7 +165,7 @@ export default function Rules() {
               <p className="text-muted-foreground">Gestión de reglas del programa de puntos</p>
             </div>
           </div>
-          <Button onClick={handleCreate} disabled={saving}>
+          <Button onClick={handleCreate} disabled={saving} data-testid="rules-new-rule">
             {saving ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Plus className="h-4 w-4 mr-1.5" />}
             Nueva regla
           </Button>
@@ -183,8 +183,8 @@ export default function Rules() {
 
       <Tabs defaultValue="rules">
         <TabsList>
-          <TabsTrigger value="rules">Reglas</TabsTrigger>
-          <TabsTrigger value="facts">Facts</TabsTrigger>
+          <TabsTrigger value="rules" data-testid="rules-tab-rules">Reglas</TabsTrigger>
+          <TabsTrigger value="facts" data-testid="rules-tab-facts">Facts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="rules" className="space-y-4 mt-4">
@@ -203,6 +203,7 @@ export default function Rules() {
                 onToggle={handleToggle}
                 onEdit={handleEdit}
                 onDelete={(idx) => setDeleteIndex(idx)}
+                data-testid={`rule-card-${i}`}
               />
             ))}
           </div>

@@ -104,7 +104,7 @@ Mismo contrato y mismas consideraciones que en el historial de transacciones.
 
 **Frontend:** `rulesService.getRules()` y `rulesService.updateRules()` con paths `rulesGet53rv1c3` y `rulesPut53rv1c3`. **Alineado.**
 
-**Nota:** No hay E2E de Cypress para Rules actualmente. Al añadirlas, usar los mismos headers y formato que el resto de la app.
+**E2E (Cypress):** `cypress/e2e/rules.cy.ts` — carga de reglas, crear/editar regla, pestaña Facts, validaciones. Mocks en `rulesHandlers.ts` (GET/PUT).
 
 ---
 
@@ -118,7 +118,7 @@ Mismo contrato y mismas consideraciones que en el historial de transacciones.
 | History | ✅ | ✅ | ✅ | Path: Swagger usa `docType`/`documentNumber` (number); frontend envía string; revisar si el backend acepta string. |
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
-| Rules (engine-api) | ENGINE-API-POSTMAN.md | ✅ | — | GET/PUT plain JSON; sin E2E aún. |
+| Rules (engine-api) | ENGINE-API-POSTMAN.md | ✅ | ✅ | GET/PUT plain JSON; E2E en `rules.cy.ts`. |
 
 ---
 
