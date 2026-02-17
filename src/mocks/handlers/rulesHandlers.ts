@@ -7,8 +7,9 @@ import { getMockResponse } from '../mockService';
 const RULES_GET_PATH = '/rulesGet53rv1c3/engines/jsonrule';
 const RULES_PUT_PATH = '/rulesPut53rv1c3/engines/jsonrule';
 
-// Estado mutable para simular persistencia entre GET y PUT en la misma sesión
-let mockRulesState = { ...rulesSuccess };
+/** Estado mutable para simular persistencia entre GET y PUT en la misma sesión */
+type RulesState = { attributes: Record<string, unknown>; decisions: unknown[] };
+let mockRulesState: RulesState = JSON.parse(JSON.stringify(rulesSuccess)) as RulesState;
 
 export const rulesHandlers = [
   http.get(RULES_GET_PATH, () => {
@@ -16,7 +17,7 @@ export const rulesHandlers = [
   }),
 
   http.put(RULES_PUT_PATH, async ({ request }) => {
-    const body = (await request.json()) as { attributes?: unknown; decisions?: unknown[] };
+    const body = (await request.json()) as { attributes?: Record<string, unknown>; decisions?: unknown[] };
     if (!body || typeof body !== 'object') {
       return HttpResponse.json(getMockResponse('common', 'badrequest'), { status: 400 });
     }
@@ -30,5 +31,5 @@ export const rulesHandlers = [
 
 /** Resetea el estado de reglas para tests aislados */
 export function resetRulesMock() {
-  mockRulesState = JSON.parse(JSON.stringify(rulesSuccess)) as typeof rulesSuccess;
+  mockRulesState = JSON.parse(JSON.stringify(rulesSuccess)) as RulesState;
 }
