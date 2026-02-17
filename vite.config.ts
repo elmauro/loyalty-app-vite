@@ -94,6 +94,17 @@ export default defineConfig({
           });
         },
       },
+      '/pointsExp53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
     },
   },
   resolve: {

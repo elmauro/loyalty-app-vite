@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { BACKEND_CHUNK_SIZE } from '../../constants/pagination';
-import { getTransactions, getPoints } from '../../services/transactionService';
+import { getTransactions, getPoints, getExpiringPoints } from '../../services/transactionService';
 import { useAuth } from '../../store/AuthContext';
 import TransactionTableWithPagination from '../../components/TransactionsTable/TransactionTableWithPagination';
 import { toast } from 'sonner';
@@ -8,7 +8,8 @@ import { Transaction } from '../../types/Transaction';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User as UserIcon, Search, RotateCcw, Calendar, Star, TrendingUp } from 'lucide-react';
+import { User as UserIcon, Search, RotateCcw, Calendar, Star, TrendingUp, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -24,6 +25,7 @@ export default function UserPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPagingLoading, setIsPagingLoading] = useState(false);
   const [availablePoints, setAvailablePoints] = useState<number | null>(null);
+  const [expiringPoints, setExpiringPoints] = useState<{ points: number; expirationDate: string } | null>(null);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
 
   const user = state.user;
@@ -37,11 +39,16 @@ export default function UserPage() {
       }
       setIsLoadingPoints(true);
       try {
-        const res = await getPoints('1', phoneNumber);
-        setAvailablePoints(res.points ?? res.balance ?? 0);
+        const [pointsRes, expiringRes] = await Promise.all([
+          getPoints('1', phoneNumber),
+          getExpiringPoints('1', phoneNumber),
+        ]);
+        setAvailablePoints(pointsRes.points ?? pointsRes.balance ?? 0);
+        setExpiringPoints(expiringRes);
       } catch {
         toast.error('Error al consultar puntos');
         setAvailablePoints(null);
+        setExpiringPoints(null);
       } finally {
         setIsLoadingPoints(false);
       }
@@ -148,23 +155,57 @@ export default function UserPage() {
         </div>
       </div>
 
-      <div className="card-elevated flex items-center gap-4 p-6 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-          <Star className="h-6 w-6 text-primary" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-muted-foreground">Puntos Disponibles</p>
-          {isLoadingPoints ? (
-            <div className="mt-1 h-8 w-24 animate-pulse rounded bg-muted" />
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-3xl font-bold text-foreground">
-                {availablePoints != null ? availablePoints.toLocaleString('es-CO') : '-'}
-              </span>
-              <TrendingUp className="h-5 w-5 text-primary" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10" data-testid="user-card-puntos-disponibles">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Star className="h-6 w-6 text-primary" />
             </div>
-          )}
-        </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-muted-foreground">Puntos Disponibles</p>
+              {isLoadingPoints ? (
+                <div className="mt-1 h-8 w-24 animate-pulse rounded bg-muted" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl font-bold text-foreground">
+                    {availablePoints != null ? availablePoints.toLocaleString('es-CO') : '-'}
+                  </span>
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-warning/20 bg-gradient-to-br from-warning/5 to-warning/10" data-testid="user-card-puntos-por-vencer">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-warning/10">
+              <Clock className="h-6 w-6 text-warning" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-muted-foreground">Puntos por Vencer</p>
+              {isLoadingPoints ? (
+                <div className="mt-1 h-8 w-24 animate-pulse rounded bg-muted" />
+              ) : expiringPoints && (expiringPoints.points > 0 || expiringPoints.expirationDate) ? (
+                <div>
+                  <span className="text-3xl font-bold text-warning">
+                    {expiringPoints.points.toLocaleString('es-CO')}
+                  </span>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Vencen el{' '}
+                    {new Date(expiringPoints.expirationDate).toLocaleDateString('es-CO', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </p>
+                </div>
+              ) : (
+                <span className="text-sm text-muted-foreground">Sin puntos por vencer</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="form-section animate-slide-up">

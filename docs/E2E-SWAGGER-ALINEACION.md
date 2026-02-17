@@ -57,7 +57,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 **Frontend:** `otpService.sendOtp()` → auth base; `transactionService.redeemPoints()` con `phoneNumber`, `points`, `otpCode`, `identificationTypeId`. **Alineado con expense.**
 
-**Swagger OTP:** `otp-api/docs/swagger.yaml` — Request: `phoneNumber`. Responses: 200 (éxito, sin OTP en cuerpo en producción), 400 (code, error), 429 (rate limit).
+**Swagger OTP:** `otp-api/docs/swagger.yaml` — Request: `phoneNumber`. Responses: 200 (éxito, sin OTP en cuerpo en producción), 400 (code, error), 429 (rate limit). **Requiere JWT** (`x-access-token`) y solo administradores (`iscustomer != 1`).
 
 **Mocks:** OTP devuelve `{ type: 'success', otp: '...' }`; expense devuelve success. E2E usan OTP `123456` y esperan "Puntos redimidos". **Alineado con mocks actuales.**
 
@@ -68,14 +68,15 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | E2E escenario | Endpoint | Swagger |
 |---------------|----------|---------|
 | Consulta con doc + fechas, paginación (tamaño 10/20/50), anterior/siguiente, documento vacío, 401, limpiar | `GET /history53rv1c3/history/{docType}/{documentNumber}` | `transaction-api/docs/history/swagger.yml` |
+| Tabs Todo/Acumulado/Redimido, filtrado por tipo, badge "Vencido" en expirados | Mismo endpoint | Idem |
 
 **Contrato (Swagger):**
 - **Path:** `docType` (number), `documentNumber` (number). **Query:** `startDate`, `endDate`, `page`, `limit` (enum 10, 20, 50, 100; default 100).
-- **Response 200:** `{ data: Transaction[], total, page, limit }`.
+- **Response 200:** `{ data: Transaction[], total, page, limit }`. Cada transacción incluye `type` (`sale`, `income`, `redemption`, `expiration`). El backend devuelve `points` siempre positivos; el tipo indica acumulación vs redención/expirado.
 
-**Frontend:** `getTransactions(typeId, document, startDate, endDate, page, limit)` con `typeId = '1'` y `document` string. La URL es `/history53rv1c3/history/${typeId}/${document}`. En la práctica muchos backends aceptan números en path como string; si el backend exige **solo número**, habría que asegurar que `document` sea numérico o que el servidor acepte string.
+**Frontend:** `getTransactions(typeId, document, startDate, endDate, page, limit)` con `typeId = '1'` y `document` string. La URL es `/history53rv1c3/history/${typeId}/${document}`. La tabla muestra tabs **Todo**, **Acumulado** (sale/income) y **Redimido** (redemption/expiration). Las redenciones y expirados se muestran con signo `-`; los expirados llevan badge "Vencido".
 
-**Mocks:** Devuelven `{ data, total, page, limit }` y expanden a 25 ítems para probar paginación (p. ej. "Página 1 de 3" con 10 por página). **Alineado.**
+**Mocks:** Devuelven `{ data, total, page, limit }` y expanden a 25 ítems con tipos `sale`, `income`, `redemption`, `expiration` para probar paginación y filtros. **Alineado.**
 
 ---
 
@@ -83,9 +84,13 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 | E2E escenario | Endpoint | Swagger |
 |---------------|----------|---------|
-| Dashboard usuario, consulta transacciones (fechas), logout | Mismo `GET /history53rv1c3/history/...` que arriba | Mismo `history/swagger.yml` |
+| Dashboard usuario, Puntos Disponibles, Puntos por Vencer, consulta transacciones (fechas), tabs historial, logout | `GET /history53rv1c3/history/...`, `GET /points53rv1c3/points/...`, `GET /pointsExp53rv1c3/points/...` | history, points, pointsExp |
 
-Mismo contrato y mismas consideraciones que en el historial de transacciones.
+**Puntos Disponibles:** `GET /points53rv1c3/points/{typeId}/{document}` → `{ points: number }`. El usuario (rol 2) usa su `identification` del JWT como documento.
+
+**Puntos por Vencer:** `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points: number, expirationDate: string }`. Muestra el lote de puntos más próximo a vencer.
+
+**Mocks:** El usuario de prueba (55555555/5555) tiene `identification: "55555555"` en el JWT. Los mocks devuelven 1500 puntos disponibles y 400 puntos por vencer (fecha 2026-03-31). **Alineado.**
 
 ---
 
@@ -115,8 +120,9 @@ Mismo contrato y mismas consideraciones que en el historial de transacciones.
 | Auth (login) | ✅ | ✅ | ✅ | Request/response alineados. |
 | Income (acumulación) | ✅ | ✅ | ✅ | 200 con `status`. |
 | Expense (redención) | ✅ | ✅ | ✅ | Incluye 409 en Swagger; frontend puede mostrar error genérico por status. |
-| History | ✅ | ✅ | ✅ | Path: Swagger usa `docType`/`documentNumber` (number); frontend envía string; revisar si el backend acepta string. |
+| History | ✅ | ✅ | ✅ | Path: Swagger usa `docType`/`documentNumber` (number); frontend envía string. Tabs Todo/Acumulado/Redimido; badge Vencido para `type: expiration`. |
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
+| Points Expiring | ✅ | ✅ | ✅ | `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points, expirationDate }`. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
 | Rules (engine-api) | ENGINE-API-POSTMAN.md | ✅ | ✅ | GET/PUT plain JSON; E2E en `rules.cy.ts`. |
 

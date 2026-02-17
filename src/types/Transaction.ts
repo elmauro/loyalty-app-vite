@@ -1,7 +1,7 @@
 // src/types/Transaction.ts
 
-/** sale = acumulación (positivo), redemption/income = canje (negativo) */
-export type TransactionType = 'sale' | 'income' | 'redemption';
+/** sale = acumulación (positivo), redemption = canje (negativo), expiration = puntos vencidos */
+export type TransactionType = 'sale' | 'income' | 'redemption' | 'expiration';
 
 export interface Transaction {
   id: string;
@@ -44,6 +44,12 @@ export type TransactionApiResponse = TransactionSuccess | TransactionError;
 export interface PointsResponse {
   points?: number;
   balance?: number;
+}
+
+/** Puntos que vencen pronto (requiere endpoint en backend) */
+export interface ExpiringPointsResponse {
+  points: number;
+  expirationDate: string;
 }
 
 /** Respuesta paginada del historial de transacciones */

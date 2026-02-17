@@ -68,4 +68,50 @@ describe('Transaction History Form', () => {
       });
     cy.get('[data-testid="th-doc"]').should('have.value', '');
   });
+
+  it('muestra tabs Todo, Acumulado y Redimido', () => {
+    cy.get('[data-testid="th-doc"]').type('3001234567');
+    cy.get('[data-testid="th-startDate"]').type('2023-10-01');
+    cy.get('[data-testid="th-endDate"]').type('2023-10-10');
+    cy.contains('Buscar').click();
+    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.get('[data-testid="tx-tabs"]').should('be.visible');
+    cy.get('[data-testid="tx-tab-all"]').should('contain', 'Todo');
+    cy.get('[data-testid="tx-tab-accumulation"]').should('contain', 'Acumulado');
+    cy.get('[data-testid="tx-tab-redemption"]').should('contain', 'Redimido');
+  });
+
+  it('filtra transacciones por tab Acumulado', () => {
+    cy.get('[data-testid="th-doc"]').type('3001234567');
+    cy.get('[data-testid="th-startDate"]').type('2023-10-01');
+    cy.get('[data-testid="th-endDate"]').type('2023-10-10');
+    cy.contains('Buscar').click();
+    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.get('[data-testid="tx-tab-accumulation"]').click();
+    cy.get('tbody tr').should('have.length.greaterThan', 0);
+    cy.get('tbody tr').each(($row) => {
+      cy.wrap($row).find('.points-positive').should('exist');
+    });
+  });
+
+  it('filtra transacciones por tab Redimido', () => {
+    cy.get('[data-testid="th-doc"]').type('3001234567');
+    cy.get('[data-testid="th-startDate"]').type('2023-10-01');
+    cy.get('[data-testid="th-endDate"]').type('2023-10-10');
+    cy.contains('Buscar').click();
+    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.get('[data-testid="tx-tab-redemption"]').click();
+    cy.get('tbody tr').should('exist');
+    cy.get('.points-negative, .text-warning').should('exist');
+  });
+
+  it('muestra badge Vencido en transacciones expiradas', () => {
+    cy.get('[data-testid="th-doc"]').type('3001234567');
+    cy.get('[data-testid="th-startDate"]').type('2023-10-01');
+    cy.get('[data-testid="th-endDate"]').type('2023-10-10');
+    cy.contains('Buscar').click();
+    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.get('[data-testid="tx-tab-all"]').click();
+    cy.get('[data-testid="tx-badge-vencido"]', { timeout: 5000 }).should('exist');
+  });
 });

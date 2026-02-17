@@ -15,6 +15,7 @@ import {
   Transaction,
   PointsResponse,
   HistoryResponse,
+  ExpiringPointsResponse,
 } from '../types/Transaction';
 
 export { BACKEND_CHUNK_SIZE };
@@ -87,5 +88,30 @@ export async function getPoints(typeId: string, document: string): Promise<Point
     },
   });
   return response.data;
+}
+
+/**
+ * Puntos por vencer (próxima fecha de vencimiento).
+ * GET /pointsExp53rv1c3/points/{typeId}/{document}
+ */
+export async function getExpiringPoints(
+  typeId: string,
+  document: string
+): Promise<ExpiringPointsResponse | null> {
+  try {
+    const token = getAuthToken();
+    const response = await axiosApp.get<ExpiringPointsResponse>(
+      `/pointsExp53rv1c3/points/${typeId}/${document}`,
+      {
+        headers: {
+          'x-access-token': token ?? '',
+          'x-program-id': PROGRAM_ID,
+        },
+      }
+    );
+    return response.data;
+  } catch {
+    return null;
+  }
 }
 

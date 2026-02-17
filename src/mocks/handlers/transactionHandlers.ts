@@ -88,14 +88,30 @@ export const transactionHandlers = [
         'success'
       );
       // Para e2e: expandir a 25 ítems para probar paginación (varias páginas)
+      // Incluir acumulación, redención y puntos vencidos
+      const baseTx = base[0];
       const all: Transaction[] =
         base.length < 25
-          ? Array.from({ length: 25 }, (_, i) => ({
-              ...base[0],
-              id: `mock-tx-${i + 1}`,
-              detail: i === 0 ? base[0].detail : `Transacción ${i + 1}`,
-              points: base[0].points + i,
-            }))
+          ? Array.from({ length: 25 }, (_, i) => {
+              const isRedemption = i % 5 === 2;
+              const isExpiration = i % 7 === 4;
+              const type = isExpiration ? 'expiration' : isRedemption ? 'redemption' : (baseTx.type as Transaction['type']);
+              const points = isExpiration ? -150 - i * 10 : isRedemption ? -100 - i * 5 : (baseTx.points ?? 100) + i;
+              const detail = isExpiration
+                ? `Puntos vencidos - Lote ${i + 1}`
+                : isRedemption
+                  ? 'Redención de puntos'
+                  : i === 0
+                    ? baseTx.detail
+                    : `Transacción ${i + 1}`;
+              return {
+                ...baseTx,
+                id: `mock-tx-${i + 1}`,
+                detail,
+                points,
+                type,
+              };
+            })
           : base;
       const total = all.length;
       const start = (page - 1) * limit;
@@ -108,5 +124,14 @@ export const transactionHandlers = [
   http.get<{ typeId: string; document: string }>(
     '/points53rv1c3/points/:typeId/:document',
     () => HttpResponse.json({ points: 1500 })
-  )
+  ),
+
+  http.get<{ typeId: string; document: string }>(
+    '/pointsExp53rv1c3/points/:typeId/:document',
+    () =>
+      HttpResponse.json({
+        points: 400,
+        expirationDate: '2026-03-31',
+      })
+  ),
 ];

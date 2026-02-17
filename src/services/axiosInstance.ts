@@ -20,13 +20,6 @@ function applyInterceptors(instance: AxiosInstance) {
       return config;
     }
 
-    const isOtp = config.url?.includes('otp53rv1c3-1');
-    if (isOtp) {
-      delete config.headers['x-api-key'];
-      delete config.headers['x-program-id'];
-      delete config.headers['x-access-token'];
-      return config;
-    }
     const isIncome = config.url?.includes('income53rv1c3/income');
     const isRules =
       config.url?.includes(`${RULES_GET_API_PATH}/engines`) ||
