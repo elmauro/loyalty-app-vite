@@ -98,7 +98,7 @@ export const transactionHandlers = [
               const type = isExpiration ? 'expiration' : isRedemption ? 'redemption' : (baseTx.type as Transaction['type']);
               const points = isExpiration ? -150 - i * 10 : isRedemption ? -100 - i * 5 : (baseTx.points ?? 100) + i;
               const detail = isExpiration
-                ? `Puntos vencidos - Lote ${i + 1}`
+                ? 'Puntos vencidos'
                 : isRedemption
                   ? 'Redención de puntos'
                   : i === 0
