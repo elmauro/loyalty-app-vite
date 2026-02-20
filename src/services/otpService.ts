@@ -1,5 +1,5 @@
 // src/services/otpService.ts
-import { axiosAuth } from './axiosInstance';
+import { axiosApp } from './axiosInstance';
 import { OtpRequest, OtpApiResponse } from '../types/Auth';
 
 export async function sendOtp(data: OtpRequest): Promise<OtpApiResponse> {
@@ -11,7 +11,7 @@ export async function sendOtp(data: OtpRequest): Promise<OtpApiResponse> {
     documentNumber: trimmed,
     identificationTypeId: data.identificationTypeId ?? 1,
   };
-  const response = await axiosAuth.post<OtpApiResponse>('/otp53rv1c3-1', payload);
+  const response = await axiosApp.post<OtpApiResponse>('/otp53rv1c3', payload);
   return response.data;
 }
 

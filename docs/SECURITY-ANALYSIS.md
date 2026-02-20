@@ -107,7 +107,7 @@ Este documento contiene los riesgos de seguridad identificados en la aplicación
 
 **Ubicación:** `src/services/axiosInstance.ts`
 
-**Descripción:** Paths como `otp53rv1c3-1`, `income53rv1c3/income` están codificados. Ofuscación por oscuridad.
+**Descripción:** Paths como `otp53rv1c3`, `income53rv1c3/income` están codificados. Ofuscación por oscuridad.
 
 **Estado:** ⬜ Pendiente (prioridad baja)
 

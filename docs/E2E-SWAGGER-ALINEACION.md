@@ -49,7 +49,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 | E2E escenario | Endpoint | Swagger |
 |---------------|----------|---------|
-| Solicitar OTP → campo OTP visible; completar con OTP 123456; campos vacíos; 401; cancelar después de OTP | 1) `POST /otp53rv1c3-1` (OTP) 2) `POST /expense53rv1c3/expense` (redimir) | OTP: no documentado en auth-api Swagger. Expense: `transaction-api/docs/expense/swagger.yaml` |
+| Solicitar OTP → campo OTP visible; completar con OTP 123456; campos vacíos; 401; cancelar después de OTP | 1) `POST /otp53rv1c3` (OTP) 2) `POST /expense53rv1c3/expense` (redimir) | OTP: no documentado en auth-api Swagger. Expense: `transaction-api/docs/expense/swagger.yaml` |
 
 **Contrato Expense (Swagger):**
 - **Request body:** `phoneNumber`, `points`, `otpCode`, `identificationTypeId`. Mismos headers que income (incl. `x-transaction-type`: `redemption`).

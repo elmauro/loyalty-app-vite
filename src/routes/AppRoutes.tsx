@@ -60,6 +60,14 @@ export default function AppRoutes() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path={paths.programAdministration}
+            element={
+              <ProtectedRoute allowedRoles={[ROLE_PROGRAM_ADMIN]}>
+                <ProgramAdministration />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

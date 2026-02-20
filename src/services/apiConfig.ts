@@ -27,6 +27,15 @@ export const TRANSACTION_TYPE_INCOME = getEnv('VITE_TRANSACTION_TYPE_INCOME', 's
 export const RULES_GET_API_PATH = getEnv('VITE_RULES_GET_API_PATH', 'rulesGet53rv1c3');
 /** Base path PUT reglas (engine-api updateRules). */
 export const RULES_UPDATE_API_PATH = getEnv('VITE_RULES_UPDATE_API_PATH', 'rulesPut53rv1c3');
+
+/** tenant-api base paths (Opción C) */
+export const TENANTS_GET_PATH = getEnv('VITE_TENANTS_GET_PATH', 'tenantsGet53rv1c3');
+export const TENANTS_POST_PATH = getEnv('VITE_TENANTS_POST_PATH', 'tenantsPost53rv1c3');
+export const TENANTS_PUT_PATH = getEnv('VITE_TENANTS_PUT_PATH', 'tenantsPut53rv1c3');
+
+/** admin-api base paths (Opción C) */
+export const ADMIN_PROGRAM_PATH = getEnv('VITE_ADMIN_PROGRAM_PATH', 'adminProgram53rv1c3');
+export const ADMIN_PROGRAM_PUT_PATH = getEnv('VITE_ADMIN_PROGRAM_PUT_PATH', 'adminProgramPut53rv1c3');
 /** Expense (canje) endpoint usa 'redemption'. */
 export const TRANSACTION_TYPE_EXPENSE = getEnv('VITE_TRANSACTION_TYPE_EXPENSE', 'redemption');
 

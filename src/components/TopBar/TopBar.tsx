@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { getTenantForRequest } from '@/utils/token';
 import { isCognitoEnabled, signOut as cognitoSignOut } from '@/services/cognitoService';
 import { paths } from '@/routes/paths';
-import { LogOut, Award, KeyRound } from 'lucide-react';
+import { ROLE_PROGRAM_ADMIN } from '@/constants/auth';
+import { LogOut, Award, KeyRound, Settings } from 'lucide-react';
 
 export default function TopBar() {
   const { state, dispatch } = useAuth();
@@ -36,6 +37,14 @@ export default function TopBar() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
+          {user?.roles?.includes(ROLE_PROGRAM_ADMIN) && (
+            <Link to={paths.programAdministration}>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Administración</span>
+              </Button>
+            </Link>
+          )}
           <span className="text-sm text-muted-foreground hidden sm:inline">
             Bienvenido, <span className="font-medium text-foreground">{user?.firstname ?? user?.identification}</span>
           </span>

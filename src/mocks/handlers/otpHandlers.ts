@@ -6,7 +6,7 @@ import { getMockResponse } from '../../mocks/mockService';
 
 export const otpHandlers = [
   http.post<never, OtpRequest, OtpApiResponse>(
-    '/otp53rv1c3-1',
+    '/otp53rv1c3',
     async ({ request }) => {
       const body = (await request.json()) as { documentNumber?: string };
 

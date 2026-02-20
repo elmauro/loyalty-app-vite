@@ -27,14 +27,14 @@ export default defineConfig({
           });
         },
       },
-      '/otp53rv1c3-1': {
-        target: 'https://loyaleasy.com',
+      '/otp53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
         changeOrigin: true,
         secure: false,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('Origin', 'https://loyaleasy.com');
-            proxyReq.setHeader('Referer', 'https://loyaleasy.com/');
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
           });
         },
       },
@@ -95,6 +95,50 @@ export default defineConfig({
         },
       },
       '/pointsExp53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/tenants': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/admin': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/rulesGet53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/rulesPut53rv1c3': {
         target: 'https://dev.loyaleasy.com',
         changeOrigin: true,
         secure: false,
