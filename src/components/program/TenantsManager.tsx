@@ -54,6 +54,8 @@ const emptyTenant: Omit<Tenant, 'tenantId'> = {
   identificationTypeId: '3',
   conversionValue: 0,
   pointsMoneyRatio: 0,
+  periodId: 3,
+  periodValue: 6,
   isdeleted: 0,
 };
 
@@ -108,6 +110,8 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           tenantCode: form.tenantCode,
           conversionValue: form.conversionValue,
           pointsMoneyRatio: form.pointsMoneyRatio,
+          periodId: form.periodId,
+          periodValue: form.periodValue,
         });
         const list = await fetchTenants();
         onTenantsChange(list);
@@ -119,6 +123,8 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           identification: form.identification,
           conversionValue: form.conversionValue,
           pointsMoneyRatio: form.pointsMoneyRatio,
+          periodId: form.periodId,
+          periodValue: form.periodValue,
         };
         const { id } = await createTenant(input);
         const list = await fetchTenants();
@@ -183,19 +189,20 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
         <div className="rounded-md border">
           <Table>
             <TableHeader>
-              <TableRow>
+                <TableRow>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Código</TableHead>
                 <TableHead className="hidden md:table-cell">Identificación</TableHead>
                 <TableHead className="hidden lg:table-cell">Conversión</TableHead>
                 <TableHead className="hidden lg:table-cell">Ratio</TableHead>
+                <TableHead className="hidden xl:table-cell">Expiración</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     No hay aliados
                   </TableCell>
                 </TableRow>
@@ -211,6 +218,9 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">{t.conversionValue}</TableCell>
                     <TableCell className="hidden lg:table-cell">{t.pointsMoneyRatio}</TableCell>
+                    <TableCell className="hidden xl:table-cell">
+                      {t.periodValue} {t.periodId === 1 ? 'min' : t.periodId === 2 ? 'h' : t.periodId === 3 ? 'días' : 'meses'}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(i)}>
                         <Pencil className="h-4 w-4" />
@@ -272,6 +282,28 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                   type="number"
                   value={form.pointsMoneyRatio}
                   onChange={(e) => update('pointsMoneyRatio', Number(e.target.value))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Tipo Período Expiración</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  value={form.periodId}
+                  onChange={(e) => update('periodId', Number(e.target.value))}
+                >
+                  <option value={1}>Minutos</option>
+                  <option value={2}>Horas</option>
+                  <option value={3}>Días</option>
+                  <option value={4}>Meses</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <Label>Valor Período Expiración</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={form.periodValue}
+                  onChange={(e) => update('periodValue', Number(e.target.value))}
                 />
               </div>
             </div>

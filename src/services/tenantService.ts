@@ -12,6 +12,8 @@ interface TenantApiItem {
   identificationTypeId?: string;
   conversionValue?: number;
   pointsMoneyRatio?: number;
+  periodId?: number;
+  periodValue?: number;
 }
 
 function mapApiToTenant(item: TenantApiItem): Tenant {
@@ -23,6 +25,8 @@ function mapApiToTenant(item: TenantApiItem): Tenant {
     identificationTypeId: item.identificationTypeId ?? '3',
     conversionValue: item.conversionValue ?? 0,
     pointsMoneyRatio: item.pointsMoneyRatio ?? 0,
+    periodId: item.periodId ?? 3,
+    periodValue: item.periodValue ?? 6,
     isdeleted: 0,
   };
 }
@@ -33,6 +37,8 @@ export interface CreateTenantInput {
   identification: string;
   conversionValue: number;
   pointsMoneyRatio: number;
+  periodId?: number;
+  periodValue?: number;
 }
 
 export interface UpdateTenantInput {
@@ -42,6 +48,8 @@ export interface UpdateTenantInput {
   tenantCode?: string;
   conversionValue?: number;
   pointsMoneyRatio?: number;
+  periodId?: number;
+  periodValue?: number;
 }
 
 export async function fetchTenants(): Promise<Tenant[]> {
@@ -57,6 +65,8 @@ export async function createTenant(input: CreateTenantInput): Promise<{ id: stri
     identification: input.identification,
     conversionValue: input.conversionValue,
     pointsMoneyRatio: input.pointsMoneyRatio,
+    ...(input.periodId != null && { periodId: input.periodId }),
+    ...(input.periodValue != null && { periodValue: input.periodValue }),
   });
   return { id: String(data.id) };
 }
@@ -72,6 +82,8 @@ export async function updateTenant(
     ...(input.tenantCode != null && { tenantCode: input.tenantCode }),
     ...(input.conversionValue != null && { conversionValue: input.conversionValue }),
     ...(input.pointsMoneyRatio != null && { pointsMoneyRatio: input.pointsMoneyRatio }),
+    ...(input.periodId != null && { periodId: input.periodId }),
+    ...(input.periodValue != null && { periodValue: input.periodValue }),
   });
 }
 

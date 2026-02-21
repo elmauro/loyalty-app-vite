@@ -21,6 +21,8 @@ export interface Tenant {
   identificationTypeId: string;
   conversionValue: number;
   pointsMoneyRatio: number;
+  periodId: number;
+  periodValue: number;
   isdeleted: number;
 }
 
