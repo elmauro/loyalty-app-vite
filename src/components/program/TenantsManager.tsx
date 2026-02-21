@@ -269,7 +269,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Valor Conversión</Label>
+                <Label>Valor de Conversión</Label>
                 <Input
                   type="number"
                   value={form.conversionValue}

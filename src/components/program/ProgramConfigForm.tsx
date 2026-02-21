@@ -112,18 +112,24 @@ export function ProgramConfigForm({ program, onSave }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <Label>ID Período</Label>
-            <Input
-              type="number"
+            <Label>Tipo Período Expiración</Label>
+            <select
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm disabled:opacity-50 disabled:pointer-events-none"
               value={form.periodId}
               disabled={!editing}
               onChange={(e) => update('periodId', Number(e.target.value))}
-            />
+            >
+              <option value={1}>Minutos</option>
+              <option value={2}>Horas</option>
+              <option value={3}>Días</option>
+              <option value={4}>Meses</option>
+            </select>
           </div>
           <div className="space-y-1">
-            <Label>Valor del Período</Label>
+            <Label>Valor Período Expiración</Label>
             <Input
               type="number"
+              min={1}
               value={form.periodValue}
               disabled={!editing}
               onChange={(e) => update('periodValue', Number(e.target.value))}
