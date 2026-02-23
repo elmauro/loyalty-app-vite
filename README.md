@@ -4,8 +4,9 @@ Aplicación de fidelización (loyalty) con acumulación, redención, historial y
 
 ## Módulos principales
 
-- **Acumulación / Redención:** Formularios para registrar compras y canjear puntos.
-- **Reglas:** Administración de reglas de bonificación (engine-api). GET/PUT plain JSON; ver `loyalty-program-serverless/docs/REQUERIMIENTOS-FRONTEND-JSON-RULES.md`.
+- **Acumulación / Redención:** Formularios para registrar compras y canjear puntos. Selector de tipo de transacción (income).
+- **Reglas:** Administración de reglas de bonificación por tipo de transacción (engine-api). GET/PUT plain JSON; ver `loyalty-program-serverless/docs/REQUERIMIENTOS-FRONTEND-JSON-RULES.md`.
+- **Administración del Programa:** Configuración del programa y gestión de tipos de transacción (income/expense). Ver `docs/REQUERIMIENTO-TRANSACTION-TYPES-LOVABLE.md`.
 
 ## Despliegue en AWS (S3 + CloudFront + Route 53)
 

@@ -39,7 +39,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 - **Request body:** `phoneNumber`, `value`, `identificationTypeId`. Headers: `x-access-token`, `x-program-id`, `x-tenant-code`, `x-transaction-type` (ej. `sale`).
 - **Responses:** 200 `{ status: "processed" }`, 400, 401, 403, 404, 429.
 
-**Frontend:** `transactionService.accumulatePoints()` envía `phoneNumber` (con código de país), `value`, `identificationTypeId: 1` y los headers indicados. **Alineado.**
+**Frontend:** `transactionService.accumulatePoints()` envía `phoneNumber` (con código de país), `value`, `identificationTypeId: 1` y los headers indicados. El selector de tipo usa `fetchTransactionTypes()` (GET /admin/transaction-types). **Alineado.**
 
 **Mocks:** `transactionHandlers` devuelve 200 con `{ status: "processed" }` (o objeto con `type`/`status`). La UI solo necesita éxito para mostrar "Puntos acumulados". **Alineado.**
 
@@ -98,13 +98,13 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 | Funcionalidad | Endpoint | Documentación |
 |---------------|----------|---------------|
-| Tipos de transacción (tabs) | `GET /adminProgTxTypes53rv1c3/admin/transaction-types` | `admin-api/docs/programGetTransactionTypes/swagger.yaml` |
+| Tipos de transacción (selector) | `GET /adminProgTxTypes53rv1c3/admin/transaction-types` | `admin-api/docs/programGetTransactionTypes/swagger.yaml` |
 | Obtener reglas | `GET /rulesGet53rv1c3/engines/jsonrule` | `engine-api/docs/ENGINE-API-POSTMAN.md` |
 | Guardar reglas | `PUT /rulesPut53rv1c3/engines/jsonrule` | Idem |
 | Ejecutar reglas (simulador) | `POST /rulesPost53rv1c3/engines/jsonrule` | Idem |
 
 **Contrato:**
-- **Tipos de transacción:** `programService.fetchTransactionTypes()` obtiene `{ income: string[], expense: string[] }` para poblar los tabs. Usa `validateAdmin` (tenant admins pueden acceder).
+- **Tipos de transacción:** `programService.fetchTransactionTypes()` obtiene `{ income: string[], expense: string[] }` para el selector de tipo. Usa `validateAdmin` (tenant admins pueden acceder). *Nota: En Administración del Programa los tipos vienen en `programGet` (programa completo); no se usa este endpoint.*
 - **Headers:** `x-access-token`, `x-program-id`, `x-transaction-type`, `x-tenant-id` (opcional).
 - **GET response:** plain JSON `{ attributes, decisions }` según json-rules-engine.
 - **PUT body:** mismo formato. La API usa DocumentClient; no hay formato DynamoDB en la capa REST.
@@ -112,6 +112,19 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 **Frontend:** `rulesService.getRules()` y `rulesService.updateRules()` con paths `rulesGet53rv1c3` y `rulesPut53rv1c3`. **Alineado.**
 
 **E2E (Cypress):** `cypress/e2e/rules.cy.ts` — carga de reglas, crear/editar regla, pestaña Facts, validaciones. Mocks en `rulesHandlers.ts` (GET/PUT).
+
+---
+
+### 7. Administración del Programa (`/program-administration`)
+
+| Funcionalidad | Endpoint | Documentación |
+|---------------|----------|---------------|
+| Obtener programa (incl. tipos) | `GET /adminProgram53rv1c3/admin/program` | `admin-api/docs/programGet/swagger.yaml` |
+| Actualizar programa (incl. tipos) | `PUT /adminProgramPut53rv1c3/admin/program` | `admin-api/docs/programPut/swagger.yaml` |
+
+**Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. Requiere ROLE_PROGRAM_ADMIN.
+
+**E2E:** No hay pruebas E2E específicas para esta página actualmente.
 
 ---
 
@@ -126,7 +139,8 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
 | Points Expiring | ✅ | ✅ | ✅ | `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points, expirationDate }`. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
-| Rules (engine-api + admin-api) | ENGINE-API-POSTMAN.md, programGetTransactionTypes/swagger | ✅ | ✅ | Tipos de transacción: `fetchTransactionTypes()`; reglas: GET/PUT; E2E en `rules.cy.ts`. |
+| Rules (engine-api + admin-api) | ENGINE-API-POSTMAN.md, programGetTransactionTypes/swagger | ✅ | ✅ | Tipos: `fetchTransactionTypes()` en Reglas y Acumulación; en Program Admin vienen de `fetchProgram()`. E2E en `rules.cy.ts`. |
+| Program Administration | programGet/programPut swagger | ✅ | — | Tipos en `programGet`; no usa `programGetTransactionTypes`. Sin E2E. |
 
 ---
 
