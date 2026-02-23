@@ -1,13 +1,12 @@
 /**
- * Roles y flags de usuario según el JWT del backend.
- * Un usuario tiene un solo rol que determina su página de destino.
- * - Rol 1 = Tenant Admin (Administration)
- * - Rol 2 = Customer
- * - Rol 3 = Program Admin (futuro)
+ * Roles (GUIDs alineados con role.json y authController).
+ * - Administrator de Tenant: a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d
+ * - Usuario Normal: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e
+ * - Administrador de Programa: c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f
  */
-export const ROLE_ADMIN = '1';
-export const ROLE_CUSTOMER = '2';
-export const ROLE_PROGRAM_ADMIN = '3';
+export const ROLE_ADMIN = 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d';
+export const ROLE_CUSTOMER = 'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e';
+export const ROLE_PROGRAM_ADMIN = 'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f';
 
 export const IS_CUSTOMER_ADMIN = 0;
 export const IS_CUSTOMER_CUSTOMER = 1;
@@ -23,14 +22,12 @@ export const IS_CUSTOMER = {
   CUSTOMER: IS_CUSTOMER_CUSTOMER,
 } as const;
 
-/** Config central: rol → ruta por defecto (sin afectar funcionalidad actual). */
 export const ROLE_DEFAULT_PATHS: Record<string, string> = {
   [ROLE_ADMIN]: '/administration',
   [ROLE_CUSTOMER]: '/user',
   [ROLE_PROGRAM_ADMIN]: '/program-administration',
 };
 
-/** Obtiene la ruta por defecto según el rol único del usuario. */
 export function getDefaultPathForRole(roleId: string): string {
   return ROLE_DEFAULT_PATHS[roleId] ?? '/';
 }

@@ -15,6 +15,7 @@ import {
   isCognitoEnabled,
   PROGRAM_ID,
 } from './apiConfig';
+import { ROLE_CUSTOMER } from '@/constants/auth';
 import { formatPhoneWithCountryCode } from '@/utils/formatPhone';
 
 function getPool(): CognitoUserPool {
@@ -84,7 +85,7 @@ export async function signUp(params: {
     ['custom:programId', params.programId ?? PROGRAM_ID],
     ['custom:isCustomer', params.isCustomer ?? '1'],
     ['custom:termsaccepted', params.termsaccepted ?? '0'],
-    ['custom:roles', params.roles ?? '2'],
+    ['custom:roles', params.roles ?? ROLE_CUSTOMER],
   ];
   for (const [name, value] of customAttrs) {
     if (value !== '') {

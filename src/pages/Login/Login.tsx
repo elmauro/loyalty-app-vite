@@ -75,7 +75,7 @@ export default function Login() {
       if (message === 'User does not exist.' || message?.includes('UserNotFoundException')) {
         setError('Usuario no encontrado. Verifica tu email o número de documento.');
       } else if (message === 'Incorrect username or password.' || message?.includes('NotAuthorizedException')) {
-        setError('Contraseña incorrecta.');
+        setError('Email o contraseña incorrectos. Verifica tus credenciales.');
       } else if (message === 'User is not confirmed.') {
         setError('Debes confirmar tu cuenta. Revisa tu email.');
       } else if (responseData?.error === 'CognitoRequired' || backendMessage?.includes('Cognito')) {

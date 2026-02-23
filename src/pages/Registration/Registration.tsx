@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signUp, confirmSignUp, isCognitoEnabled } from '@/services/cognitoService';
+import { ROLE_CUSTOMER } from '@/constants/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -83,7 +84,7 @@ export default function Registration() {
           programId: undefined,
           isCustomer: '1',
           termsaccepted: formData.acceptTerms ? '1' : '0',
-          roles: '2',
+          roles: ROLE_CUSTOMER,
         });
         setStep('confirm');
         toast.success('Código enviado a tu email. Verifica tu bandeja de entrada.');
