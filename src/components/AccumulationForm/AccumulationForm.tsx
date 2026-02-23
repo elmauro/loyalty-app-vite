@@ -1,16 +1,43 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { accumulatePoints } from '../../services/transactionService';
+import { fetchTransactionTypes } from '../../services/programService';
 import { toast } from 'sonner';
 import { getAccumulationErrorMessage } from '../../utils/getAccumulationErrorMessage';
 import { getErrorStatus } from '../../utils/getErrorStatus';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, RotateCcw } from 'lucide-react';
 
-export default function AccumulationForm() {
+function AccumulationForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [transactionTypes, setTransactionTypes] = useState<string[]>(['sale']);
+  const [selectedType, setSelectedType] = useState<string>('sale');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTransactionTypes()
+      .then((tt) => {
+        if (!cancelled && tt.income?.length) {
+          setTransactionTypes(tt.income);
+          setSelectedType((prev) => (tt.income.includes(prev) ? prev : tt.income[0]));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error('No se pudieron cargar los tipos de transacción');
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleAccumulate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,11 +51,14 @@ export default function AccumulationForm() {
     }
     setIsLoading(true);
     try {
-      await accumulatePoints({
-        documentNumber,
-        identificationTypeId: 1,
-        value: Number(value),
-      });
+      await accumulatePoints(
+        {
+          documentNumber,
+          identificationTypeId: 1,
+          value: Number(value),
+        },
+        selectedType
+      );
       toast.success('Puntos acumulados');
       formRef.current?.reset();
     } catch (err: unknown) {
@@ -58,7 +88,22 @@ export default function AccumulationForm() {
       </h2>
 
       <form ref={formRef} onSubmit={handleAccumulate} className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="acc-type">Tipo de transacción</Label>
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger id="acc-type" data-testid="acc-type">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                {transactionTypes.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="acc-document">Documento</Label>
             <Input
@@ -110,3 +155,5 @@ export default function AccumulationForm() {
     </div>
   );
 }
+
+export default AccumulationForm;

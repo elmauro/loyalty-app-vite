@@ -4,7 +4,6 @@ import AccumulationForm from '../AccumulationForm';
 import { renderWithProviders } from '../../../test-utils';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
-
 jest.mock('../../../services/axiosInstance', () => ({
   default: {
     post: jest.fn(() => Promise.resolve({ data: {} })),
@@ -12,6 +11,9 @@ jest.mock('../../../services/axiosInstance', () => ({
 }));
 
 jest.mock('../../../services/transactionService');
+jest.mock('../../../services/programService', () => ({
+  fetchTransactionTypes: jest.fn().mockResolvedValue({ income: ['sale'], expense: ['redemption'] }),
+}));
 
 describe('AccumulationForm', () => {
   const setup = () => {
@@ -33,11 +35,14 @@ describe('AccumulationForm', () => {
     setup();
 
     await waitFor(() => {
-      expect(accumulateMock).toHaveBeenCalledWith({
-        documentNumber: '12345678',
-        identificationTypeId: 1,
-        value: 100
-      });
+      expect(accumulateMock).toHaveBeenCalledWith(
+        {
+          documentNumber: '12345678',
+          identificationTypeId: 1,
+          value: 100
+        },
+        'sale'
+      );
     });
   });
 

@@ -14,6 +14,7 @@ import {
   TENANTS_PUT_PATH,
   ADMIN_PROGRAM_PATH,
   ADMIN_PROGRAM_PUT_PATH,
+  ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
 } from './apiConfig';
 
 const tenantAdminPaths = [
@@ -22,6 +23,7 @@ const tenantAdminPaths = [
   TENANTS_PUT_PATH,
   ADMIN_PROGRAM_PATH,
   ADMIN_PROGRAM_PUT_PATH,
+  ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
 ];
 
 function isTenantOrAdminApi(url?: string): boolean {

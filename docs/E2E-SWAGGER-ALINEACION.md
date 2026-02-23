@@ -94,15 +94,17 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 ---
 
-### 6. Reglas (`rules` – engine-api)
+### 6. Reglas (`rules` – engine-api + admin-api)
 
 | Funcionalidad | Endpoint | Documentación |
 |---------------|----------|---------------|
+| Tipos de transacción (tabs) | `GET /adminProgTxTypes53rv1c3/admin/transaction-types` | `admin-api/docs/programGetTransactionTypes/swagger.yaml` |
 | Obtener reglas | `GET /rulesGet53rv1c3/engines/jsonrule` | `engine-api/docs/ENGINE-API-POSTMAN.md` |
 | Guardar reglas | `PUT /rulesPut53rv1c3/engines/jsonrule` | Idem |
 | Ejecutar reglas (simulador) | `POST /rulesPost53rv1c3/engines/jsonrule` | Idem |
 
 **Contrato:**
+- **Tipos de transacción:** `programService.fetchTransactionTypes()` obtiene `{ income: string[], expense: string[] }` para poblar los tabs. Usa `validateAdmin` (tenant admins pueden acceder).
 - **Headers:** `x-access-token`, `x-program-id`, `x-transaction-type`, `x-tenant-id` (opcional).
 - **GET response:** plain JSON `{ attributes, decisions }` según json-rules-engine.
 - **PUT body:** mismo formato. La API usa DocumentClient; no hay formato DynamoDB en la capa REST.
@@ -124,7 +126,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
 | Points Expiring | ✅ | ✅ | ✅ | `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points, expirationDate }`. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
-| Rules (engine-api) | ENGINE-API-POSTMAN.md | ✅ | ✅ | GET/PUT plain JSON; E2E en `rules.cy.ts`. |
+| Rules (engine-api + admin-api) | ENGINE-API-POSTMAN.md, programGetTransactionTypes/swagger | ✅ | ✅ | Tipos de transacción: `fetchTransactionTypes()`; reglas: GET/PUT; E2E en `rules.cy.ts`. |
 
 ---
 

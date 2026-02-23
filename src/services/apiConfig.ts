@@ -36,6 +36,10 @@ export const TENANTS_PUT_PATH = getEnv('VITE_TENANTS_PUT_PATH', 'tenantsPut53rv1
 /** admin-api base paths (Opción C) */
 export const ADMIN_PROGRAM_PATH = getEnv('VITE_ADMIN_PROGRAM_PATH', 'adminProgram53rv1c3');
 export const ADMIN_PROGRAM_PUT_PATH = getEnv('VITE_ADMIN_PROGRAM_PUT_PATH', 'adminProgramPut53rv1c3');
+export const ADMIN_PROGRAM_TRANSACTION_TYPES_PATH = getEnv(
+  'VITE_ADMIN_PROGRAM_TRANSACTION_TYPES_PATH',
+  'adminProgTxTypes53rv1c3'
+);
 /** Expense (canje) endpoint usa 'redemption'. */
 export const TRANSACTION_TYPE_EXPENSE = getEnv('VITE_TRANSACTION_TYPE_EXPENSE', 'redemption');
 

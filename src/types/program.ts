@@ -52,8 +52,8 @@ export const MOCK_PROGRAM: Program = {
   periodValue: 6,
   ruleEngine: 'nools',
   transactionsType: {
-    income: ['sale', 'rule'],
-    expense: ['redemption', 'rule'],
+    income: ['sale'],
+    expense: ['redemption'],
   },
 };
 

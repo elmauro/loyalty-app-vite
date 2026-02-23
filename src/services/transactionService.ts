@@ -20,7 +20,10 @@ import {
 
 export { BACKEND_CHUNK_SIZE };
 
-export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{ status: string }> {
+export async function accumulatePoints(
+  data: AccumulatePointsRequest,
+  transactionType?: string
+): Promise<{ status: string }> {
   const token = getAuthToken();
   const tenantCode = getTenantCodeForRequest();
   if (!tenantCode?.trim()) {
@@ -34,7 +37,7 @@ export async function accumulatePoints(data: AccumulatePointsRequest): Promise<{
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
       'x-tenant-code': tenantCode,
-      'x-transaction-type': TRANSACTION_TYPE_INCOME,
+      'x-transaction-type': transactionType ?? TRANSACTION_TYPE_INCOME,
     },
   });
   return response.data;

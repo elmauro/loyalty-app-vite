@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Program } from '@/types/program';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Save, X, Settings2, Loader2 } from 'lucide-react';
+import { Pencil, Save, X, Settings2, Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -17,6 +17,12 @@ export function ProgramConfigForm({ program, onSave }: Props) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Program>(program);
+  const [newIncomeType, setNewIncomeType] = useState('');
+  const [newExpenseType, setNewExpenseType] = useState('');
+
+  useEffect(() => {
+    setForm(program);
+  }, [program]);
 
   const handleSave = async () => {
     if (!form.name.trim()) {
@@ -41,11 +47,47 @@ export function ProgramConfigForm({ program, onSave }: Props) {
 
   const handleCancel = () => {
     setForm(program);
+    setNewIncomeType('');
+    setNewExpenseType('');
     setEditing(false);
   };
 
   const update = (field: keyof Program, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const addTransactionType = (category: 'income' | 'expense', newType: string) => {
+    const trimmed = newType.trim().toLowerCase();
+    if (!trimmed) return;
+    const current = form.transactionsType[category];
+    if (current.includes(trimmed)) {
+      toast.error(`"${trimmed}" ya existe en ${category === 'income' ? 'Acumulación' : 'Redención'}`);
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
+      transactionsType: {
+        ...prev.transactionsType,
+        [category]: [...prev.transactionsType[category], trimmed],
+      },
+    }));
+    if (category === 'income') setNewIncomeType('');
+    else setNewExpenseType('');
+  };
+
+  const removeTransactionType = (category: 'income' | 'expense', typeToRemove: string) => {
+    const current = form.transactionsType[category];
+    if (current.length <= 1) {
+      toast.error('Debe haber al menos un tipo de transacción');
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
+      transactionsType: {
+        ...prev.transactionsType,
+        [category]: prev.transactionsType[category].filter((t) => t !== typeToRemove),
+      },
+    }));
   };
 
   return (
@@ -143,21 +185,110 @@ export function ProgramConfigForm({ program, onSave }: Props) {
               onChange={(e) => update('ruleEngine', e.target.value)}
             />
           </div>
-          <div className="space-y-1 sm:col-span-2 lg:col-span-1">
-            <Label>Tipos de Transacción</Label>
-            <div className="flex flex-wrap gap-1 pt-1">
-              <span className="text-xs text-muted-foreground mr-1">Income:</span>
-              {form.transactionsType.income.map((t) => (
-                <Badge key={t} variant="secondary" className="text-xs">
-                  {t}
-                </Badge>
-              ))}
-              <span className="text-xs text-muted-foreground ml-2 mr-1">Expense:</span>
-              {form.transactionsType.expense.map((t) => (
-                <Badge key={t} variant="outline" className="text-xs">
-                  {t}
-                </Badge>
-              ))}
+          <div className="space-y-3 sm:col-span-2 lg:col-span-3">
+            <Label>Tipos de Transacción (Acumulación y Redención)</Label>
+            <p className="text-xs text-muted-foreground">
+              Estos tipos se usan al acumular/canjear puntos y al definir reglas. Ej: sale, rule, promo.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 rounded-lg border border-border p-3">
+                <Label className="text-sm font-medium">Acumulación (Income)</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {form.transactionsType.income.map((t) => (
+                    <Badge
+                      key={t}
+                      variant="secondary"
+                      className="text-xs gap-0.5 pr-1"
+                    >
+                      {t}
+                      {editing && (
+                        <button
+                          type="button"
+                          onClick={() => removeTransactionType('income', t)}
+                          className="ml-0.5 rounded p-0.5 hover:bg-muted-foreground/20"
+                          aria-label={`Quitar ${t}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+                {editing && (
+                  <div className="flex gap-2 pt-1">
+                    <Input
+                      placeholder="Nuevo tipo (ej. promo)"
+                      className="h-8 text-sm"
+                      value={newIncomeType}
+                      onChange={(e) => setNewIncomeType(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTransactionType('income', newIncomeType);
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => addTransactionType('income', newIncomeType)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2 rounded-lg border border-border p-3">
+                <Label className="text-sm font-medium">Redención (Expense)</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {form.transactionsType.expense.map((t) => (
+                    <Badge
+                      key={t}
+                      variant="secondary"
+                      className="text-xs gap-0.5 pr-1"
+                    >
+                      {t}
+                      {editing && (
+                        <button
+                          type="button"
+                          onClick={() => removeTransactionType('expense', t)}
+                          className="ml-0.5 rounded p-0.5 hover:bg-muted-foreground/20"
+                          aria-label={`Quitar ${t}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+                {editing && (
+                  <div className="flex gap-2 pt-1">
+                    <Input
+                      placeholder="Nuevo tipo (ej. gift)"
+                      className="h-8 text-sm"
+                      value={newExpenseType}
+                      onChange={(e) => setNewExpenseType(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTransactionType('expense', newExpenseType);
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => addTransactionType('expense', newExpenseType)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

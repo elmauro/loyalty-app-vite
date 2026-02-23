@@ -10,13 +10,13 @@ import type { RulesPayload, RuleAttribute } from '../types/rules';
 
 const ENGINE = 'jsonrule';
 
-function getRulesHeaders() {
+function getRulesHeaders(transactionType?: string) {
   const token = getAuthToken();
   const tenant = getTenantForRequest();
   return {
     'x-access-token': token ?? '',
     'x-program-id': PROGRAM_ID,
-    'x-transaction-type': TRANSACTION_TYPE_INCOME,
+    'x-transaction-type': transactionType ?? TRANSACTION_TYPE_INCOME,
     'x-tenant-id': tenant?.tenantId ?? '',
   };
 }
@@ -67,10 +67,10 @@ function parseDecision(d: unknown): RulesPayload['decisions'][0] {
   };
 }
 
-export async function getRules(): Promise<RulesPayload> {
+export async function getRules(transactionType?: string): Promise<RulesPayload> {
   const response = await axiosApp.get<Record<string, unknown>>(
     `/${RULES_GET_API_PATH}/engines/${ENGINE}`,
-    { headers: getRulesHeaders() }
+    { headers: getRulesHeaders(transactionType) }
   );
   const data = (response.data && typeof response.data === 'object' ? response.data : {}) as Record<string, unknown>;
   const decisions = Array.isArray(data.decisions) ? data.decisions : [];
@@ -80,8 +80,8 @@ export async function getRules(): Promise<RulesPayload> {
   };
 }
 
-export async function updateRules(payload: RulesPayload): Promise<void> {
+export async function updateRules(payload: RulesPayload, transactionType?: string): Promise<void> {
   await axiosApp.put(`/${RULES_UPDATE_API_PATH}/engines/${ENGINE}`, payload, {
-    headers: getRulesHeaders(),
+    headers: getRulesHeaders(transactionType),
   });
 }

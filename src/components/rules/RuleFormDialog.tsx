@@ -25,9 +25,11 @@ import { toast } from 'sonner';
 interface RuleFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (decision: Decision) => void | Promise<void>;
+  onSave: (decision: Decision, transactionType: string) => void | Promise<void>;
   decision?: Decision | null;
   attributes: Record<string, RuleAttribute>;
+  transactionTypes: string[];
+  selectedType: string;
   saving?: boolean;
 }
 
@@ -43,9 +45,19 @@ function emptyDecision(): Decision {
   };
 }
 
-export function RuleFormDialog({ open, onOpenChange, onSave, decision, attributes, saving }: RuleFormDialogProps) {
+export function RuleFormDialog({
+  open,
+  onOpenChange,
+  onSave,
+  decision,
+  attributes,
+  transactionTypes,
+  selectedType,
+  saving,
+}: RuleFormDialogProps) {
   const [form, setForm] = useState<Decision>(emptyDecision());
   const [groupType, setGroupType] = useState<ConditionGroupType>('all');
+  const [formTransactionType, setFormTransactionType] = useState<string>(selectedType);
 
   const factKeys = Object.keys(attributes);
 
@@ -53,11 +65,13 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
     if (decision) {
       setForm({ ...decision, enabled: decision.enabled !== false });
       setGroupType(decision.conditions.any ? 'any' : 'all');
+      setFormTransactionType(selectedType);
     } else {
       setForm(emptyDecision());
       setGroupType('all');
+      setFormTransactionType(selectedType);
     }
-  }, [decision, open]);
+  }, [decision, open, selectedType]);
 
   const conditions = (groupType === 'any' ? form.conditions.any : form.conditions.all) || [];
 
@@ -121,7 +135,7 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
           ? { any: conditions.map((c) => ({ ...c, value: parseConditionValue(String(c.value), c.fact) })) }
           : { all: conditions.map((c) => ({ ...c, value: parseConditionValue(String(c.value), c.fact) })) },
     };
-    onSave(parsed);
+    onSave(parsed, formTransactionType);
     // El padre cierra el diálogo cuando el guardado en backend tiene éxito
   }
 
@@ -133,6 +147,22 @@ export function RuleFormDialog({ open, onOpenChange, onSave, decision, attribute
         </DialogHeader>
 
         <div className="space-y-5">
+          <div className="space-y-1.5">
+            <Label>Tipo de transacción</Label>
+            <Select value={formTransactionType} onValueChange={setFormTransactionType}>
+              <SelectTrigger data-testid="rule-form-transaction-type">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                {transactionTypes.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Nombre de la regla</Label>
