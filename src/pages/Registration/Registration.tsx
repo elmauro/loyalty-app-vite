@@ -12,6 +12,8 @@ export default function Registration() {
   const navigate = useNavigate();
   const [step, setStep] = useState<'form' | 'confirm'>('form');
   const [formData, setFormData] = useState({
+    givenName: '',
+    familyName: '',
     phoneNumber: '',
     birthDate: '',
     documentNumber: '',
@@ -26,6 +28,14 @@ export default function Registration() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    const givenTrimmed = formData.givenName?.trim() ?? '';
+    const familyTrimmed = formData.familyName?.trim() ?? '';
+    if (!givenTrimmed) {
+      newErrors.givenName = 'El nombre es requerido';
+    }
+    if (!familyTrimmed) {
+      newErrors.familyName = 'Los apellidos son requeridos';
+    }
     if (!formData.phoneNumber || formData.phoneNumber.length < 10) {
       newErrors.phoneNumber = 'Ingresa un número de teléfono válido';
     }
@@ -65,8 +75,8 @@ export default function Registration() {
         await signUp({
           email: formData.email,
           password: formData.password,
-          givenName: formData.phoneNumber ? 'Usuario' : undefined,
-          familyName: formData.documentNumber ? `Doc ${formData.documentNumber}` : undefined,
+          givenName: formData.givenName?.trim() || undefined,
+          familyName: formData.familyName?.trim() || undefined,
           phoneNumber: formData.phoneNumber || undefined,
           identTypeId: '1',
           docNumber: formData.documentNumber,
@@ -207,7 +217,33 @@ export default function Registration() {
           ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="givenName">Nombre</Label>
+              <Input
+                id="givenName"
+                type="text"
+                placeholder="Tu nombre"
+                value={formData.givenName}
+                onChange={(e) => setFormData({ ...formData, givenName: e.target.value })}
+                className={errors.givenName ? 'border-destructive' : ''}
+              />
+              {errors.givenName && <p className="text-xs text-destructive">{errors.givenName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="familyName">Apellidos</Label>
+              <Input
+                id="familyName"
+                type="text"
+                placeholder="Tus apellidos"
+                value={formData.familyName}
+                onChange={(e) => setFormData({ ...formData, familyName: e.target.value })}
+                className={errors.familyName ? 'border-destructive' : ''}
+              />
+              {errors.familyName && <p className="text-xs text-destructive">{errors.familyName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Teléfono</Label>
               <Input
                 id="phoneNumber"
                 type="tel"
