@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -15,7 +17,8 @@
     "cy:e2e:run:rules": "npm run cy:pre:e2e && start-server-and-test cy:dev http://localhost:51730 \"cypress run --e2e --spec cypress/e2e/rules.cy.ts\"",
     "cy:dev:real": "vite",
     "cy:e2e:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress open\"",
-    "cy:e2e:run:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress run --e2e\""
+    "cy:e2e:run:real": "start-server-and-test cy:dev:real http://localhost:51730 \"cypress run --e2e\"",
+    "dev:localstack": "start-server-and-test \"node ../loyalty-program-serverless/scripts/localstack-proxy.js\" http://127.0.0.1:3001/health \"cross-env VITE_API_BASE_AUTH=http://127.0.0.1:3001 VITE_API_BASE_APP=http://127.0.0.1:3001 VITE_API_KEY=test-api-key-for-localstack vite\""
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

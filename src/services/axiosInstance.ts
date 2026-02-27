@@ -52,7 +52,8 @@ function applyInterceptors(instance: AxiosInstance) {
       config.url?.includes(`${RULES_GET_API_PATH}/engines`) ||
       config.url?.includes(`${RULES_UPDATE_API_PATH}/engines`);
     const isTenantOrAdmin = isTenantOrAdminApi(config.url);
-    if (isIncome || isRules || isTenantOrAdmin) {
+    const isLocalStack = API_BASE_APP.includes('127.0.0.1') || API_BASE_APP.includes('localhost');
+    if ((isIncome || isRules || isTenantOrAdmin) && !isLocalStack) {
       delete config.headers['x-api-key'];
     } else {
       config.headers.set('x-api-key', API_KEY);
