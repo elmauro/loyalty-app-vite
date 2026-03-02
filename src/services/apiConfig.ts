@@ -40,6 +40,10 @@ export const ADMIN_PROGRAM_TRANSACTION_TYPES_PATH = getEnv(
   'VITE_ADMIN_PROGRAM_TRANSACTION_TYPES_PATH',
   'adminProgTxTypes53rv1c3'
 );
+export const ADMIN_TENANT_ADMINS_PATH = getEnv(
+  'VITE_ADMIN_TENANT_ADMINS_PATH',
+  'adminTenantAdmins53rv1c3'
+);
 /** Expense (canje) endpoint usa 'redemption'. */
 export const TRANSACTION_TYPE_EXPENSE = getEnv('VITE_TRANSACTION_TYPE_EXPENSE', 'redemption');
 

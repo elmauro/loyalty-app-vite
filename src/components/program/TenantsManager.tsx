@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Building2, Search, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Building2, Search, Loader2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   fetchTenants,
@@ -41,6 +41,7 @@ import {
   type CreateTenantInput,
   type UpdateTenantInput,
 } from '@/services/tenantService';
+import { TenantAdminsManager } from './TenantAdminsManager';
 
 interface Props {
   tenants: Tenant[];
@@ -67,6 +68,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
   const [search, setSearch] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [adminsForTenant, setAdminsForTenant] = useState<Tenant | null>(null);
 
   const activeTenants = tenants.filter((t) => t.isdeleted === 0);
   const filtered = activeTenants.filter(
@@ -222,6 +224,15 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                       {t.periodValue} {t.periodId === 1 ? 'min' : t.periodId === 2 ? 'h' : t.periodId === 3 ? 'días' : 'meses'}
                     </TableCell>
                     <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setAdminsForTenant(t)}
+                        title="Administradores"
+                        data-testid={`tenant-admins-btn-${t.tenantId}`}
+                      >
+                        <Users className="h-4 w-4 text-primary" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(i)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -338,6 +349,26 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={adminsForTenant !== null} onOpenChange={(open) => !open && setAdminsForTenant(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="tenant-admins-dialog">
+          <DialogHeader className="sr-only">
+            <DialogTitle>
+              {adminsForTenant ? `Administradores de ${adminsForTenant.name}` : 'Administradores'}
+            </DialogTitle>
+            <DialogDescription>
+              Gestiona los administradores de este aliado.
+            </DialogDescription>
+          </DialogHeader>
+          {adminsForTenant && (
+            <TenantAdminsManager
+              tenants={tenants}
+              selectedTenant={adminsForTenant}
+              onClose={() => setAdminsForTenant(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -116,7 +116,8 @@ export default defineConfig({
           });
         },
       },
-      '/admin': {
+      // /admin/ (no /administration) para no interceptar la ruta SPA
+      '/admin/': {
         target: 'https://dev.loyaleasy.com',
         changeOrigin: true,
         secure: false,

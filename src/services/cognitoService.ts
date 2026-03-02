@@ -139,8 +139,13 @@ export async function resendConfirmationCode(email: string): Promise<void> {
   });
 }
 
-/** Iniciar sesión - retorna IdToken para enviar al backend */
-export async function signIn(email: string, password: string): Promise<string> {
+export type SignInResult =
+  | { success: true; idToken: string }
+  | { success: false; challenge: 'NEW_PASSWORD_REQUIRED'; completeNewPassword: (newPassword: string) => Promise<string> }
+  | { success: false; challenge: 'MFA_REQUIRED' };
+
+/** Iniciar sesión - retorna IdToken o challenge para completar (ej. nueva contraseña obligatoria) */
+export async function signIn(email: string, password: string): Promise<SignInResult> {
   const cognitoUser = getCognitoUser(email);
   const authDetails = new AuthenticationDetails({
     Username: email,
@@ -151,16 +156,29 @@ export async function signIn(email: string, password: string): Promise<string> {
     cognitoUser.authenticateUser(authDetails, {
       onSuccess: (result) => {
         const idToken = result.getIdToken().getJwtToken();
-        resolve(idToken);
+        resolve({ success: true, idToken });
       },
       onFailure: (err) => {
         reject(err);
       },
-      newPasswordRequired: () => {
-        reject(new Error('NEW_PASSWORD_REQUIRED'));
+      newPasswordRequired: (_userAttributes: Record<string, string>, _requiredAttributes: string[]) => {
+        resolve({
+          success: false,
+          challenge: 'NEW_PASSWORD_REQUIRED',
+          completeNewPassword: (newPassword: string) =>
+            new Promise((res, rej) => {
+              cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
+                onSuccess: (result) => {
+                  const idToken = result.getIdToken().getJwtToken();
+                  res(idToken);
+                },
+                onFailure: rej,
+              });
+            }),
+        });
       },
       mfaRequired: () => {
-        reject(new Error('MFA_REQUIRED'));
+        resolve({ success: false, challenge: 'MFA_REQUIRED' });
       },
     });
   });

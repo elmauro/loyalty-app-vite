@@ -64,7 +64,7 @@ export default function ProgramAdministration() {
           <TabsTrigger value="config" className="gap-2">
             <Settings className="h-4 w-4" /> Configuración
           </TabsTrigger>
-          <TabsTrigger value="tenants" className="gap-2">
+          <TabsTrigger value="tenants" className="gap-2" data-testid="program-admin-tab-aliados">
             <Building2 className="h-4 w-4" /> Aliados
           </TabsTrigger>
         </TabsList>

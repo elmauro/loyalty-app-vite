@@ -19,6 +19,8 @@ describe('Flujos de autenticación (Registro, Forgot, Reset, Change)', () => {
 
     it('proceso de registro completo (mock path) redirige a login', () => {
       cy.visit('/registration');
+      cy.get('#givenName').type('Test');
+      cy.get('#familyName').type('User');
       cy.get('#phoneNumber').type('3001234567');
       cy.get('#birthDate').type('1990-01-15');
       cy.get('#documentNumber').type('12345678');
@@ -73,11 +75,11 @@ describe('Flujos de autenticación (Registro, Forgot, Reset, Change)', () => {
     it('muestra el formulario cuando está logueado y error al enviar (Cognito desactivado en e2e)', () => {
       cy.loginAsUser();
       cy.visit('/change-password');
-      cy.contains('Cambiar contraseña').should('exist');
-      cy.get('#oldPassword').type('oldpass');
+      cy.contains('Cambiar Contraseña').should('exist');
+      cy.get('#currentPassword').type('oldpass');
       cy.get('#newPassword').type('NewPass123');
       cy.get('#confirmPassword').type('NewPass123');
-      cy.contains('button', 'Cambiar contraseña').click();
+      cy.contains('button', 'Cambiar Contraseña').click();
       cy.contains('solo está disponible para cuentas con email').should('exist');
     });
   });

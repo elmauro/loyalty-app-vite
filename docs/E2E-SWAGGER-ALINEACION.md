@@ -121,10 +121,12 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 |---------------|----------|---------------|
 | Obtener programa (incl. tipos) | `GET /adminProgram53rv1c3/admin/program` | `admin-api/docs/programGet/swagger.yaml` |
 | Actualizar programa (incl. tipos) | `PUT /adminProgramPut53rv1c3/admin/program` | `admin-api/docs/programPut/swagger.yaml` |
+| Listar administradores de tenants | `GET /adminTenantAdmins53rv1c3/tenant-admins` | `admin-api/docs/tenantAdmins/swagger.yaml` |
+| Crear administrador de tenant | `POST /adminTenantAdmins53rv1c3/tenant-admins` | `admin-api/docs/tenantAdmins/swagger.yaml` |
 
-**Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. Requiere ROLE_PROGRAM_ADMIN.
+**Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. `tenantAdminService.fetchTenantAdmins()` y `createTenantAdmin()` gestionan administradores de aliados. Requiere ROLE_PROGRAM_ADMIN.
 
-**E2E:** No hay pruebas E2E específicas para esta página actualmente.
+**E2E:** `cypress/e2e/program-administration.cy.ts` — carga de aliados, diálogo de administradores, crear admin, validaciones, desactivar (flujo de confirmación). Mocks en `programHandlers.ts`.
 
 ---
 
@@ -140,7 +142,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Points Expiring | ✅ | ✅ | ✅ | `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points, expirationDate }`. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |
 | Rules (engine-api + admin-api) | ENGINE-API-POSTMAN.md, programGetTransactionTypes/swagger | ✅ | ✅ | Tipos: `fetchTransactionTypes()` en Reglas y Acumulación; en Program Admin vienen de `fetchProgram()`. E2E en `rules.cy.ts`. |
-| Program Administration | programGet/programPut swagger | ✅ | — | Tipos en `programGet`; no usa `programGetTransactionTypes`. Sin E2E. |
+| Program Administration | programGet/programPut/tenantAdmins swagger | ✅ | ✅ | Tipos en `programGet`; tenant admins en `tenantAdminService`. E2E en `program-administration.cy.ts`. |
 
 ---
 

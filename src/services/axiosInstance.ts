@@ -15,6 +15,7 @@ import {
   ADMIN_PROGRAM_PATH,
   ADMIN_PROGRAM_PUT_PATH,
   ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
+  ADMIN_TENANT_ADMINS_PATH,
 } from './apiConfig';
 
 const tenantAdminPaths = [
@@ -24,6 +25,7 @@ const tenantAdminPaths = [
   ADMIN_PROGRAM_PATH,
   ADMIN_PROGRAM_PUT_PATH,
   ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
+  ADMIN_TENANT_ADMINS_PATH,
 ];
 
 function isTenantOrAdminApi(url?: string): boolean {
@@ -72,11 +74,17 @@ function applyInterceptors(instance: AxiosInstance) {
     (response) => response,
     (error) => {
       const status = error.response?.status;
+      const url = error.config?.url ?? '';
+      const method = error.config?.method ?? '';
+      const isTenantAdminCreate =
+        url.includes(ADMIN_TENANT_ADMINS_PATH) && url.includes('/tenant-admins') && method?.toLowerCase() === 'post';
 
       if ((status === 401 || status === 403) && window.location.pathname !== '/login') {
         toast.error('Sesión expirada...');
         localStorage.removeItem('authData');
         window.location.href = '/login';
+      } else if (isTenantAdminCreate && (status === 500 || status === 400)) {
+        toast.error('No es posible crear el usuario administrador. Verifica que el email no esté registrado o contacta al administrador.');
       } else if (status === 500) {
         toast.error('Error interno del servidor');
       } else if (error.response?.data?.message) {

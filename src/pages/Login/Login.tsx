@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Award, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Award, ArrowLeft, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 
 function isEmail(value: string): boolean {
@@ -26,6 +26,10 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [newPasswordRequired, setNewPasswordRequired] = useState<{
+    email: string;
+    completeNewPassword: (newPassword: string) => Promise<string>;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,8 +54,18 @@ export default function Login() {
           setError('Usa tu email para iniciar sesión. El login con número de documento ya no está disponible.');
           return;
         }
-        const idToken = await cognitoSignIn(loginValue, password);
-        data = await loginWithCognitoToken(idToken);
+        const result = await cognitoSignIn(loginValue, password);
+        if (result.success) {
+          data = await loginWithCognitoToken(result.idToken);
+        } else if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
+          setNewPasswordRequired({ email: loginValue, completeNewPassword: result.completeNewPassword });
+          return;
+        } else if (result.challenge === 'MFA_REQUIRED') {
+          setError('Autenticación MFA requerida. No disponible en esta versión.');
+          return;
+        } else {
+          return;
+        }
       } else {
         data = await login({
           loginTypeId: 1,
@@ -88,6 +102,140 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  const handleNewPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!newPasswordRequired) return;
+    setError('');
+    const formData = new FormData(e.currentTarget);
+    const newPassword = (formData.get('newPassword') as string) || '';
+    const confirmPassword = (formData.get('confirmPassword') as string) || '';
+    if (!newPassword || newPassword.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const idToken = await newPasswordRequired.completeNewPassword(newPassword);
+      const data = await loginWithCognitoToken(idToken);
+      const user = buildUserFromToken(data.token, data.firstname, data.oauthid);
+      dispatch({ type: 'LOGIN', payload: user });
+      localStorage.setItem('authData', JSON.stringify(data));
+      const role = user.roles?.[0];
+      navigate(getDefaultPathForRole(role ?? ''));
+      toast.success('Contraseña actualizada. Bienvenido.');
+    } catch (err: unknown) {
+      const message = (err as { message?: string })?.message;
+      setError(message || 'Error al cambiar la contraseña. Intenta de nuevo.');
+      toast.error(message || 'Error al cambiar la contraseña');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (newPasswordRequired) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
+          <div className="mx-auto w-full max-w-sm">
+            <button
+              type="button"
+              onClick={() => setNewPasswordRequired(null)}
+              className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver al Login
+            </button>
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary">
+                  <KeyRound className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <span className="text-xl font-semibold text-foreground">Loyalty Platform</span>
+              </div>
+              <h1 className="text-2xl font-bold text-foreground">Cambiar contraseña</h1>
+              <p className="mt-2 text-muted-foreground">
+                Tu cuenta requiere que establezcas una nueva contraseña para continuar.
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{newPasswordRequired.email}</p>
+            </div>
+            <form onSubmit={handleNewPasswordSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nueva contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    name="newPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Mínimo 8 caracteres"
+                    className="h-11 pr-10"
+                    minLength={8}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Repite la contraseña"
+                    className="h-11 pr-10"
+                    minLength={8}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              {error && (
+                <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive animate-fade-in">
+                  {error}
+                </div>
+              )}
+              <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    Actualizando...
+                  </>
+                ) : (
+                  'Establecer contraseña e ingresar'
+                )}
+              </Button>
+            </form>
+          </div>
+        </div>
+        <div className="hidden lg:flex lg:flex-1 hero-gradient relative items-center justify-center">
+          <div className="text-center text-primary-foreground p-12">
+            <KeyRound className="h-24 w-24 mx-auto mb-6 opacity-90" />
+            <h2 className="text-3xl font-bold mb-4">Seguridad</h2>
+            <p className="text-primary-foreground/80 max-w-md">
+              Establece una contraseña segura para proteger tu cuenta. Usa al menos 8 caracteres.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
