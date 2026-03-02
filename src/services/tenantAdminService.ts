@@ -52,3 +52,13 @@ export async function createTenantAdmin(input: CreateTenantAdminInput): Promise<
     password: input.password,
   });
 }
+
+export async function updateTenantAdminStatus(
+  cognito_sub: string,
+  status: 'active' | 'inactive'
+): Promise<void> {
+  await axiosApp.patch(
+    `/${ADMIN_TENANT_ADMINS_PATH}/tenant-admins/${encodeURIComponent(cognito_sub)}`,
+    { status }
+  );
+}

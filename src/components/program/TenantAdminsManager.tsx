@@ -48,6 +48,7 @@ import { toast } from 'sonner';
 import {
   fetchTenantAdmins,
   createTenantAdmin,
+  updateTenantAdminStatus,
   type CreateTenantAdminInput,
 } from '@/services/tenantAdminService';
 
@@ -75,6 +76,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
   const [showPassword, setShowPassword] = useState(false);
   const [search, setSearch] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   const activeTenants = useMemo(
     () => tenants.filter((t) => t.isdeleted === 0),
@@ -179,10 +181,25 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
     }
   };
 
-  const confirmDeactivate = () => {
+  const confirmDeactivate = async () => {
     if (deactivateIndex === null) return;
-    toast.info('La desactivación de administradores no está disponible en esta versión');
-    setDeactivateIndex(null);
+    const admin = filtered[deactivateIndex];
+    setIsTogglingStatus(true);
+    try {
+      const newStatus = admin.isActive ? 'inactive' : 'active';
+      await updateTenantAdminStatus(admin.id, newStatus);
+      await loadAdmins();
+      setDeactivateIndex(null);
+      toast.success(
+        admin.isActive
+          ? 'Administrador desactivado. No podrá acceder al sistema hasta que se reactive.'
+          : 'Administrador activado correctamente.'
+      );
+    } catch {
+      // Error ya manejado por interceptor
+    } finally {
+      setIsTogglingStatus(false);
+    }
   };
 
   const update = (field: string, value: string) => {
@@ -410,8 +427,11 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeactivate}>Confirmar</AlertDialogAction>
+            <AlertDialogCancel disabled={isTogglingStatus}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeactivate} disabled={isTogglingStatus}>
+              {isTogglingStatus ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              Confirmar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

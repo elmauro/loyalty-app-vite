@@ -92,6 +92,18 @@ describe('Administración del Programa', () => {
     cy.contains('¿Desactivar administrador?').should('not.exist');
   });
 
+  it('desactiva un administrador al confirmar (MSW mock)', () => {
+    cy.get('[data-testid="program-admin-tab-aliados"]').click();
+    cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+    cy.get('[data-testid="tenant-admins-btn-tenant-1"]').click();
+    cy.get('[data-testid="tenant-admins-dialog"]', { timeout: 3000 }).should('be.visible');
+    cy.contains('admin@aliado.com', { timeout: 5000 }).should('exist');
+    cy.get('[data-testid="tenant-admin-deactivate-admin-demo-001"]').click();
+    cy.contains('¿Desactivar administrador?', { timeout: 3000 }).should('exist');
+    cy.contains('button', 'Confirmar').click();
+    cy.contains('Administrador desactivado', { timeout: 5000 }).should('exist');
+  });
+
   it('tiene botones Editar y Desactivar para cada administrador', () => {
     cy.get('[data-testid="program-admin-tab-aliados"]').click();
     cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');

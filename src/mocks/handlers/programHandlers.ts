@@ -58,6 +58,10 @@ export const programHandlers = [
   ),
   http.get(TENANT_ADMINS_PATH, () => HttpResponse.json(mockTenantAdmins)),
   http.post(TENANT_ADMINS_PATH, () => HttpResponse.json({ status: 'created' }, { status: 200 })),
+  http.patch(/\/adminTenantAdmins53rv1c3\/tenant-admins\/.+/, async ({ request }) => {
+    const body = (await request.json()) as { status?: string };
+    return HttpResponse.json({ status: body?.status ?? 'inactive' }, { status: 200 });
+  }),
   http.get(TENANTS_GET_PATH, () => HttpResponse.json(mockTenants)),
   http.post(TENANTS_POST_PATH, () => HttpResponse.json({ id: 'tenant-new', rowCount: 1 })),
   http.put(/\/tenantsPut53rv1c3\/tenants\/.+/, () => HttpResponse.json({})),

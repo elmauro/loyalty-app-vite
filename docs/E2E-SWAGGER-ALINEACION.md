@@ -123,8 +123,9 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Actualizar programa (incl. tipos) | `PUT /adminProgramPut53rv1c3/admin/program` | `admin-api/docs/programPut/swagger.yaml` |
 | Listar administradores de tenants | `GET /adminTenantAdmins53rv1c3/tenant-admins` | `admin-api/docs/tenantAdmins/swagger.yaml` |
 | Crear administrador de tenant | `POST /adminTenantAdmins53rv1c3/tenant-admins` | `admin-api/docs/tenantAdmins/swagger.yaml` |
+| Desactivar/activar administrador | `PATCH /adminTenantAdmins53rv1c3/tenant-admins/{cognito_sub}` | `admin-api/docs/tenantAdmins/swagger.yaml` |
 
-**Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. `tenantAdminService.fetchTenantAdmins()` y `createTenantAdmin()` gestionan administradores de aliados. Requiere ROLE_PROGRAM_ADMIN.
+**Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. `tenantAdminService.fetchTenantAdmins()`, `createTenantAdmin()` y `updateTenantAdminStatus()` gestionan administradores de aliados. Requiere ROLE_PROGRAM_ADMIN.
 
 **E2E:** `cypress/e2e/program-administration.cy.ts` — carga de aliados, diálogo de administradores, crear admin, validaciones, desactivar (flujo de confirmación). Mocks en `programHandlers.ts`.
 
