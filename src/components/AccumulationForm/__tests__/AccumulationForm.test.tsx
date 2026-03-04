@@ -18,10 +18,10 @@ jest.mock('../../../services/programService', () => ({
 describe('AccumulationForm', () => {
   const setup = () => {
     renderWithProviders(<AccumulationForm />);
-    fireEvent.change(screen.getByPlaceholderText(/Documento/i), {
+    fireEvent.change(screen.getByTestId('acc-document'), {
       target: { value: '12345678' }
     });
-    fireEvent.change(screen.getByPlaceholderText(/Valor/i), {
+    fireEvent.change(screen.getByTestId('acc-value'), {
       target: { value: '100' }
     });
     fireEvent.click(screen.getByText('Acumular'));
@@ -83,6 +83,6 @@ describe('AccumulationForm', () => {
 
     setup();
 
-    expect(await screen.findByText(/Recurso no encontrado/i)).toBeInTheDocument();
+    expect(await screen.findByText(/No se pudo completar la operación/i)).toBeInTheDocument();
   });
 });

@@ -19,18 +19,18 @@ describe('RedemptionForm', () => {
     renderWithProviders(<RedemptionForm />);
 
     await act(async () => {
-      fireEvent.change(screen.getByPlaceholderText(/Phone Number/i), {
+      fireEvent.change(screen.getByTestId('red-document'), {
         target: { value: '3001234567' }
       });
 
-      fireEvent.change(screen.getByPlaceholderText(/Puntos/i), {
+      fireEvent.change(screen.getByTestId('red-points'), {
         target: { value: '200' }
       });
 
       fireEvent.click(screen.getByText('Redimir'));
     });
 
-    const otpInput = await screen.findByPlaceholderText(/Código OTP/i);
+    const otpInput = await screen.findByTestId('otp-code');
 
     await act(async () => {
       fireEvent.change(otpInput, { target: { value: '123456' } });
@@ -50,7 +50,7 @@ describe('RedemptionForm', () => {
 
     await waitFor(() => {
       expect(transactionService.redeemPoints).toHaveBeenCalledWith({
-        phoneNumber: '3001234567',
+        documentNumber: '3001234567',
         identificationTypeId: 1,
         otpCode: '123456',
         points: 200
@@ -115,6 +115,6 @@ describe('RedemptionForm', () => {
 
     await setupRedemption();
 
-    expect(await screen.findByText(/Recurso no encontrado/i)).toBeInTheDocument();
+    expect(await screen.findByText(/No se pudo completar la operación/i)).toBeInTheDocument();
   });
 });
