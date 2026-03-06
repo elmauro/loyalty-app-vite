@@ -14,3 +14,4 @@ Documentation is organized by purpose:
 
 - **Project context:** [project-context.md](project-context.md) – system overview, tech stack, frontend–backend interaction.
 - **Cursor / dev rules:** [cursor-rules.md](cursor-rules.md) – conventions for AI-assisted development.
+- **Using Cursor (examples):** [CURSOR-USAGE-EXAMPLES.md](CURSOR-USAGE-EXAMPLES.md) – prompt examples for backend, frontend, and full-stack.
