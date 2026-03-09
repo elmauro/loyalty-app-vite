@@ -6,11 +6,11 @@ Aplicación de fidelización (loyalty) con acumulación, redención, historial y
 
 - **Acumulación / Redención:** Formularios para registrar compras y canjear puntos. Selector de tipo de transacción (income).
 - **Reglas:** Administración de reglas de bonificación por tipo de transacción (engine-api). GET/PUT plain JSON; ver `loyalty-program-serverless/docs/REQUERIMIENTOS-FRONTEND-JSON-RULES.md`.
-- **Administración del Programa:** Configuración del programa y gestión de tipos de transacción (income/expense). Ver `docs/REQUERIMIENTO-TRANSACTION-TYPES-LOVABLE.md`.
+- **Administración del Programa:** Configuración del programa y gestión de tipos de transacción (income/expense). Ver `docs/templates/TEMPLATE-REQUERIMIENTO-TRANSACTION-TYPES-FRONTEND.md`.
 
 ## Despliegue en AWS (S3 + CloudFront + Route 53)
 
-Hay un flujo de GitHub Actions para desplegar en AWS. Ver **[docs/DEPLOY-AWS.md](docs/DEPLOY-AWS.md)** para secrets, configuración S3/CloudFront y uso.
+Hay un flujo de GitHub Actions para desplegar en AWS. Ver **[docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md](docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md)** para secrets, configuración S3/CloudFront y uso.
 
 Currently, two official plugins are available:
 

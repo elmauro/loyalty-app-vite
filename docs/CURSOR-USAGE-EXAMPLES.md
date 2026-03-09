@@ -22,7 +22,7 @@ When you need to prompt for changes in the backend repository (loyalty-program-s
 ```
 @docs/project-context.md
 @docs/cursor-rules.md
-@docs/testing/E2E-SWAGGER-ALINEACION.md
+@docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md
 
 Update the frontend transactionService according to the backend contract change.
 
@@ -69,7 +69,7 @@ Tasks:
 ```
 @docs/project-context.md
 @docs/cursor-rules.md
-@docs/testing/E2E-SWAGGER-ALINEACION.md
+@docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md
 
 Update the Cypress E2E test for redemption flow.
 

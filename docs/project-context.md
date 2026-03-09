@@ -144,14 +144,14 @@ loyalty-app-vite/
 - **Configuration:** `src/services/apiConfig.ts` reads `import.meta.env` (VITE_*). It defines API bases (`API_BASE_AUTH`, `API_BASE_APP`), program id, API key, paths for rules, tenants, admin, transaction-type headers, phone country code, and optional Cognito ids. When `VITE_USE_MSW=true`, bases are forced to `''` so requests hit the same origin and MSW can intercept.
 - **Clients:** `axiosAuth` and `axiosApp` in `axiosInstance.ts` apply the same interceptors (headers, error toasts, 401/403 redirect to login). Some paths (income, rules, tenant/admin) omit `x-api-key` by design (see comments in code).
 - **Conventions:** Services export async functions that return typed data or throw. Request bodies and responses are aligned with backend Swagger; types in `src/types/` (Transaction, Auth, program, rules) reflect that. No generated API client; services call axios methods with explicit URLs and headers (paths from apiConfig).
-- **Backend alignment:** The repo expects backend APIs as documented in `loyalty-program-serverless` (e.g. auth, income, expense, history, points, rules, admin, tenant). E2E and Swagger alignment are described in `docs/testing/E2E-SWAGGER-ALINEACION.md`.
+- **Backend alignment:** The repo expects backend APIs as documented in `loyalty-program-serverless` (e.g. auth, income, expense, history, points, rules, admin, tenant). E2E and Swagger alignment are described in `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`.
 
 ---
 
 ## 8. Testing approach
 
 - **Unit:** Jest + React Testing Library. `apiConfig` is mocked in `setupTests.ts` so tests do not depend on Vite env. ResizeObserver is mocked for Radix components. Prefer `data-testid` for stable selectors where used (e.g. AccumulationForm, RedemptionForm, Login, Rules, User). Run unit tests with Jest (e.g. `npx jest`); no `test` script is defined in `package.json`.
-- **E2E:** Cypress. Default runs use MSW; optional “real” runs hit the backend. Port 51730; app started with `cy:dev` or `cy:dev:real`. Scripts: `cy:e2e`, `cy:e2e:run`, `cy:e2e:run:rules`, `cy:e2e:run:program-admin`, `cy:e2e:real`, `cy:e2e:run:real`. E2E scenarios are mapped to backend endpoints and Swagger in `docs/testing/E2E-SWAGGER-ALINEACION.md`.
+- **E2E:** Cypress. Default runs use MSW; optional “real” runs hit the backend. Port 51730; app started with `cy:dev` or `cy:dev:real`. Scripts: `cy:e2e`, `cy:e2e:run`, `cy:e2e:run:rules`, `cy:e2e:run:program-admin`, `cy:e2e:real`, `cy:e2e:run:real`. E2E scenarios are mapped to backend endpoints and Swagger in `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`.
 
 ---
 
@@ -162,19 +162,19 @@ After reorganization, docs live under `docs/`:
 - **architecture/** – High-level design (if present).
 - **api/** – API usage and contracts from frontend perspective (if present).
 - **development/** – Coding standards (if present).
-- **testing/** – E2E and Swagger alignment (`E2E-SWAGGER-ALINEACION.md`).
-- **infrastructure/** – Deployment (e.g. `DEPLOY-AWS.md`: GitHub Actions, S3, CloudFront, Route 53).
-- **analysis/** – Security and other analyses (`SECURITY-ANALYSIS.md`).
-- **templates/** – Requirement docs (e.g. `REQUERIMIENTO-TRANSACTION-TYPES-LOVABLE.md`).
+- **testing/** – E2E and Swagger alignment (`GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`).
+- **infrastructure/** – Deployment (e.g. `GUIA-DESPLIEGUE-AWS-FRONTEND.md`: GitHub Actions, S3, CloudFront, Route 53).
+- **analysis/** – Security and other analyses (`ANALISIS-SEGURIDAD-FRONTEND.md`).
+- **templates/** – Requirement docs (e.g. `TEMPLATE-REQUERIMIENTO-TRANSACTION-TYPES-FRONTEND.md`).
 
-`docs/README.md` is the index. Root README points to key flows and deployment; some links may still reference old paths (e.g. `docs/DEPLOY-AWS.md` → now `docs/infrastructure/DEPLOY-AWS.md`).
+`docs/README.md` is the index. Root README points to key flows and deployment; some links may still reference old paths (e.g. `docs/DEPLOY-AWS.md` → now `docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md`).
 
 ---
 
 ## 10. Development workflow expectations (inferred)
 
 - **Environment:** Use `.env` (or `.env.local`) with `VITE_*` for API bases, program id, API key, Cognito, etc. In dev without env, Vite proxy sends `/api` and transaction/rules/admin paths to configured backends (see `vite.config.ts`).
-- **Backend first:** When changing both frontend and backend, deploy backend before frontend so API contracts and env are in place (stated in `docs/infrastructure/DEPLOY-AWS.md`).
+- **Backend first:** When changing both frontend and backend, deploy backend before frontend so API contracts and env are in place (stated in `docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md`).
 - **E2E:** Default E2E runs are against MSW; for contract validation against the real API, use the “real” Cypress scripts and ensure backend is up and env is set.
 - **Linting:** `npm run lint` (ESLint). No pre-commit hooks were observed in the inspected files.
 
@@ -186,7 +186,7 @@ After reorganization, docs live under `docs/`:
 - **Roles:** Use role GUIDs and helpers from `src/constants/auth.ts`; protect routes via `ProtectedRoute` and `allowedRoles`.
 - **API:** Do not hardcode base URLs or secrets; use `apiConfig.ts` and env. Add or adjust types in `src/types/` when request/response shapes change.
 - **Errors:** Use `getErrorStatus()` and the existing error-message helpers where applicable; show user feedback via `toast` (sonner).
-- **Tests:** Prefer `data-testid` for elements that tests need to target; keep MSW handlers and E2E specs in sync with backend contracts (see `docs/testing/E2E-SWAGGER-ALINEACION.md`).
+- **Tests:** Prefer `data-testid` for elements that tests need to target; keep MSW handlers and E2E specs in sync with backend contracts (see `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`).
 - **UI:** Use `components/ui/` primitives and Tailwind; merge classes with `cn()` from `lib/utils.ts`. Follow the existing design tokens in `index.css`.
 - **New features:** If they touch APIs or deployment, update the relevant doc under `docs/` (testing, infrastructure, or templates).
 
@@ -196,5 +196,5 @@ After reorganization, docs live under `docs/`:
 
 - **Context:** When working in `loyalty-app-vite`, point Cursor at this file so it knows this is the frontend app, its stack (React, Vite, TypeScript, Tailwind, Radix), and where pages, services, components, and tests live.
 - **Conventions:** Section 11 summarizes conventions; `docs/cursor-rules.md` adds short rules (e.g. API alignment, E2E/Swagger, no hardcoded config).
-- **APIs:** For request/response shapes and which service talks to which backend, use this doc plus `src/services/` and `src/types/`. For backend contract details and E2E mapping, use `docs/testing/E2E-SWAGGER-ALINEACION.md` and the backend repo’s Swagger docs.
+- **APIs:** For request/response shapes and which service talks to which backend, use this doc plus `src/services/` and `src/types/`. For backend contract details and E2E mapping, use `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md` and the backend repo’s Swagger docs.
 - **Uncertainty:** Where something was inferred (e.g. “no React Query” or “no pre-commit hooks”), it is stated in the text. If the repo changes, update this file so Cursor and humans stay aligned with the actual codebase.

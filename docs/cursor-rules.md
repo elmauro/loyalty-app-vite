@@ -46,15 +46,15 @@ Practical rules for generating and updating code in this repository. Use togethe
 - **Unit tests:** Place tests in `__tests__` next to the component (e.g. `AccumulationForm/__tests__/AccumulationForm.test.tsx`). Use `renderWithProviders` from `src/test-utils.tsx` so AuthProvider, BrowserRouter, and Toaster are available. Do not add new global mocks in `setupTests.ts` unless necessary (e.g. for a new global dependency); prefer mocking at the test or module level.
 - **Selectors:** Prefer `data-testid` for elements that tests need to target. Use the same `data-testid` pattern as existing components (e.g. `acc-document`, `red-points`, `login-username`). Add `data-testid` when adding new interactive elements that will be asserted on.
 - **Service/API mocks in unit tests:** Mock the service module (e.g. `jest.mock('../../../services/transactionService')`) or axios, not MSW. Use `getMockResponse()` from `src/mocks/mockService.ts` for response shapes when it fits the entity.
-- **MSW (E2E):** Handlers in `src/mocks/handlers/` must match the real endpoint paths and expected status codes used by the app. When changing a service URL or request/response shape, update the corresponding handler and, if needed, mock data in `src/mocks/data/`. Keep handler logic aligned with the behavior described in `docs/testing/E2E-SWAGGER-ALINEACION.md`.
+- **MSW (E2E):** Handlers in `src/mocks/handlers/` must match the real endpoint paths and expected status codes used by the app. When changing a service URL or request/response shape, update the corresponding handler and, if needed, mock data in `src/mocks/data/`. Keep handler logic aligned with the behavior described in `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`.
 - **E2E specs:** Cypress specs live in `cypress/e2e/`. Use the existing custom commands (`loginAsAdmin`, `loginAsProgramAdmin`, `loginAsUser`) for role-based flows. When adding a new flow that depends on an API, add or adjust the MSW handler and the E2E spec; do not rely on the real backend in default E2E runs unless the script explicitly targets real backend (e.g. `cy:e2e:real`).
 
 ---
 
 ## 6. Documentation update rules
 
-- **When changing API usage or contracts:** Update `docs/testing/E2E-SWAGGER-ALINEACION.md` if the mapping between E2E scenarios and endpoints changes.
-- **When changing deployment or CI:** Update `docs/infrastructure/` (e.g. DEPLOY-AWS.md) if build, env, or deploy steps change.
+- **When changing API usage or contracts:** Update `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md` if the mapping between E2E scenarios and endpoints changes.
+- **When changing deployment or CI:** Update `docs/infrastructure/` (e.g. GUIA-DESPLIEGUE-AWS-FRONTEND.md) if build, env, or deploy steps change.
 - **When adding a feature that has a requirement doc:** Add or update the relevant doc under `docs/templates/` or `docs/` (e.g. transaction types, new flows).
 - **Do not:** Invent or update architecture docs (e.g. in `docs/architecture/`) unless the repo already has such docs and the change is substantive.
 

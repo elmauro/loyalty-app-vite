@@ -301,5 +301,5 @@ Así ves si en ese intervalo hubo llamadas desde GitHub Actions a S3 y CloudFron
 | Archivo | Descripción |
 |---------|-------------|
 | [.github/workflows/deploy.yml](../.github/workflows/deploy.yml) | Workflow de GitHub Actions |
-| [docs/DEPLOY-AWS.md](DEPLOY-AWS.md) | Esta documentación |
+| [GUIA-DESPLIEGUE-AWS-FRONTEND.md](GUIA-DESPLIEGUE-AWS-FRONTEND.md) | Esta documentación |
 | [.env.example](../.env.example) | Variables de entorno (referencia para builds) |
