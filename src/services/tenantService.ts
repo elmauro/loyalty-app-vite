@@ -14,6 +14,7 @@ interface TenantApiItem {
   pointsMoneyRatio?: number;
   periodId?: number;
   periodValue?: number;
+  isDeleted?: number;
 }
 
 function mapApiToTenant(item: TenantApiItem): Tenant {
@@ -27,7 +28,7 @@ function mapApiToTenant(item: TenantApiItem): Tenant {
     pointsMoneyRatio: item.pointsMoneyRatio ?? 0,
     periodId: item.periodId ?? 3,
     periodValue: item.periodValue ?? 6,
-    isdeleted: 0,
+    isdeleted: item.isDeleted ?? 0,
   };
 }
 
@@ -52,8 +53,11 @@ export interface UpdateTenantInput {
   periodValue?: number;
 }
 
-export async function fetchTenants(): Promise<Tenant[]> {
-  const { data } = await axiosApp.get<TenantApiItem[]>(`/${TENANTS_GET_PATH}/tenants`);
+export async function fetchTenants(includeDeleted = false): Promise<Tenant[]> {
+  const params = includeDeleted ? { includeDeleted: 'true' } : undefined;
+  const { data } = await axiosApp.get<TenantApiItem[]>(`/${TENANTS_GET_PATH}/tenants`, {
+    params,
+  });
   if (!Array.isArray(data)) return [];
   return data.map(mapApiToTenant);
 }
@@ -95,5 +99,16 @@ export async function deactivateTenant(
     name: currentTenant.name,
     identification: currentTenant.identification,
     isDeleted: 1,
+  });
+}
+
+export async function reactivateTenant(
+  tenantId: string,
+  currentTenant: { name: string; identification: string }
+): Promise<void> {
+  await updateTenant(tenantId, {
+    name: currentTenant.name,
+    identification: currentTenant.identification,
+    isDeleted: 0,
   });
 }

@@ -26,6 +26,20 @@ export interface Tenant {
   isdeleted: number;
 }
 
+export interface Office {
+  programId: string;
+  tenantId: string;
+  officeId: string;
+  cityId: number;
+  name: string;
+  description?: string;
+  phoneNumber?: string;
+  address: string;
+  isDeleted?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface TenantAdmin {
   id: string;
   email: string;

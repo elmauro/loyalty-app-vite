@@ -31,17 +31,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Building2, Search, Loader2, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, Building2, Search, Loader2, Users, MapPin, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   fetchTenants,
   createTenant,
   updateTenant,
   deactivateTenant,
+  reactivateTenant,
   type CreateTenantInput,
   type UpdateTenantInput,
 } from '@/services/tenantService';
 import { TenantAdminsManager } from './TenantAdminsManager';
+import { TenantOfficesDialog } from './TenantOfficesDialog';
 
 interface Props {
   tenants: Tenant[];
@@ -68,9 +70,12 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
   const [search, setSearch] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
   const [adminsForTenant, setAdminsForTenant] = useState<Tenant | null>(null);
+  const [officesForTenant, setOfficesForTenant] = useState<Tenant | null>(null);
 
   const activeTenants = tenants.filter((t) => t.isdeleted === 0);
+  const inactiveTenants = tenants.filter((t) => t.isdeleted === 1);
   const filtered = activeTenants.filter(
     (t) =>
       t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -115,7 +120,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           periodId: form.periodId,
           periodValue: form.periodValue,
         });
-        const list = await fetchTenants();
+        const list = await fetchTenants(true);
         onTenantsChange(list);
         toast.success('Aliado actualizado');
       } else {
@@ -129,7 +134,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           periodValue: form.periodValue,
         };
         const { id } = await createTenant(input);
-        const list = await fetchTenants();
+        const list = await fetchTenants(true);
         onTenantsChange(list);
         toast.success('Aliado creado');
       }
@@ -150,7 +155,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
         name: tenant.name,
         identification: tenant.identification,
       });
-      const list = await fetchTenants();
+      const list = await fetchTenants(true);
       onTenantsChange(list);
       setDeleteIndex(null);
       toast.success('Aliado desactivado');
@@ -158,6 +163,23 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
       // Error ya manejado por interceptor
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleReactivate = async (tenant: Tenant) => {
+    setIsReactivating(true);
+    try {
+      await reactivateTenant(tenant.tenantId, {
+        name: tenant.name,
+        identification: tenant.identification,
+      });
+      const list = await fetchTenants(true);
+      onTenantsChange(list);
+      toast.success('Aliado activado');
+    } catch {
+      // Error ya manejado por interceptor
+    } finally {
+      setIsReactivating(false);
     }
   };
 
@@ -227,6 +249,15 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => setOfficesForTenant(t)}
+                        title="Oficinas"
+                        data-testid={`tenant-offices-btn-${t.tenantId}`}
+                      >
+                        <MapPin className="h-4 w-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setAdminsForTenant(t)}
                         title="Administradores"
                         data-testid={`tenant-admins-btn-${t.tenantId}`}
@@ -251,6 +282,51 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
             </TableBody>
           </Table>
         </div>
+
+        {inactiveTenants.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-muted-foreground">
+              Aliados desactivados ({inactiveTenants.length})
+            </h4>
+            <div className="rounded-md border border-dashed">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Código</TableHead>
+                    <TableHead className="hidden md:table-cell">Identificación</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inactiveTenants.map((t) => (
+                    <TableRow key={t.tenantId} className="opacity-75">
+                      <TableCell className="font-medium">{t.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{t.tenantCode}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        NIT {t.identification}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleReactivate(t)}
+                          disabled={isReactivating}
+                          title="Activar"
+                          data-testid={`tenant-reactivate-${t.tenantId}`}
+                        >
+                          <RotateCcw className="h-4 w-4 text-green-600" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -336,8 +412,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Desactivar aliado?</AlertDialogTitle>
             <AlertDialogDescription>
-              El aliado será marcado como eliminado. Esta acción se puede revertir desde la base de
-              datos.
+              El aliado será marcado como desactivado. Podrás activarlo de nuevo desde la sección de aliados desactivados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -349,6 +424,12 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <TenantOfficesDialog
+        open={officesForTenant !== null}
+        onOpenChange={(open) => !open && setOfficesForTenant(null)}
+        tenant={officesForTenant}
+      />
 
       <Dialog open={adminsForTenant !== null} onOpenChange={(open) => !open && setAdminsForTenant(null)}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="tenant-admins-dialog">

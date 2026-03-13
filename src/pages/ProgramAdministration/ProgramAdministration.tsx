@@ -16,7 +16,7 @@ export default function ProgramAdministration() {
   const loadTenants = useCallback(async () => {
     setTenantsLoading(true);
     try {
-      const list = await fetchTenants();
+      const list = await fetchTenants(true);
       setTenants(list);
     } catch {
       setTenants([]);

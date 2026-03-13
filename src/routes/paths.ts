@@ -10,5 +10,8 @@ export const paths = {
   programAdministration: '/program-administration',
   rules: '/rules',
   user: '/user',
+  /** Oficinas: /offices/:tenantId (Fase 2 - UI) */
+  offices: (tenantId: string) => `/offices/${tenantId}`,
+  officesBase: '/offices',
 } as const;
   
