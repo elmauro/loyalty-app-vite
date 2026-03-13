@@ -1,6 +1,7 @@
 // src/mocks/handlers/programHandlers.ts
 // adminProgram53rv1c3, adminProgramPut53rv1c3, adminProgTxTypes53rv1c3, adminTenantAdmins53rv1c3
 // tenantsGet53rv1c3, tenantsPost53rv1c3, tenantsPut53rv1c3
+// officeGet53rv1c3, officeAdd53rv1c3, officeUpdate53rv1c3
 import { http, HttpResponse } from 'msw';
 
 const ADMIN_PROGRAM_PATH = '/adminProgram53rv1c3/admin/program';
@@ -50,6 +51,35 @@ const mockTenantAdmins = [
   },
 ];
 
+const mockOffices: Array<{
+  programId: string;
+  tenantId: string;
+  officeId: string;
+  cityId: number;
+  name: string;
+  address: string;
+  isDeleted?: number;
+}> = [
+  {
+    programId: 'PCM',
+    tenantId: 'tenant-1',
+    officeId: 'off-e2e-001',
+    cityId: 11001,
+    name: 'Oficina Centro E2E',
+    address: 'Calle 50 #10-20',
+    isDeleted: 0,
+  },
+  {
+    programId: 'PCM',
+    tenantId: 'tenant-1',
+    officeId: 'off-e2e-002',
+    cityId: 5001,
+    name: 'Oficina Desactivada E2E',
+    address: 'Calle 30 #5-10',
+    isDeleted: 1,
+  },
+];
+
 export const programHandlers = [
   http.get(ADMIN_PROGRAM_PATH, () => HttpResponse.json(mockProgram)),
   http.put(ADMIN_PROGRAM_PUT_PATH, () => HttpResponse.json({ programId: 'PCM' })),
@@ -65,4 +95,11 @@ export const programHandlers = [
   http.get(TENANTS_GET_PATH, () => HttpResponse.json(mockTenants)),
   http.post(TENANTS_POST_PATH, () => HttpResponse.json({ id: 'tenant-new', rowCount: 1 })),
   http.put(/\/tenantsPut53rv1c3\/tenants\/.+/, () => HttpResponse.json({})),
+  http.get(/\/officeGet53rv1c3\/tenants\/.+\/offices/, () => HttpResponse.json(mockOffices)),
+  http.post(/\/officeAdd53rv1c3\/tenants\/.+\/offices/, () =>
+    HttpResponse.json({ officeId: 'off-e2e-new', rowCount: 1 })
+  ),
+  http.put(/\/officeUpdate53rv1c3\/tenants\/.+\/offices\/.+/, () =>
+    HttpResponse.json({ officeId: 'off-e2e-001', rowCount: 1 })
+  ),
 ];

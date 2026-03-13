@@ -126,4 +126,109 @@ describe('Administración del Programa', () => {
       expect($body.find('[data-testid="tenant-admin-form-dialog"]').length).to.eq(0);
     });
   });
+
+  describe('Oficinas', () => {
+    it('abre el diálogo de oficinas al hacer clic en el icono de ubicación', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('Oficinas').should('exist');
+      cy.contains('Aliado Demo').should('exist');
+    });
+
+    it('muestra la lista de oficinas del aliado', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('Oficina Centro E2E', { timeout: 5000 }).should('exist');
+    });
+
+    it('abre el formulario de nueva oficina', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-new-office"]').click();
+      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-name"]').should('exist');
+      cy.get('[data-testid="tenant-office-form-address"]').should('exist');
+    });
+
+    it('crea una nueva oficina (MSW mock)', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-new-office"]').click();
+      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-name"]').type('Oficina Norte E2E');
+      cy.get('[data-testid="tenant-office-form-address"]').type('Carrera 43 #1-50');
+      cy.get('[data-testid="tenant-office-form-save"]').click();
+      cy.contains('Oficina creada', { timeout: 5000 }).should('exist');
+    });
+
+    it('requiere nombre y dirección para crear oficina', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-new-office"]').click();
+      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-save"]').click();
+      cy.contains('Nombre y dirección son obligatorios').should('exist');
+    });
+
+    it('abre el diálogo de confirmación al desactivar una oficina', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('Oficina Centro E2E', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-office-delete-off-e2e-001"]').click();
+      cy.contains('¿Desactivar oficina?', { timeout: 3000 }).should('exist');
+      cy.contains('Podrás activarla de nuevo desde la sección de oficinas desactivadas').should(
+        'exist'
+      );
+      cy.contains('button', 'Cancelar').click();
+      cy.contains('¿Desactivar oficina?').should('not.exist');
+    });
+
+    it('desactiva una oficina al confirmar (MSW mock)', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('Oficina Centro E2E', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-office-delete-off-e2e-001"]').click();
+      cy.contains('¿Desactivar oficina?', { timeout: 3000 }).should('exist');
+      cy.contains('button', 'Desactivar').click();
+      cy.contains('Oficina desactivada', { timeout: 5000 }).should('exist');
+    });
+
+    it('muestra oficinas desactivadas y permite reactivar', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('Oficinas desactivadas', { timeout: 5000 }).should('exist');
+      cy.contains('Oficina Desactivada E2E').should('exist');
+      cy.get('[data-testid="tenant-office-reactivate-off-e2e-002"]').click();
+      cy.contains('Oficina activada', { timeout: 5000 }).should('exist');
+    });
+
+    it('cierra el formulario de oficina con Cancelar', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-new-office"]').click();
+      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-cancel"]').click();
+      cy.get('body').should(($body) => {
+        expect($body.find('[data-testid="tenant-office-form-dialog"]').length).to.eq(0);
+      });
+    });
+  });
 });
