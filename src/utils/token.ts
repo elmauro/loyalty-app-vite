@@ -158,6 +158,11 @@ export function getTenantCodeForRequest(): string {
   return getTenantForRequest()?.tenantCode ?? '';
 }
 
+/** Devuelve el tenantId del tenant actual (admin). */
+export function getTenantIdForRequest(): string {
+  return getTenantForRequest()?.tenantId ?? '';
+}
+
 /** Obtiene el email del usuario desde authData/JWT (para Cognito changePassword). */
 export function getEmailFromAuth(): string | null {
   const token = getAuthToken();

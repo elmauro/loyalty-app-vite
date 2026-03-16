@@ -11,6 +11,8 @@ export interface Transaction {
   points: number;
   phoneNumber?: string;
   tenantCode?: string;
+  /** Nombre de la oficina donde se realizó la transacción (preferido sobre detail) */
+  officeName?: string;
 }
 
 // Base común para requests de acumulación (documentNumber)

@@ -354,7 +354,8 @@ export const allCities = colombiaDepartments.flatMap((d) =>
   d.cities.map((c) => ({ ...c, departmentName: d.name }))
 );
 
-/** Buscar ciudad por id */
+/** Buscar ciudad por id (acepta number o string, p. ej. código DANE) */
 export function getCityById(cityId) {
-  return allCities.find((c) => c.id === cityId);
+  if (cityId == null) return undefined;
+  return allCities.find((c) => String(c.id) === String(cityId));
 }

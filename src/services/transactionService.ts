@@ -22,7 +22,8 @@ export { BACKEND_CHUNK_SIZE };
 
 export async function accumulatePoints(
   data: AccumulatePointsRequest,
-  transactionType?: string
+  transactionType?: string,
+  officeId?: string
 ): Promise<{ status: string }> {
   const token = getAuthToken();
   const tenantCode = getTenantCodeForRequest();
@@ -31,27 +32,47 @@ export async function accumulatePoints(
       response: { status: 400, data: { error: 'x-tenant-code requerido' } },
     });
   }
+  if (!officeId?.trim()) {
+    throw Object.assign(new Error('Oficina no configurada'), {
+      response: { status: 400, data: { error: 'x-office-id requerido' } },
+    });
+  }
   const payload = { ...data };
   const response = await axiosApp.post('/income53rv1c3/income', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
       'x-tenant-code': tenantCode,
+      'x-office-id': officeId,
       'x-transaction-type': transactionType ?? TRANSACTION_TYPE_INCOME,
     },
   });
   return response.data;
 }
 
-export async function redeemPoints(data: RedeemPointsRequest): Promise<{ status: string }> {
+export async function redeemPoints(
+  data: RedeemPointsRequest,
+  officeId?: string
+): Promise<{ status: string }> {
   const token = getAuthToken();
   const tenantCode = getTenantCodeForRequest();
+  if (!tenantCode?.trim()) {
+    throw Object.assign(new Error('Tenant no configurado'), {
+      response: { status: 400, data: { error: 'x-tenant-code requerido' } },
+    });
+  }
+  if (!officeId?.trim()) {
+    throw Object.assign(new Error('Oficina no configurada'), {
+      response: { status: 400, data: { error: 'x-office-id requerido' } },
+    });
+  }
   const payload = { ...data };
   const response = await axiosApp.post('/expense53rv1c3/expense', payload, {
     headers: {
       'x-access-token': token ?? '',
       'x-program-id': PROGRAM_ID,
       'x-tenant-code': tenantCode,
+      'x-office-id': officeId,
       'x-transaction-type': TRANSACTION_TYPE_EXPENSE,
     },
   });

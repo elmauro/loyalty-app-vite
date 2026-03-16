@@ -4,6 +4,18 @@ import AccumulationForm from '../AccumulationForm';
 import { renderWithProviders } from '../../../test-utils';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
+
+const mockOffice = {
+  officeId: 'office-1',
+  name: 'Test Office',
+  programId: 'PCM',
+  tenantId: 'tenant-1',
+  cityId: 11001,
+  address: 'Calle 1',
+  isDeleted: 0,
+  isDefault: 1,
+};
+
 jest.mock('../../../services/axiosInstance', () => ({
   default: {
     post: jest.fn(() => Promise.resolve({ data: {} })),
@@ -14,10 +26,21 @@ jest.mock('../../../services/transactionService');
 jest.mock('../../../services/programService', () => ({
   fetchTransactionTypes: jest.fn().mockResolvedValue({ income: ['sale'], expense: ['redemption'] }),
 }));
+jest.mock('../../../utils/token', () => ({
+  ...jest.requireActual('../../../utils/token'),
+  getTenantIdForRequest: () => 'tenant-1',
+}));
+jest.mock('../../../services/officeService', () => ({
+  fetchOfficesByTenant: jest.fn().mockResolvedValue([mockOffice]),
+  fetchOfficeDefaultByTenant: jest.fn().mockResolvedValue(mockOffice),
+}));
 
 describe('AccumulationForm', () => {
-  const setup = () => {
-    renderWithProviders(<AccumulationForm />);
+  const setup = async () => {
+    renderWithProviders(<AccumulationForm />, { withOfficeProvider: true });
+    await waitFor(() => {
+      expect(screen.getByText('Acumular')).not.toBeDisabled();
+    });
     fireEvent.change(screen.getByTestId('acc-document'), {
       target: { value: '12345678' }
     });
@@ -32,7 +55,7 @@ describe('AccumulationForm', () => {
       .spyOn(transactionService, 'accumulatePoints')
       .mockResolvedValue(getMockResponse('accumulations', 'success'));
 
-    setup();
+    await setup();
 
     await waitFor(() => {
       expect(accumulateMock).toHaveBeenCalledWith(
@@ -41,7 +64,8 @@ describe('AccumulationForm', () => {
           identificationTypeId: 1,
           value: 100
         },
-        'sale'
+        'sale',
+        'office-1'
       );
     });
   });
@@ -51,7 +75,7 @@ describe('AccumulationForm', () => {
       response: { status: 400, data: getMockResponse('common', 'badrequest') },
     });
 
-    setup();
+    await setup();
 
     expect(await screen.findByText(/Solicitud inválida/i)).toBeInTheDocument();
   });
@@ -61,7 +85,7 @@ describe('AccumulationForm', () => {
       response: { status: 401 },
     });
 
-    setup();
+    await setup();
 
     expect(await screen.findByText(/No autorizado/i)).toBeInTheDocument();
   });
@@ -71,7 +95,7 @@ describe('AccumulationForm', () => {
       response: { status: 403 },
     });
 
-    setup();
+    await setup();
 
     expect(await screen.findByText(/Acceso denegado/i)).toBeInTheDocument();
   });
@@ -81,7 +105,7 @@ describe('AccumulationForm', () => {
       response: { status: 404 },
     });
 
-    setup();
+    await setup();
 
     expect(await screen.findByText(/No se pudo completar la operación/i)).toBeInTheDocument();
   });

@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, MapPin, Loader2, RotateCcw } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Loader2, RotateCcw, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   fetchOfficesByTenant,
@@ -50,6 +51,7 @@ import {
   type CreateOfficeInput,
   type UpdateOfficeInput,
 } from '@/services/officeService';
+import { Badge } from '@/components/ui/badge';
 import { colombiaDepartments, getCityById } from '@/data/colombia-cities';
 
 interface Props {
@@ -60,12 +62,13 @@ interface Props {
 
 const DEFAULT_CITY_ID = 11001; // Bogotá, D.C.
 
-const emptyForm: CreateOfficeInput = {
+const emptyForm: CreateOfficeInput & { officeId?: string } = {
   name: '',
   cityId: DEFAULT_CITY_ID,
   address: '',
   description: '',
   phoneNumber: '',
+  isDefault: 0,
 };
 
 export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
@@ -78,6 +81,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
+  const [isSettingDefault, setIsSettingDefault] = useState<string | null>(null);
 
   const loadOffices = useCallback(async () => {
     if (!tenant) return;
@@ -123,6 +127,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
       description: office.description ?? '',
       phoneNumber: office.phoneNumber ?? '',
       officeId: office.officeId,
+      isDefault: Number(office.isDefault ?? 0),
     });
     setDialogOpen(true);
   };
@@ -147,6 +152,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
           address: form.address.trim(),
           ...(form.description?.trim() && { description: form.description.trim() }),
           ...(form.phoneNumber?.trim() && { phoneNumber: form.phoneNumber.trim() }),
+          isDefault: form.isDefault === 1 ? 1 : 0,
         };
         await updateOffice(tenant.tenantId, editOffice.officeId, input);
         await loadOffices();
@@ -158,6 +164,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
           address: form.address.trim(),
           ...(form.description?.trim() && { description: form.description.trim() }),
           ...(form.phoneNumber?.trim() && { phoneNumber: form.phoneNumber.trim() }),
+          isDefault: form.isDefault === 1 ? 1 : 0,
         };
         await createOffice(tenant.tenantId, input);
         await loadOffices();
@@ -200,6 +207,21 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
     }
   };
 
+  const handleSetDefault = async (office: Office) => {
+    if (!tenant) return;
+    if ((office.isDefault ?? 0) === 1) return;
+    setIsSettingDefault(office.officeId);
+    try {
+      await updateOffice(tenant.tenantId, office.officeId, { isDefault: 1 });
+      await loadOffices();
+      toast.success(`${office.name} es ahora la oficina por defecto`);
+    } catch {
+      // Error ya manejado por interceptor
+    } finally {
+      setIsSettingDefault(null);
+    }
+  };
+
   const update = (field: keyof typeof form, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -224,7 +246,9 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                   <MapPin className="h-5 w-5 text-primary" />
                   <CardTitle className="text-xl font-bold">Oficinas</CardTitle>
                   <span className="text-muted-foreground">—</span>
-                  <span className="text-muted-foreground">{tenant.name}</span>
+                  <Badge variant="secondary" className="rounded-full font-normal text-muted-foreground">
+                    {tenant.name}
+                  </Badge>
                 </div>
                 <Button size="sm" onClick={openCreate} data-testid="tenant-offices-new-office">
                   <Plus className="h-4 w-4 mr-1" /> Nueva Oficina
@@ -237,7 +261,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                       <TableRow>
                         <TableHead>Nombre</TableHead>
                         <TableHead className="hidden md:table-cell">Dirección</TableHead>
-                        <TableHead className="hidden lg:table-cell">Ciudad ID</TableHead>
+                        <TableHead className="hidden lg:table-cell">Ciudad</TableHead>
                         <TableHead className="text-right">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -255,36 +279,68 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        activeOffices.map((o) => (
+                        activeOffices.map((o) => {
+                          const isDefault = (o.isDefault ?? 0) === 1;
+                          const isSetting = isSettingDefault === o.officeId;
+                          return (
                           <TableRow key={o.officeId}>
-                            <TableCell className="font-medium">{o.name}</TableCell>
+                            <TableCell className="font-medium">
+                              <span className="flex items-center gap-2">
+                                {o.name}
+                                {isDefault && (
+                                  <Badge className="inline-flex items-center gap-1 rounded-full border-0 bg-[#e8f7ed] px-2 py-0.5 text-xs font-normal text-green-600 dark:bg-green-900/30 dark:text-green-500">
+                                    <Star className="h-3.5 w-3.5 fill-current" />
+                                    Por defecto
+                                  </Badge>
+                                )}
+                              </span>
+                            </TableCell>
                             <TableCell className="hidden md:table-cell">{o.address}</TableCell>
                             <TableCell className="hidden lg:table-cell">
                               {getCityById(o.cityId)?.name ?? o.cityId}
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => openEdit(o)}
-                                title="Editar"
-                                data-testid={`tenant-office-edit-${o.officeId}`}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setDeleteOffice(o)}
-                                disabled={isDeleting}
-                                title="Desactivar"
-                                data-testid={`tenant-office-delete-${o.officeId}`}
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
+                              <span className="inline-flex flex-nowrap items-center justify-end gap-0">
+                                {!isDefault && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleSetDefault(o)}
+                                    disabled={!!isSettingDefault}
+                                    title="Marcar como oficina por defecto"
+                                    data-testid={`tenant-office-set-default-${o.officeId}`}
+                                  >
+                                    {isSetting ? (
+                                      <Loader2 className="h-4 w-4 animate-spin text-green-600" />
+                                    ) : (
+                                      <Star className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                                    )}
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => openEdit(o)}
+                                  title="Editar"
+                                  data-testid={`tenant-office-edit-${o.officeId}`}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeleteOffice(o)}
+                                  disabled={isDeleting}
+                                  title="Desactivar"
+                                  data-testid={`tenant-office-delete-${o.officeId}`}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </span>
                             </TableCell>
                           </TableRow>
-                        ))
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>
@@ -412,6 +468,17 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                 onChange={(e) => update('phoneNumber', e.target.value)}
                 placeholder="+57 300 123 4567"
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="office-default"
+                checked={form.isDefault === 1}
+                onCheckedChange={(checked) => update('isDefault', checked ? 1 : 0)}
+                data-testid="tenant-office-form-isDefault"
+              />
+              <Label htmlFor="office-default" className="font-normal cursor-pointer">
+                Oficina por defecto (solo una por aliado)
+              </Label>
             </div>
           </div>
           <DialogFooter>

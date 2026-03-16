@@ -89,7 +89,7 @@ export default function TransactionTable({ transactions }: Props) {
                 <TableRow key={tx.id} className="hover:bg-muted/30">
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      {tx.detail}
+                      {tx.officeName ?? tx.detail}
                       {tx.type === 'expiration' && (
                         <Badge
                           variant="outline"

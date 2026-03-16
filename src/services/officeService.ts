@@ -13,6 +13,7 @@ export interface CreateOfficeInput {
   address: string;
   description?: string;
   phoneNumber?: string;
+  isDefault?: number;
 }
 
 export interface UpdateOfficeInput {
@@ -22,6 +23,7 @@ export interface UpdateOfficeInput {
   description?: string;
   phoneNumber?: string;
   isDeleted?: number;
+  isDefault?: number;
 }
 
 export async function fetchOfficesByTenant(
@@ -34,6 +36,16 @@ export async function fetchOfficesByTenant(
     { params }
   );
   return Array.isArray(data) ? data : [];
+}
+
+/** Obtiene la oficina por defecto del tenant (?default=true). Retorna null si no hay. */
+export async function fetchOfficeDefaultByTenant(tenantId: string): Promise<Office | null> {
+  const { data } = await axiosApp.get<Office[]>(
+    `/${OFFICE_GET_PATH}/tenants/${tenantId}/offices`,
+    { params: { default: 'true' } }
+  );
+  const arr = Array.isArray(data) ? data : [];
+  return arr.length > 0 ? arr[0] : null;
 }
 
 export async function fetchOfficeById(
@@ -58,6 +70,7 @@ export async function createOffice(
       address: input.address,
       ...(input.description != null && { description: input.description }),
       ...(input.phoneNumber != null && { phoneNumber: input.phoneNumber }),
+      ...(input.isDefault != null && { isDefault: input.isDefault }),
     }
   );
   return { officeId: String(data.officeId) };
@@ -70,7 +83,7 @@ export async function updateOffice(
 ): Promise<void> {
   await axiosApp.put(
     `/${OFFICE_UPDATE_PATH}/tenants/${tenantId}/offices/${officeId}`,
-    input
+    { ...input }
   );
 }
 

@@ -4,6 +4,7 @@ import { sendOtp } from '../../services/otpService';
 import { toast } from 'sonner';
 import { getRedemptionErrorMessage } from '../../utils/getRedemptionErrorMessage';
 import { getErrorStatus } from '../../utils/getErrorStatus';
+import { useOfficeContext } from '@/contexts/OfficeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { Gift, RotateCcw, ShieldCheck, X } from 'lucide-react';
 const DEFAULT_IDENTIFICATION_TYPE_ID = 1;
 
 export default function RedemptionForm() {
+  const { selectedOffice } = useOfficeContext();
   const formRef = useRef<HTMLFormElement>(null);
   const [documentNumber, setDocumentNumber] = useState('');
   const [identificationTypeId, setIdentificationTypeId] = useState(DEFAULT_IDENTIFICATION_TYPE_ID);
@@ -28,6 +30,10 @@ export default function RedemptionForm() {
 
     if (!doc || !pts) {
       toast.error('Por favor completa todos los campos');
+      return;
+    }
+    if (!selectedOffice?.officeId) {
+      toast.error('Selecciona una oficina para redimir puntos');
       return;
     }
 
@@ -52,14 +58,21 @@ export default function RedemptionForm() {
       toast.error('Por favor ingresa un código OTP válido');
       return;
     }
+    if (!selectedOffice?.officeId) {
+      toast.error('Selecciona una oficina para redimir puntos');
+      return;
+    }
     setIsLoading(true);
     try {
-      await redeemPoints({
-        documentNumber,
-        identificationTypeId: 1,
-        otpCode,
-        points: Number(points),
-      });
+      await redeemPoints(
+        {
+          documentNumber,
+          identificationTypeId: 1,
+          otpCode,
+          points: Number(points),
+        },
+        selectedOffice.officeId
+      );
       toast.success('Puntos redimidos');
       handleCancel();
     } catch (err: unknown) {
@@ -114,7 +127,12 @@ export default function RedemptionForm() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button type="submit" variant="accent" disabled={isLoading} className="flex-1 sm:flex-none">
+            <Button
+              type="submit"
+              variant="accent"
+              disabled={isLoading || !selectedOffice}
+              className="flex-1 sm:flex-none"
+            >
               {isLoading ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-accent-foreground border-t-transparent" />
@@ -164,7 +182,7 @@ export default function RedemptionForm() {
               type="button"
               variant="success"
               onClick={handleRedeemConfirm}
-              disabled={isLoading}
+              disabled={isLoading || !selectedOffice}
               className="flex-1 sm:flex-none"
             >
               {isLoading ? (

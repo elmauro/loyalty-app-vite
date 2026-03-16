@@ -55,7 +55,7 @@ describe('TransactionHistory', () => {
         1,
         BACKEND_CHUNK_SIZE
       );
-      expect(screen.getByText(/Deelite/i)).toBeInTheDocument();
+      expect(screen.getByText(/Oficina Principal/i)).toBeInTheDocument();
     });
   });
 

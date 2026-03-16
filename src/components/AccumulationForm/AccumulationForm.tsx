@@ -4,6 +4,7 @@ import { fetchTransactionTypes } from '../../services/programService';
 import { toast } from 'sonner';
 import { getAccumulationErrorMessage } from '../../utils/getAccumulationErrorMessage';
 import { getErrorStatus } from '../../utils/getErrorStatus';
+import { useOfficeContext } from '@/contexts/OfficeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,7 @@ import {
 import { Plus, RotateCcw } from 'lucide-react';
 
 function AccumulationForm() {
+  const { selectedOffice } = useOfficeContext();
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [transactionTypes, setTransactionTypes] = useState<string[]>(['sale']);
@@ -49,6 +51,10 @@ function AccumulationForm() {
       toast.error('Por favor completa todos los campos');
       return;
     }
+    if (!selectedOffice?.officeId) {
+      toast.error('Selecciona una oficina para acumular puntos');
+      return;
+    }
     setIsLoading(true);
     try {
       await accumulatePoints(
@@ -57,7 +63,8 @@ function AccumulationForm() {
           identificationTypeId: 1,
           value: Number(value),
         },
-        selectedType
+        selectedType,
+        selectedOffice.officeId
       );
       toast.success('Puntos acumulados');
       formRef.current?.reset();
@@ -133,7 +140,11 @@ function AccumulationForm() {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button type="submit" disabled={isLoading} className="flex-1 sm:flex-none">
+          <Button
+            type="submit"
+            disabled={isLoading || !selectedOffice}
+            className="flex-1 sm:flex-none"
+          >
             {isLoading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />

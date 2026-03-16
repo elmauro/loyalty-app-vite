@@ -104,10 +104,13 @@ export const transactionHandlers = [
                   : i === 0
                     ? baseTx.detail
                     : `Transacción ${i + 1}`;
+              const offices = ['Oficina Principal', 'Oficina Centro', 'Oficina Norte', 'Oficina Sur'];
+              const officeName = offices[i % offices.length];
               return {
                 ...baseTx,
                 id: `mock-tx-${i + 1}`,
                 detail,
+                officeName,
                 points,
                 type,
               };

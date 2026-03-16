@@ -11,4 +11,4 @@ export interface ColombiaDepartment {
 
 export const colombiaDepartments: ColombiaDepartment[];
 export const allCities: (ColombiaCity & { departmentName: string })[];
-export function getCityById(cityId: number): (ColombiaCity & { departmentName: string }) | undefined;
+export function getCityById(cityId: number | string | null | undefined): (ColombiaCity & { departmentName: string }) | undefined;

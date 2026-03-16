@@ -21,14 +21,14 @@ describe('User flow (rol 2)', () => {
     cy.get('[data-testid="user-startDate"]').type('2023-10-01');
     cy.get('[data-testid="user-endDate"]').type('2023-10-10');
     cy.contains('Find').click();
-    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.contains('Oficina Principal', { timeout: 10000 }).should('exist');
   });
 
   it('muestra tabs Todo, Acumulado y Redimido en historial', () => {
     cy.get('[data-testid="user-startDate"]').type('2023-10-01');
     cy.get('[data-testid="user-endDate"]').type('2023-10-10');
     cy.contains('Find').click();
-    cy.contains('Deelite', { timeout: 10000 }).should('exist');
+    cy.contains('Oficina Principal', { timeout: 10000 }).should('exist');
     cy.get('[data-testid="tx-tab-all"]').should('contain', 'Todo');
     cy.get('[data-testid="tx-tab-accumulation"]').should('contain', 'Acumulado');
     cy.get('[data-testid="tx-tab-redemption"]').should('contain', 'Redimido');

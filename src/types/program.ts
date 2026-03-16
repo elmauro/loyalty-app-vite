@@ -36,6 +36,7 @@ export interface Office {
   phoneNumber?: string;
   address: string;
   isDeleted?: number;
+  isDefault?: number;
   createdAt?: string;
   updatedAt?: string;
 }
