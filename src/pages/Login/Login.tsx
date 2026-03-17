@@ -30,6 +30,7 @@ export default function Login() {
     email: string;
     completeNewPassword: (newPassword: string) => Promise<string>;
   } | null>(null);
+  const [newPasswordForm, setNewPasswordForm] = useState({ newPassword: '', confirmPassword: '' });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,8 +58,9 @@ export default function Login() {
         const result = await cognitoSignIn(loginValue, password);
         if (result.success) {
           data = await loginWithCognitoToken(result.idToken);
-        } else if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
+        } else         if (result.challenge === 'NEW_PASSWORD_REQUIRED') {
           setNewPasswordRequired({ email: loginValue, completeNewPassword: result.completeNewPassword });
+          setNewPasswordForm({ newPassword: '', confirmPassword: '' });
           return;
         } else if (result.challenge === 'MFA_REQUIRED') {
           setError('Autenticación MFA requerida. No disponible en esta versión.');
@@ -107,9 +109,7 @@ export default function Login() {
     e.preventDefault();
     if (!newPasswordRequired) return;
     setError('');
-    const formData = new FormData(e.currentTarget);
-    const newPassword = (formData.get('newPassword') as string) || '';
-    const confirmPassword = (formData.get('confirmPassword') as string) || '';
+    const { newPassword, confirmPassword } = newPasswordForm;
     if (!newPassword || newPassword.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres.');
       return;
@@ -169,11 +169,13 @@ export default function Login() {
                 <div className="relative">
                   <Input
                     id="newPassword"
-                    name="newPassword"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Mínimo 8 caracteres"
                     className="h-11 pr-10"
                     minLength={8}
+                    autoComplete="new-password"
+                    value={newPasswordForm.newPassword}
+                    onChange={(e) => setNewPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
                   />
                   <button
                     type="button"
@@ -190,11 +192,13 @@ export default function Login() {
                 <div className="relative">
                   <Input
                     id="confirmPassword"
-                    name="confirmPassword"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Repite la contraseña"
                     className="h-11 pr-10"
                     minLength={8}
+                    autoComplete="off"
+                    value={newPasswordForm.confirmPassword}
+                    onChange={(e) => setNewPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
                   />
                   <button
                     type="button"

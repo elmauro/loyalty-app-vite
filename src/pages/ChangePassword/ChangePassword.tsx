@@ -147,6 +147,7 @@ export default function ChangePassword() {
                   onChange={(e) => setFormData((prev) => ({ ...prev, newPassword: e.target.value }))}
                   className="h-11 pr-10"
                   placeholder="Mínimo 8 caracteres"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -169,6 +170,7 @@ export default function ChangePassword() {
                   onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                   className="h-11 pr-10"
                   placeholder="Repite la nueva contraseña"
+                  autoComplete="off"
                 />
                 <button
                   type="button"

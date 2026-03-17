@@ -16,6 +16,10 @@ jest.mock('../../../services/axiosInstance', () => {
 jest.mock('../../../services/authService');
 
 describe('Login Page', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('renders login form', () => {
     renderWithProviders(<Login />);
     expect(screen.getByText('Login')).toBeInTheDocument();

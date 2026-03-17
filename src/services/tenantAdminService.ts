@@ -33,6 +33,8 @@ export interface CreateTenantAdminInput {
   lastName: string;
   tenantId: string;
   password: string;
+  documentNumber: string;
+  phoneNumber: string;
 }
 
 export async function fetchTenantAdmins(tenantIdToName: Record<string, string>): Promise<TenantAdmin[]> {
@@ -50,6 +52,8 @@ export async function createTenantAdmin(input: CreateTenantAdminInput): Promise<
     lastName: input.lastName,
     tenantId: input.tenantId,
     password: input.password,
+    documentNumber: input.documentNumber,
+    phoneNumber: input.phoneNumber,
   });
 }
 

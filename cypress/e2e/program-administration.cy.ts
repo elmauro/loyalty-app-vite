@@ -36,6 +36,7 @@ describe('Administración del Programa', () => {
     cy.get('[data-testid="tenant-admin-form-password"]').should('exist');
     cy.get('[data-testid="tenant-admin-form-firstName"]').should('exist');
     cy.get('[data-testid="tenant-admin-form-lastName"]').should('exist');
+    cy.get('[data-testid="tenant-admin-form-documentNumber"]').should('exist');
   });
 
   it('crea un nuevo administrador (MSW mock)', () => {
@@ -49,6 +50,8 @@ describe('Administración del Programa', () => {
     cy.get('[data-testid="tenant-admin-form-password"]').type('Password123');
     cy.get('[data-testid="tenant-admin-form-firstName"]').type('Admin');
     cy.get('[data-testid="tenant-admin-form-lastName"]').type('Test');
+    cy.get('[data-testid="tenant-admin-form-documentNumber"]').type('12345678');
+    cy.get('[data-testid="tenant-admin-form-phoneNumber"]').type('573001234567');
     cy.get('[data-testid="tenant-admin-form-save"]').click();
     cy.contains('Administrador creado', { timeout: 5000 }).should('exist');
   });
@@ -61,7 +64,7 @@ describe('Administración del Programa', () => {
     cy.get('[data-testid="tenant-admins-new-admin"]').click();
     cy.get('[data-testid="tenant-admin-form-dialog"]', { timeout: 3000 }).should('be.visible');
     cy.get('[data-testid="tenant-admin-form-save"]').click();
-    cy.contains('Todos los campos son obligatorios').should('exist');
+    cy.contains('Todos los campos obligatorios deben completarse').should('exist');
   });
 
   it('requiere contraseña de al menos 8 caracteres', () => {
@@ -75,6 +78,8 @@ describe('Administración del Programa', () => {
     cy.get('[data-testid="tenant-admin-form-password"]').type('123');
     cy.get('[data-testid="tenant-admin-form-firstName"]').type('Admin');
     cy.get('[data-testid="tenant-admin-form-lastName"]').type('Test');
+    cy.get('[data-testid="tenant-admin-form-documentNumber"]').type('12345678');
+    cy.get('[data-testid="tenant-admin-form-phoneNumber"]').type('573001234567');
     cy.get('[data-testid="tenant-admin-form-save"]').click();
     cy.contains('La contraseña debe tener al menos 8 caracteres').should('exist');
   });

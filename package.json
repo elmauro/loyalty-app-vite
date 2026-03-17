@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "test": "jest",
     "lint": "eslint .",
     "preview": "vite preview",
     "cy:dev": "cross-env VITE_USE_MSW=true vite",

@@ -16,6 +16,10 @@ jest.mock('../../../services/axiosInstance', () => ({
 jest.mock('../../../services/transactionService');
 
 describe('TransactionHistory', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   const setupTransactionHistory = async () => {
     renderWithProviders(<TransactionHistory />);
 

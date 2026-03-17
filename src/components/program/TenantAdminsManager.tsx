@@ -63,6 +63,8 @@ const emptyForm = {
   firstName: '',
   lastName: '',
   tenantId: '',
+  documentNumber: '',
+  phoneNumber: '',
 };
 
 export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props) {
@@ -136,14 +138,24 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
       firstName: admin.firstName,
       lastName: admin.lastName,
       tenantId: admin.tenantId,
+      documentNumber: (admin as { documentNumber?: string }).documentNumber ?? '',
+      phoneNumber: (admin as { phoneNumber?: string }).phoneNumber ?? '',
     });
     setPassword('');
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    if (!form.email.trim() || !form.firstName.trim() || !form.lastName.trim() || !form.tenantId) {
-      toast.error('Todos los campos son obligatorios');
+    if (
+      !form.email.trim() ||
+      !form.firstName.trim() ||
+      !form.lastName.trim() ||
+      !form.tenantId ||
+      !form.documentNumber.trim() ||
+      !form.phoneNumber.trim() ||
+      form.phoneNumber.trim().length < 10
+    ) {
+      toast.error('Todos los campos obligatorios deben completarse (teléfono mínimo 10 dígitos)');
       return;
     }
     if (editIndex === null && !password.trim()) {
@@ -169,6 +181,8 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
         lastName: form.lastName.trim(),
         tenantId: form.tenantId,
         password,
+        documentNumber: form.documentNumber.trim(),
+        phoneNumber: form.phoneNumber.trim(),
       };
       await createTenantAdmin(input);
       await loadAdmins();
@@ -379,6 +393,26 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 data-testid="tenant-admin-form-lastName"
               />
               </div>
+            </div>
+            <div className="space-y-1">
+              <Label>Número de documento</Label>
+              <Input
+                value={form.documentNumber}
+                onChange={(e) => update('documentNumber', e.target.value)}
+                placeholder="Ej. 12345678"
+                disabled={editIndex !== null}
+                data-testid="tenant-admin-form-documentNumber"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Teléfono</Label>
+              <Input
+                value={form.phoneNumber}
+                onChange={(e) => update('phoneNumber', e.target.value)}
+                placeholder="Ej. 573001234567"
+                disabled={editIndex !== null}
+                data-testid="tenant-admin-form-phoneNumber"
+              />
             </div>
             <div className="space-y-1">
               <Label>Aliado</Label>

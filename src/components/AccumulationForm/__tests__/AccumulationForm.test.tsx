@@ -5,17 +5,6 @@ import { renderWithProviders } from '../../../test-utils';
 import { getMockResponse } from '../../../mocks/mockService';
 import * as transactionService from '../../../services/transactionService';
 
-const mockOffice = {
-  officeId: 'office-1',
-  name: 'Test Office',
-  programId: 'PCM',
-  tenantId: 'tenant-1',
-  cityId: 11001,
-  address: 'Calle 1',
-  isDeleted: 0,
-  isDefault: 1,
-};
-
 jest.mock('../../../services/axiosInstance', () => ({
   default: {
     post: jest.fn(() => Promise.resolve({ data: {} })),
@@ -31,11 +20,35 @@ jest.mock('../../../utils/token', () => ({
   getTenantIdForRequest: () => 'tenant-1',
 }));
 jest.mock('../../../services/officeService', () => ({
-  fetchOfficesByTenant: jest.fn().mockResolvedValue([mockOffice]),
-  fetchOfficeDefaultByTenant: jest.fn().mockResolvedValue(mockOffice),
+  fetchOfficesByTenant: jest.fn().mockResolvedValue([
+    {
+      officeId: 'office-1',
+      name: 'Test Office',
+      programId: 'PCM',
+      tenantId: 'tenant-1',
+      cityId: 11001,
+      address: 'Calle 1',
+      isDeleted: 0,
+      isDefault: 1,
+    },
+  ]),
+  fetchOfficeDefaultByTenant: jest.fn().mockResolvedValue({
+    officeId: 'office-1',
+    name: 'Test Office',
+    programId: 'PCM',
+    tenantId: 'tenant-1',
+    cityId: 11001,
+    address: 'Calle 1',
+    isDeleted: 0,
+    isDefault: 1,
+  }),
 }));
 
 describe('AccumulationForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   const setup = async () => {
     renderWithProviders(<AccumulationForm />, { withOfficeProvider: true });
     await waitFor(() => {
