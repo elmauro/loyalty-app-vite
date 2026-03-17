@@ -250,9 +250,14 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                     {tenant.name}
                   </Badge>
                 </div>
-                <Button size="sm" onClick={openCreate} data-testid="tenant-offices-new-office">
-                  <Plus className="h-4 w-4 mr-1" /> Nueva Oficina
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+                    Cerrar
+                  </Button>
+                  <Button size="sm" onClick={openCreate} data-testid="tenant-offices-new-office">
+                    <Plus className="h-4 w-4 mr-1" /> Nueva Oficina
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="rounded-md border">
@@ -391,10 +396,6 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
               </CardContent>
             </Card>
           )}
-
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="mt-4">
-            Cerrar
-          </Button>
         </DialogContent>
       </Dialog>
 
