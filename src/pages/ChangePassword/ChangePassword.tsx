@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { paths } from '@/routes/paths';
+import { getDefaultPathForRole } from '@/constants/auth';
 
 export default function ChangePassword() {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export default function ChangePassword() {
   const [error, setError] = useState('');
 
   const email = getEmailFromAuth();
+  const backPath = state.user?.roles?.[0]
+    ? getDefaultPathForRole(state.user.roles[0])
+    : paths.home;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +68,7 @@ export default function ChangePassword() {
     try {
       await changePassword(email, formData.currentPassword, formData.newPassword);
       toast.success('Contraseña actualizada correctamente.');
-      navigate(state.user ? paths.user : paths.home);
+      navigate(backPath);
     } catch (err: unknown) {
       const message = (err as { message?: string })?.message || '';
       if (message.includes('NotAuthorizedException') || message.includes('Incorrect')) {
@@ -94,7 +98,7 @@ export default function ChangePassword() {
   return (
     <div className="mx-auto max-w-md">
       <Link
-        to={state.user ? paths.user : paths.home}
+        to={backPath}
         className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -201,7 +205,7 @@ export default function ChangePassword() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate(state.user ? paths.user : paths.home)}
+                onClick={() => navigate(backPath)}
               >
                 Cancelar
               </Button>
