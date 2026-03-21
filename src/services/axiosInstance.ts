@@ -2,71 +2,15 @@
 import axios, { AxiosInstance } from 'axios';
 import { toast } from 'sonner';
 import { getAuthToken } from '../utils/token';
-import {
-  API_BASE_AUTH,
-  API_BASE_APP,
-  PROGRAM_ID,
-  API_KEY,
-  RULES_GET_API_PATH,
-  RULES_UPDATE_API_PATH,
-  TENANTS_GET_PATH,
-  TENANTS_POST_PATH,
-  TENANTS_PUT_PATH,
-  OFFICE_GET_PATH,
-  OFFICE_GET_BY_ID_PATH,
-  OFFICE_ADD_PATH,
-  OFFICE_UPDATE_PATH,
-  ADMIN_PROGRAM_PATH,
-  ADMIN_PROGRAM_PUT_PATH,
-  ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
-  ADMIN_TENANT_ADMINS_PATH,
-} from './apiConfig';
-
-const tenantAdminPaths = [
-  TENANTS_GET_PATH,
-  TENANTS_POST_PATH,
-  TENANTS_PUT_PATH,
-  OFFICE_GET_PATH,
-  OFFICE_GET_BY_ID_PATH,
-  OFFICE_ADD_PATH,
-  OFFICE_UPDATE_PATH,
-  ADMIN_PROGRAM_PATH,
-  ADMIN_PROGRAM_PUT_PATH,
-  ADMIN_PROGRAM_TRANSACTION_TYPES_PATH,
-  ADMIN_TENANT_ADMINS_PATH,
-];
-
-function isTenantOrAdminApi(url?: string): boolean {
-  if (!url) return false;
-  return tenantAdminPaths.some((p) => url.includes(`/${p}/`));
-}
+import { API_BASE_AUTH, API_BASE_APP, PROGRAM_ID, ADMIN_TENANT_ADMINS_PATH } from './apiConfig';
 
 const commonHeaders = {
   'x-program-id': PROGRAM_ID,
-  'x-api-key': API_KEY,
   'Content-Type': 'application/json',
 };
 
 function applyInterceptors(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
-    // /api/authentications siempre debe llevar x-api-key; si no, API Gateway 403 sin CORS → "Provisional headers".
-    const isAuth = config.url?.includes('/api/authentications');
-    if (isAuth) {
-      config.headers.set('x-api-key', API_KEY);
-      config.headers.set('x-program-id', PROGRAM_ID);
-      return config;
-    }
-
-    const isIncome = config.url?.includes('income53rv1c3/income');
-    const isRules =
-      config.url?.includes(`${RULES_GET_API_PATH}/engines`) ||
-      config.url?.includes(`${RULES_UPDATE_API_PATH}/engines`);
-    const isTenantOrAdmin = isTenantOrAdminApi(config.url);
-    if (isIncome || isRules || isTenantOrAdmin) {
-      delete config.headers['x-api-key'];
-    } else {
-      config.headers.set('x-api-key', API_KEY);
-    }
     config.headers.set('x-program-id', PROGRAM_ID);
     const authData = localStorage.getItem('authData');
     if (authData) {

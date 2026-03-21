@@ -1,5 +1,5 @@
 import axiosApp from './axiosInstance';
-import { TENANTS_GET_PATH, TENANTS_POST_PATH, TENANTS_PUT_PATH } from './apiConfig';
+import { TENANTS_GET_PATH, TENANTS_POST_PATH, TENANTS_PUT_PATH, API_KEY_POST_PATH } from './apiConfig';
 import type { Tenant } from '@/types/program';
 
 /** Respuesta del backend: usa tenantid */
@@ -111,4 +111,16 @@ export async function reactivateTenant(
     identification: currentTenant.identification,
     isDeleted: 0,
   });
+}
+
+export interface GenerateApiKeyResponse {
+  apiKey: string;
+  message: string;
+}
+
+export async function generateApiKeyForTenant(tenantId: string): Promise<GenerateApiKeyResponse> {
+  const { data } = await axiosApp.post<GenerateApiKeyResponse>(
+    `/${API_KEY_POST_PATH}/tenants/${tenantId}/api-key`
+  );
+  return data;
 }

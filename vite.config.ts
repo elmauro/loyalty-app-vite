@@ -105,7 +105,130 @@ export default defineConfig({
           });
         },
       },
-      '/tenants': {
+      // tenant-api (tenants, offices, api-key)
+      '/tenantsGet53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/tenantsPost53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/tenantsPut53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/apiKeyPost53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/officeGet53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/officeGetById53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/officeAdd53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/officeUpdate53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      // admin-api
+      '/adminProgram53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/adminProgramPut53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/adminProgTxTypes53rv1c3': {
+        target: 'https://dev.loyaleasy.com',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'https://dev.loyaleasy.com');
+            proxyReq.setHeader('Referer', 'https://dev.loyaleasy.com/');
+          });
+        },
+      },
+      '/adminTenantAdmins53rv1c3': {
         target: 'https://dev.loyaleasy.com',
         changeOrigin: true,
         secure: false,

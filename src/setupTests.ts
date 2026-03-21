@@ -16,7 +16,6 @@ jest.mock('./services/apiConfig', () => ({
   API_BASE_AUTH: '',
   API_BASE_APP: '',
   PROGRAM_ID: 'PCM',
-  API_KEY: 'test-key',
   TRANSACTION_TYPE_INCOME: 'sale',
   RULES_GET_API_PATH: 'rulesGet',
   RULES_UPDATE_API_PATH: 'rulesPut',

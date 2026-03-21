@@ -165,24 +165,9 @@ Si quedan vulnerabilidades, evaluar `npm audit fix --force` (puede introducir br
 
 ---
 
-### 2. API Key — eliminar valor por defecto
+### 2. API Key — ✅ APLICADO (Mar 2025)
 
-**Archivo:** `src/services/apiConfig.ts`
-
-**Cambio sugerido:** Quitar el fallback hardcodeado y exigir la variable de entorno.
-
-```typescript
-// Antes:
-export const API_KEY = getEnv('VITE_API_KEY', 'XltDmAkEaf73Pa63gQuPD9S8WCr83Ry73LF7g9wz');
-
-// Después:
-export const API_KEY = getEnv('VITE_API_KEY', '');
-if (!API_KEY && import.meta.env.PROD) {
-  console.error('VITE_API_KEY debe estar definida en producción');
-}
-```
-
-**Preparación:** Asegurar que `.env` y CI/CD (GitHub Actions) definan `VITE_API_KEY` antes del build.
+**Estado:** El frontend ya no usa `x-api-key`. Se eliminó `API_KEY` de `apiConfig.ts`. El authenticate del backend no requiere api-key; la autenticación usa solo JWT (x-access-token).
 
 ---
 

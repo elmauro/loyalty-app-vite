@@ -102,4 +102,10 @@ export const programHandlers = [
   http.put(/\/officeUpdate53rv1c3\/tenants\/.+\/offices\/.+/, () =>
     HttpResponse.json({ officeId: 'off-e2e-001', rowCount: 1 })
   ),
+  http.post(/\/apiKeyPost53rv1c3\/tenants\/.+\/api-key/, () =>
+    HttpResponse.json({
+      apiKey: 'lk_test1234567890abcdef1234567890abcdef',
+      message: 'Guarda esta clave. No se mostrará de nuevo.',
+    })
+  ),
 ];

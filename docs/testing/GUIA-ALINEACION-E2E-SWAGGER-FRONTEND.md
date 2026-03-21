@@ -20,7 +20,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Formulario de login, validación vacía, login admin (8288221/8221), login usuario (55555555/5555), navegación registro/forgot password, mostrar/ocultar contraseña | `POST /api/authentications` | `auth-api/docs/swagger.yaml` |
 
 **Contrato (Swagger):**
-- **Request:** `login`, `pass`, `loginTypeId`, `identificationTypeId` (headers: `x-program-id`, `x-api-key`).
+- **Request:** `login`, `pass`, `loginTypeId`, `identificationTypeId` (headers: `x-program-id`).
 - **Responses:** 200 (token, firstname, iscustomer, roles, etc.), 400, 403, 404.
 
 **Frontend:** `authService.login()` envía `loginTypeId: 1`, `identificationTypeId: 1`, `login`, `pass`. **Alineado.**
@@ -157,7 +157,7 @@ Tras cambios en el backend, puedes comprobar que las E2E responden bien contra l
 1. **Configurar `.env`** (o variables de entorno) con las URLs del backend:
    - `VITE_API_BASE_AUTH=...`
    - `VITE_API_BASE_APP=...`
-   - `VITE_API_KEY=...` (y opcionalmente `VITE_PROGRAM_ID`, etc.)
+   - (opcionalmente `VITE_PROGRAM_ID`, etc.)
 
 2. **No activar MSW:** ejecutar la app **sin** `VITE_USE_MSW=true`.
 

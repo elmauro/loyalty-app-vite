@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, Building2, Search, Loader2, Users, MapPin, RotateCcw } from 'lucide-react';
+import { Plus, Pencil, Trash2, Building2, Search, Loader2, Users, MapPin, RotateCcw, Key } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   fetchTenants,
@@ -44,6 +44,7 @@ import {
 } from '@/services/tenantService';
 import { TenantAdminsManager } from './TenantAdminsManager';
 import { TenantOfficesDialog } from './TenantOfficesDialog';
+import { TenantApiKeyDialog } from './TenantApiKeyDialog';
 
 interface Props {
   tenants: Tenant[];
@@ -73,6 +74,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
   const [isReactivating, setIsReactivating] = useState(false);
   const [adminsForTenant, setAdminsForTenant] = useState<Tenant | null>(null);
   const [officesForTenant, setOfficesForTenant] = useState<Tenant | null>(null);
+  const [apiKeyForTenant, setApiKeyForTenant] = useState<Tenant | null>(null);
 
   const activeTenants = tenants.filter((t) => t.isdeleted === 0);
   const inactiveTenants = tenants.filter((t) => t.isdeleted === 1);
@@ -258,6 +260,15 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => setApiKeyForTenant(t)}
+                        title="API Key"
+                        data-testid={`tenant-api-key-btn-${t.tenantId}`}
+                      >
+                        <Key className="h-4 w-4 text-primary" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setAdminsForTenant(t)}
                         title="Administradores"
                         data-testid={`tenant-admins-btn-${t.tenantId}`}
@@ -429,6 +440,12 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
         open={officesForTenant !== null}
         onOpenChange={(open) => !open && setOfficesForTenant(null)}
         tenant={officesForTenant}
+      />
+
+      <TenantApiKeyDialog
+        open={apiKeyForTenant !== null}
+        onOpenChange={(open) => !open && setApiKeyForTenant(null)}
+        tenant={apiKeyForTenant}
       />
 
       <Dialog open={adminsForTenant !== null} onOpenChange={(open) => !open && setAdminsForTenant(null)}>

@@ -14,12 +14,6 @@ export const API_BASE_APP = useMocks ? '' : getEnv('VITE_API_BASE_APP', devFallb
 
 export const PROGRAM_ID = getEnv('VITE_PROGRAM_ID', 'PCM');
 
-/** Header x-api-key. Definir en .env para override (ver .env.example). */
-export const API_KEY = getEnv(
-  'VITE_API_KEY',
-  'XltDmAkEaf73Pa63gQuPD9S8WCr83Ry73LF7g9wz'
-);
-
 /** Header x-transaction-type por contexto. Income endpoint usa 'sale'. */
 export const TRANSACTION_TYPE_INCOME = getEnv('VITE_TRANSACTION_TYPE_INCOME', 'sale');
 
@@ -32,6 +26,9 @@ export const RULES_UPDATE_API_PATH = getEnv('VITE_RULES_UPDATE_API_PATH', 'rules
 export const TENANTS_GET_PATH = getEnv('VITE_TENANTS_GET_PATH', 'tenantsGet53rv1c3');
 export const TENANTS_POST_PATH = getEnv('VITE_TENANTS_POST_PATH', 'tenantsPost53rv1c3');
 export const TENANTS_PUT_PATH = getEnv('VITE_TENANTS_PUT_PATH', 'tenantsPut53rv1c3');
+
+/** tenant-api API key path */
+export const API_KEY_POST_PATH = getEnv('VITE_API_KEY_POST_PATH', 'apiKeyPost53rv1c3');
 
 /** tenant-api office paths */
 export const OFFICE_GET_PATH = getEnv('VITE_OFFICE_GET_PATH', 'officeGet53rv1c3');

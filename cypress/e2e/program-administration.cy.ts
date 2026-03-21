@@ -132,6 +132,39 @@ describe('Administración del Programa', () => {
     });
   });
 
+  describe('API Key', () => {
+    it('abre el diálogo de API key al hacer clic en el icono de llave', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-api-key-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-api-key-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('API Key').should('exist');
+      cy.contains('Aliado Demo').should('exist');
+    });
+
+    it('genera una API key y la muestra (MSW mock)', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-api-key-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-api-key-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="api-key-generate-btn"]').click();
+      cy.get('[data-testid="api-key-display"]', { timeout: 5000 }).should('be.visible');
+      cy.get('[data-testid="api-key-display"]').should('have.value', 'lk_test1234567890abcdef1234567890abcdef');
+      cy.contains('API key generada').should('exist');
+    });
+
+    it('cierra el diálogo de API key con Cancelar', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-api-key-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-api-key-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.contains('button', 'Cancelar').click();
+      cy.get('body').should(($body) => {
+        expect($body.find('[data-testid="tenant-api-key-dialog"]').length).to.eq(0);
+      });
+    });
+  });
+
   describe('Oficinas', () => {
     it('abre el diálogo de oficinas al hacer clic en el icono de ubicación', () => {
       cy.get('[data-testid="program-admin-tab-aliados"]').click();
