@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { login, loginWithCognitoToken } from '@/services/authService';
 import { signIn as cognitoSignIn, isCognitoEnabled } from '@/services/cognitoService';
 import { useAuth } from '@/store/AuthContext';
@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Award, ArrowLeft, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
+import { paths } from '@/routes/paths';
 
 function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -23,6 +24,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const { dispatch } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,26 @@ export default function Login() {
     completeNewPassword: (newPassword: string) => Promise<string>;
   } | null>(null);
   const [newPasswordForm, setNewPasswordForm] = useState({ newPassword: '', confirmPassword: '' });
+
+  /** Limpia error y formulario al volver a login (p. ej. desde forgot/reset) y tras restaurar la página desde bfcache (atrás del navegador). */
+  useEffect(() => {
+    if (location.pathname !== paths.login) return;
+
+    const resetLoginUi = () => {
+      setError('');
+      setNewPasswordRequired(null);
+      setNewPasswordForm({ newPassword: '', confirmPassword: '' });
+      formRef.current?.reset();
+    };
+
+    resetLoginUi();
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) resetLoginUi();
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, [location.pathname, location.key]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -144,7 +166,11 @@ export default function Login() {
           <div className="mx-auto w-full max-w-sm">
             <button
               type="button"
-              onClick={() => setNewPasswordRequired(null)}
+              onClick={() => {
+                setNewPasswordRequired(null);
+                setError('');
+                setNewPasswordForm({ newPassword: '', confirmPassword: '' });
+              }}
               className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />

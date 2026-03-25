@@ -1,7 +1,11 @@
 // src/pages/Login/__tests__/Login.test.tsx
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, render } from '@testing-library/react';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import Login from '../Login';
+import ForgotPassword from '../../ForgotPassword/ForgotPassword';
 import { renderWithProviders } from '../../../test-utils';
+import { AuthProvider } from '../../../store/AuthContext';
+import { paths } from '../../../routes/paths';
 import * as authService from '../../../services/authService';
 import { getMockResponse } from '../../../mocks/mockService';
 
@@ -100,5 +104,39 @@ describe('Login Page', () => {
     fireEvent.click(screen.getByText('Sign In'));
 
     expect(await screen.findByText(/Usuario no encontrado/i)).toBeInTheDocument();
+  });
+
+  test('clears credential error when returning to login from forgot-password', async () => {
+    jest.spyOn(authService, 'login').mockRejectedValue({
+      response: {
+        status: 400,
+        data: getMockResponse('common', 'badrequest'),
+      },
+    });
+
+    render(
+      <MemoryRouter initialEntries={[paths.login]}>
+        <AuthProvider>
+          <Routes>
+            <Route path={paths.login} element={<Login />} />
+            <Route path={paths.forgotPassword} element={<ForgotPassword />} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.change(screen.getByPlaceholderText('Número de documento'), { target: { value: 'user' } });
+    fireEvent.change(screen.getByPlaceholderText('Tu contraseña'), { target: { value: 'wrongpass' } });
+    fireEvent.click(screen.getByText('Sign In'));
+    expect(await screen.findByText(/Credenciales inválidas/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('link', { name: /Forgot password/i }));
+    expect(await screen.findByRole('heading', { name: /Forgot Password/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('link', { name: /^Sign in$/i }));
+    await waitFor(() => {
+      expect(screen.queryByText(/Credenciales inválidas/i)).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: /^Login$/i })).toBeInTheDocument();
   });
 });

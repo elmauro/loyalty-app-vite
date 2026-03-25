@@ -9,9 +9,19 @@ const commonHeaders = {
   'Content-Type': 'application/json',
 };
 
+/** Login: mismo contrato que Postman (Content-Type + x-program-id). No enviar JWT en POST /authentications → evita preflight CORS extra. */
+function isAuthenticationsRequest(config: { url?: string; baseURL?: string }) {
+  const path = `${config.baseURL ?? ''}${config.url ?? ''}`;
+  return (config.url ?? '').includes('authentications') || path.includes('authentications');
+}
+
 function applyInterceptors(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     config.headers.set('x-program-id', PROGRAM_ID);
+    if (isAuthenticationsRequest(config)) {
+      config.headers.delete('x-access-token');
+      return config;
+    }
     const authData = localStorage.getItem('authData');
     if (authData) {
       const token = getAuthToken();
