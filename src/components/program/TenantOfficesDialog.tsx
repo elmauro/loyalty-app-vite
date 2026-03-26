@@ -53,6 +53,7 @@ import {
 } from '@/services/officeService';
 import { Badge } from '@/components/ui/badge';
 import { colombiaDepartments, getCityById } from '@/data/colombia-cities';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -83,9 +84,10 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
   const [isReactivating, setIsReactivating] = useState(false);
   const [isSettingDefault, setIsSettingDefault] = useState<string | null>(null);
 
-  const loadOffices = useCallback(async () => {
+  const loadOffices = useCallback(async (opts?: { silent?: boolean }) => {
     if (!tenant) return;
-    setLoading(true);
+    const silent = opts?.silent === true;
+    if (!silent) setLoading(true);
     try {
       const list = await fetchOfficesByTenant(tenant.tenantId, true);
       setOffices(list);
@@ -93,7 +95,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
       setOffices([]);
       toast.error('No se pudieron cargar las oficinas');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [tenant]);
 
@@ -111,6 +113,14 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
       loadOffices();
     }
   }, [open, tenant, loadOffices]);
+
+  useEffect(() => {
+    if (!open) {
+      setDialogOpen(false);
+      setEditOffice(null);
+      setForm(emptyForm);
+    }
+  }, [open]);
 
   const openCreate = () => {
     setEditOffice(null);
@@ -155,7 +165,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
           isDefault: form.isDefault === 1 ? 1 : 0,
         };
         await updateOffice(tenant.tenantId, editOffice.officeId, input);
-        await loadOffices();
+        await loadOffices({ silent: true });
         toast.success('Oficina actualizada');
       } else {
         const input: CreateOfficeInput = {
@@ -167,7 +177,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
           isDefault: form.isDefault === 1 ? 1 : 0,
         };
         await createOffice(tenant.tenantId, input);
-        await loadOffices();
+        await loadOffices({ silent: true });
         toast.success('Oficina creada');
       }
       setDialogOpen(false);
@@ -183,7 +193,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
     setIsDeleting(true);
     try {
       await deactivateOffice(tenant.tenantId, deleteOffice.officeId);
-      await loadOffices();
+      await loadOffices({ silent: true });
       setDeleteOffice(null);
       toast.success('Oficina desactivada');
     } catch {
@@ -198,7 +208,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
     setIsReactivating(true);
     try {
       await reactivateOffice(tenant.tenantId, office.officeId);
-      await loadOffices();
+      await loadOffices({ silent: true });
       toast.success('Oficina activada');
     } catch {
       // Error ya manejado por interceptor
@@ -213,7 +223,7 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
     setIsSettingDefault(office.officeId);
     try {
       await updateOffice(tenant.tenantId, office.officeId, { isDefault: 1 });
-      await loadOffices();
+      await loadOffices({ silent: true });
       toast.success(`${office.name} es ahora la oficina por defecto`);
     } catch {
       // Error ya manejado por interceptor
@@ -229,7 +239,15 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="tenant-offices-dialog">
+        <DialogContent
+          className={cn(
+            'max-h-[90vh] overflow-y-auto',
+            dialogOpen ? 'sm:max-w-md' : 'sm:max-w-2xl'
+          )}
+          data-testid="tenant-offices-dialog"
+        >
+          {!dialogOpen ? (
+            <>
           <DialogHeader className="sr-only">
             <DialogTitle>
               {tenant ? `Oficinas de ${tenant.name}` : 'Oficinas'}
@@ -396,11 +414,9 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
               </CardContent>
             </Card>
           )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md" data-testid="tenant-office-form-dialog">
+            </>
+          ) : (
+            <div data-testid="tenant-office-form-dialog" className="space-y-4">
           <DialogHeader>
             <DialogTitle>{editOffice ? 'Editar Oficina' : 'Nueva Oficina'}</DialogTitle>
             <DialogDescription>
@@ -491,6 +507,8 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
               Guardar
             </Button>
           </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
