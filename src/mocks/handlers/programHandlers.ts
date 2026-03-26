@@ -51,6 +51,16 @@ const mockTenantAdmins = [
   },
 ];
 
+const mockOfficesExtraActive = Array.from({ length: 10 }, (_, i) => ({
+  programId: 'PCM',
+  tenantId: 'tenant-1',
+  officeId: `off-e2e-${String(i + 3).padStart(3, '0')}`,
+  cityId: 11001,
+  name: `Oficina Mock ${String(i + 2).padStart(2, '0')}`,
+  address: `Calle ${i + 1} #10-20`,
+  isDeleted: 0,
+}));
+
 const mockOffices: Array<{
   programId: string;
   tenantId: string;
@@ -69,6 +79,7 @@ const mockOffices: Array<{
     address: 'Calle 50 #10-20',
     isDeleted: 0,
   },
+  ...mockOfficesExtraActive,
   {
     programId: 'PCM',
     tenantId: 'tenant-1',

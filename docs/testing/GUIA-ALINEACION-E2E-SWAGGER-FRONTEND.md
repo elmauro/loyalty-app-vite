@@ -130,7 +130,9 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 **Contrato:** `programService.fetchProgram()` obtiene la configuración completa, incluyendo `transactionsType: { income, expense }`. Los tipos se gestionan en el formulario sin llamada adicional a `programGetTransactionTypes`. `programService.updateProgram()` envía el programa actualizado. `tenantAdminService.fetchTenantAdmins()`, `createTenantAdmin()` y `updateTenantAdminStatus()` gestionan administradores de aliados. `officeService.fetchOfficesByTenant()`, `createOffice()`, `updateOffice()`, `deactivateOffice()` y `reactivateOffice()` gestionan oficinas por tenant. Requiere ROLE_PROGRAM_ADMIN.
 
-**E2E:** `cypress/e2e/program-administration.cy.ts` — carga de aliados, diálogo de administradores, crear admin, validaciones, desactivar (flujo de confirmación); diálogo de oficinas, crear oficina, validaciones, desactivar, reactivar. Mocks en `programHandlers.ts`.
+**E2E:** `cypress/e2e/program-administration.cy.ts` — carga de aliados, diálogo de administradores, crear admin, validaciones, desactivar (flujo de confirmación); diálogo de oficinas (búsqueda, paginación 10/20/50 dentro del diálogo con `within`), crear oficina, validaciones, desactivar, reactivar. Mocks en `programHandlers.ts` (oficinas activas extra en MSW para probar dos páginas a 10 filas).
+
+**UI (tablas en cliente):** Los grids de **Aliados**, **Oficinas** (diálogo) y **Administradores** (diálogo) usan la misma barra de paginación que Historial de transacciones (`TablePaginationBar` en `src/components/ui/table-pagination-bar.tsx`: Mostrar 10 / 20 / 50, rango “x–y de total”, anterior / siguiente). Por defecto muestran **10** filas por página; el **Historial de transacciones** sigue usando **20** por defecto (`TransactionHistoryForm`). La búsqueda filtra la lista ya cargada en el navegador (sin nuevos parámetros en los GET anteriores).
 
 ---
 

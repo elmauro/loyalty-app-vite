@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Tenant } from '@/types/program';
+import { PROGRAM_GRID_DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { TablePaginationBar } from '@/components/ui/table-pagination-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,9 +68,11 @@ const emptyTenant: Omit<Tenant, 'tenantId'> = {
 export function TenantsManager({ tenants, onTenantsChange }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [deleteTenant, setDeleteTenant] = useState<Tenant | null>(null);
   const [form, setForm] = useState(emptyTenant);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PROGRAM_GRID_DEFAULT_PAGE_SIZE);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
@@ -84,6 +88,20 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
       t.tenantCode.toLowerCase().includes(search.toLowerCase()) ||
       t.identification.includes(search)
   );
+  const totalFiltered = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const pagedRows = useMemo(
+    () => filtered.slice((page - 1) * pageSize, page * pageSize),
+    [filtered, page, pageSize]
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const openCreate = () => {
     setEditIndex(null);
@@ -91,9 +109,9 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
     setDialogOpen(true);
   };
 
-  const openEdit = (idx: number) => {
-    const tenant = activeTenants[idx];
-    setEditIndex(idx);
+  const openEdit = (tenant: Tenant) => {
+    const idx = activeTenants.findIndex((t) => t.tenantId === tenant.tenantId);
+    setEditIndex(idx >= 0 ? idx : null);
     setForm(tenant);
     setDialogOpen(true);
   };
@@ -149,8 +167,8 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
   };
 
   const confirmDelete = async () => {
-    if (deleteIndex === null) return;
-    const tenant = activeTenants[deleteIndex];
+    if (!deleteTenant) return;
+    const tenant = deleteTenant;
     setIsDeleting(true);
     try {
       await deactivateTenant(tenant.tenantId, {
@@ -159,7 +177,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
       });
       const list = await fetchTenants(true);
       onTenantsChange(list);
-      setDeleteIndex(null);
+      setDeleteTenant(null);
       toast.success('Aliado desactivado');
     } catch {
       // Error ya manejado por interceptor
@@ -233,7 +251,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((t, i) => (
+                pagedRows.map((t) => (
                   <TableRow key={t.tenantId}>
                     <TableCell className="font-medium">{t.name}</TableCell>
                     <TableCell>
@@ -275,13 +293,13 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
                       >
                         <Users className="h-4 w-4 text-primary" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(i)}>
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(t)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setDeleteIndex(i)}
+                        onClick={() => setDeleteTenant(t)}
                         disabled={isDeleting}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
@@ -293,6 +311,21 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
             </TableBody>
           </Table>
         </div>
+
+        {totalFiltered > 0 && (
+          <TablePaginationBar
+            total={totalFiltered}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(n) => {
+              setPageSize(n);
+              setPage(1);
+            }}
+            isLoading={false}
+            idPrefix="tenants"
+          />
+        )}
 
         {inactiveTenants.length > 0 && (
           <div className="space-y-2">
@@ -418,7 +451,7 @@ export function TenantsManager({ tenants, onTenantsChange }: Props) {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deleteIndex !== null} onOpenChange={() => !isDeleting && setDeleteIndex(null)}>
+      <AlertDialog open={deleteTenant !== null} onOpenChange={() => !isDeleting && setDeleteTenant(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Desactivar aliado?</AlertDialogTitle>

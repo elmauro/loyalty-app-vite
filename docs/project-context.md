@@ -66,14 +66,14 @@ loyalty-app-vite/
 ├── public/                  # Static assets; mockServiceWorker.js for MSW
 ├── src/
 │   ├── components/          # Feature and UI components
-│   │   ├── ui/              # Primitive components (button, input, select, dialog, card, tabs, etc.)
+│   │   ├── ui/              # Primitives (button, input, select, dialog, card, tabs, table-pagination-bar, etc.)
 │   │   ├── AccumulationForm/
 │   │   ├── RedemptionForm/
 │   │   ├── TransactionHistoryForm/
 │   │   ├── TransactionsTable/
 │   │   ├── TopBar/
 │   │   ├── rules/           # RulesManager, RuleCard, RuleFormDialog, FactsManager, ConditionBadge
-│   │   └── program/         # ProgramConfigForm, TenantsManager, TenantAdminsManager
+│   │   └── program/         # ProgramConfigForm, TenantsManager, TenantAdminsManager, TenantOfficesDialog (paginación 10/20/50 + búsqueda)
 │   ├── constants/           # auth.ts (roles, default paths), rules.ts, pagination.ts
 │   ├── layouts/             # ProtectedLayout (TopBar + Outlet)
 │   ├── lib/                 # utils.ts (cn for Tailwind)

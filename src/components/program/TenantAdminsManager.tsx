@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TenantAdmin, Tenant } from '@/types/program';
+import { PROGRAM_GRID_DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { TablePaginationBar } from '@/components/ui/table-pagination-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,12 +73,14 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
   const [admins, setAdmins] = useState<TenantAdmin[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [deactivateIndex, setDeactivateIndex] = useState<number | null>(null);
+  const [editAdmin, setEditAdmin] = useState<TenantAdmin | null>(null);
+  const [adminToDeactivate, setAdminToDeactivate] = useState<TenantAdmin | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PROGRAM_GRID_DEFAULT_PAGE_SIZE);
   const [isSaving, setIsSaving] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
@@ -122,17 +126,30 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
       a.lastName.toLowerCase().includes(search.toLowerCase()) ||
       a.tenantName.toLowerCase().includes(search.toLowerCase())
   );
+  const totalFiltered = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const pagedRows = useMemo(
+    () => filtered.slice((page - 1) * pageSize, page * pageSize),
+    [filtered, page, pageSize]
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const openCreate = () => {
-    setEditIndex(null);
+    setEditAdmin(null);
     setForm(selectedTenant ? { ...emptyForm, tenantId: selectedTenant.tenantId } : emptyForm);
     setPassword('');
     setDialogOpen(true);
   };
 
-  const openEdit = (idx: number) => {
-    const admin = filtered[idx];
-    setEditIndex(idx);
+  const openEdit = (admin: TenantAdmin) => {
+    setEditAdmin(admin);
     setForm({
       email: admin.email,
       firstName: admin.firstName,
@@ -158,16 +175,16 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
       toast.error('Todos los campos obligatorios deben completarse (teléfono mínimo 10 dígitos)');
       return;
     }
-    if (editIndex === null && !password.trim()) {
+    if (editAdmin === null && !password.trim()) {
       toast.error('La contraseña es obligatoria para nuevos usuarios');
       return;
     }
-    if (editIndex === null && password.length < 8) {
+    if (editAdmin === null && password.length < 8) {
       toast.error('La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
-    if (editIndex !== null) {
+    if (editAdmin !== null) {
       toast.info('La edición de administradores no está disponible en esta versión');
       setDialogOpen(false);
       return;
@@ -196,14 +213,14 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
   };
 
   const confirmDeactivate = async () => {
-    if (deactivateIndex === null) return;
-    const admin = filtered[deactivateIndex];
+    if (!adminToDeactivate) return;
+    const admin = adminToDeactivate;
     setIsTogglingStatus(true);
     try {
       const newStatus = admin.isActive ? 'inactive' : 'active';
       await updateTenantAdminStatus(admin.id, newStatus);
       await loadAdmins();
-      setDeactivateIndex(null);
+      setAdminToDeactivate(null);
       toast.success(
         admin.isActive
           ? 'Administrador desactivado. No podrá acceder al sistema hasta que se reactive.'
@@ -277,7 +294,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((a, i) => (
+                pagedRows.map((a) => (
                   <TableRow key={a.id} className={!a.isActive ? 'opacity-50' : ''}>
                     <TableCell className="font-medium">{a.email}</TableCell>
                     <TableCell>
@@ -299,7 +316,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                     <TableCell className="text-right">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(i)} title="Editar" data-testid={`tenant-admin-edit-${a.id}`}>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(a)} title="Editar" data-testid={`tenant-admin-edit-${a.id}`}>
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
@@ -310,7 +327,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => setDeactivateIndex(i)}
+                            onClick={() => setAdminToDeactivate(a)}
                             title={a.isActive ? 'Desactivar' : 'Activar'}
                             data-testid={`tenant-admin-deactivate-${a.id}`}
                           >
@@ -326,14 +343,29 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
             </TableBody>
           </Table>
         </div>
+
+        {!loading && totalFiltered > 0 && (
+          <TablePaginationBar
+            total={totalFiltered}
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(n) => {
+              setPageSize(n);
+              setPage(1);
+            }}
+            isLoading={false}
+            idPrefix="tenant-admins"
+          />
+        )}
       </CardContent>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={!!selectedTenant ? false : undefined}>
         <DialogContent className="sm:max-w-md" data-testid="tenant-admin-form-dialog">
           <DialogHeader>
-            <DialogTitle>{editIndex !== null ? 'Editar Administrador' : 'Nuevo Administrador'}</DialogTitle>
+            <DialogTitle>{editAdmin !== null ? 'Editar Administrador' : 'Nuevo Administrador'}</DialogTitle>
             <DialogDescription>
-              {editIndex !== null
+              {editAdmin !== null
                 ? 'Los datos del administrador se gestionan desde el sistema de identidad.'
                 : 'Crea un usuario administrador del aliado. Recibirá un correo con su contraseña temporal y deberá cambiarla en el primer inicio de sesión.'}
             </DialogDescription>
@@ -345,12 +377,12 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 type="email"
                 value={form.email}
                 onChange={(e) => update('email', e.target.value)}
-                disabled={editIndex !== null}
+                disabled={editAdmin !== null}
                 placeholder="admin@aliado.com"
                 data-testid="tenant-admin-form-email"
               />
             </div>
-            {editIndex === null && (
+            {editAdmin === null && (
               <div className="space-y-1">
                 <Label>Contraseña</Label>
                 <div className="relative">
@@ -379,7 +411,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 value={form.firstName}
                 onChange={(e) => update('firstName', e.target.value)}
                 placeholder="Nombre"
-                disabled={editIndex !== null}
+                disabled={editAdmin !== null}
                 data-testid="tenant-admin-form-firstName"
               />
               </div>
@@ -389,7 +421,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 value={form.lastName}
                 onChange={(e) => update('lastName', e.target.value)}
                 placeholder="Apellido"
-                disabled={editIndex !== null}
+                disabled={editAdmin !== null}
                 data-testid="tenant-admin-form-lastName"
               />
               </div>
@@ -400,7 +432,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 value={form.documentNumber}
                 onChange={(e) => update('documentNumber', e.target.value)}
                 placeholder="Ej. 12345678"
-                disabled={editIndex !== null}
+                disabled={editAdmin !== null}
                 data-testid="tenant-admin-form-documentNumber"
               />
             </div>
@@ -410,7 +442,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
                 value={form.phoneNumber}
                 onChange={(e) => update('phoneNumber', e.target.value)}
                 placeholder="Ej. 573001234567"
-                disabled={editIndex !== null}
+                disabled={editAdmin !== null}
                 data-testid="tenant-admin-form-phoneNumber"
               />
             </div>
@@ -419,7 +451,7 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
               <Select
                 value={form.tenantId}
                 onValueChange={(v) => update('tenantId', v)}
-                disabled={editIndex !== null || !!selectedTenant}
+                disabled={editAdmin !== null || !!selectedTenant}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar aliado" />
@@ -446,16 +478,16 @@ export function TenantAdminsManager({ tenants, selectedTenant, onClose }: Props)
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={deactivateIndex !== null} onOpenChange={() => setDeactivateIndex(null)}>
+      <AlertDialog open={adminToDeactivate !== null} onOpenChange={() => setAdminToDeactivate(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {deactivateIndex !== null && filtered[deactivateIndex]?.isActive
+              {adminToDeactivate?.isActive
                 ? '¿Desactivar administrador?'
                 : '¿Activar administrador?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {deactivateIndex !== null && filtered[deactivateIndex]?.isActive
+              {adminToDeactivate?.isActive
                 ? 'El usuario no podrá acceder al sistema hasta que se reactive.'
                 : 'El usuario podrá acceder al sistema nuevamente.'}
             </AlertDialogDescription>

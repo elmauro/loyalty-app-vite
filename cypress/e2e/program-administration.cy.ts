@@ -183,15 +183,47 @@ describe('Administración del Programa', () => {
       cy.contains('Oficina Centro E2E', { timeout: 5000 }).should('exist');
     });
 
+    it('filtra oficinas por búsqueda y muestra mensaje si no hay coincidencias', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-search"]').should('be.visible').type('Centro');
+      cy.contains('Oficina Centro E2E').should('exist');
+      cy.contains('Oficina Mock 02').should('not.exist');
+      cy.get('[data-testid="tenant-offices-search"]').clear().type('sin-resultados-xyz-999');
+      cy.contains('Ninguna oficina coincide con la búsqueda').should('exist');
+    });
+
+    it('pagina la lista de oficinas (10 por página) y permite cambiar cantidad', () => {
+      cy.get('[data-testid="program-admin-tab-aliados"]').click();
+      cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
+      cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
+      cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
+      cy.get('[data-testid="tenant-offices-dialog"]').within(() => {
+        cy.get('#tenant-offices-page-size').should('have.value', '10');
+        cy.contains(/Página 1 de 2/).should('exist');
+        cy.contains('Oficina Mock 11').should('not.exist');
+        cy.get('button[aria-label="Página siguiente"]').click();
+        cy.contains('Oficina Mock 11', { timeout: 3000 }).should('exist');
+        cy.contains('Oficina Centro E2E').should('not.exist');
+        cy.get('#tenant-offices-page-size').select('20');
+        cy.get('#tenant-offices-page-size').should('have.value', '20');
+        cy.contains(/Página 1 de 1/).should('exist');
+      });
+    });
+
     it('abre el formulario de nueva oficina', () => {
       cy.get('[data-testid="program-admin-tab-aliados"]').click();
       cy.contains('Aliado Demo', { timeout: 5000 }).should('exist');
       cy.get('[data-testid="tenant-offices-btn-tenant-1"]').click();
       cy.get('[data-testid="tenant-offices-dialog"]', { timeout: 3000 }).should('be.visible');
-      cy.get('[data-testid="tenant-offices-new-office"]').click();
-      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 3000 }).should('be.visible');
-      cy.get('[data-testid="tenant-office-form-name"]').should('exist');
-      cy.get('[data-testid="tenant-office-form-address"]').should('exist');
+      cy.get('[data-testid="tenant-offices-dialog"]').within(() => {
+        cy.get('[data-testid="tenant-offices-new-office"]').click();
+      });
+      cy.get('[data-testid="tenant-office-form-dialog"]', { timeout: 8000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-name"]', { timeout: 5000 }).should('be.visible');
+      cy.get('[data-testid="tenant-office-form-address"]').should('be.visible');
     });
 
     it('crea una nueva oficina (MSW mock)', () => {

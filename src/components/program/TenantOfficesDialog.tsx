@@ -40,7 +40,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Pencil, Trash2, MapPin, Loader2, RotateCcw, Star } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Loader2, RotateCcw, Star, Search } from 'lucide-react';
+import { PROGRAM_GRID_DEFAULT_PAGE_SIZE } from '@/constants/pagination';
+import { TablePaginationBar } from '@/components/ui/table-pagination-bar';
 import { toast } from 'sonner';
 import {
   fetchOfficesByTenant,
@@ -83,6 +85,9 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
   const [isSettingDefault, setIsSettingDefault] = useState<string | null>(null);
+  const [officeSearch, setOfficeSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PROGRAM_GRID_DEFAULT_PAGE_SIZE);
 
   const loadOffices = useCallback(async (opts?: { silent?: boolean }) => {
     if (!tenant) return;
@@ -108,6 +113,36 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
     [offices]
   );
 
+  const filteredActiveOffices = useMemo(() => {
+    const q = officeSearch.trim().toLowerCase();
+    if (!q) return activeOffices;
+    return activeOffices.filter((o) => {
+      const cityName = getCityById(o.cityId)?.name ?? String(o.cityId);
+      return (
+        o.name.toLowerCase().includes(q) ||
+        o.address.toLowerCase().includes(q) ||
+        cityName.toLowerCase().includes(q) ||
+        (o.description ?? '').toLowerCase().includes(q) ||
+        (o.phoneNumber ?? '').toLowerCase().includes(q)
+      );
+    });
+  }, [activeOffices, officeSearch]);
+
+  const totalFilteredActive = filteredActiveOffices.length;
+  const totalPages = Math.max(1, Math.ceil(totalFilteredActive / pageSize));
+  const pagedActiveOffices = useMemo(
+    () => filteredActiveOffices.slice((page - 1) * pageSize, page * pageSize),
+    [filteredActiveOffices, page, pageSize]
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [officeSearch]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   useEffect(() => {
     if (open && tenant) {
       loadOffices();
@@ -119,6 +154,8 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
       setDialogOpen(false);
       setEditOffice(null);
       setForm(emptyForm);
+      setOfficeSearch('');
+      setPage(1);
     }
   }, [open]);
 
@@ -278,6 +315,17 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="relative max-w-sm">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar oficina..."
+                    value={officeSearch}
+                    onChange={(e) => setOfficeSearch(e.target.value)}
+                    className="pl-9"
+                    data-testid="tenant-offices-search"
+                  />
+                </div>
+
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -301,8 +349,20 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                             No hay oficinas registradas
                           </TableCell>
                         </TableRow>
+                      ) : activeOffices.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                            No hay oficinas activas
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredActiveOffices.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                            Ninguna oficina coincide con la búsqueda
+                          </TableCell>
+                        </TableRow>
                       ) : (
-                        activeOffices.map((o) => {
+                        pagedActiveOffices.map((o) => {
                           const isDefault = (o.isDefault ?? 0) === 1;
                           const isSetting = isSettingDefault === o.officeId;
                           return (
@@ -368,6 +428,21 @@ export function TenantOfficesDialog({ open, onOpenChange, tenant }: Props) {
                     </TableBody>
                   </Table>
                 </div>
+
+                {!loading && totalFilteredActive > 0 && (
+                  <TablePaginationBar
+                    total={totalFilteredActive}
+                    page={page}
+                    pageSize={pageSize}
+                    onPageChange={setPage}
+                    onPageSizeChange={(n) => {
+                      setPageSize(n);
+                      setPage(1);
+                    }}
+                    isLoading={false}
+                    idPrefix="tenant-offices"
+                  />
+                )}
 
                 {inactiveOffices.length > 0 && (
                   <div className="space-y-2">
