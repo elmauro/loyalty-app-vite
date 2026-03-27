@@ -15,6 +15,14 @@ jest.mock('../../../services/axiosInstance', () => ({
 
 jest.mock('../../../services/transactionService');
 
+jest.mock('@/services/programService', () => ({
+  ...jest.requireActual('@/services/programService'),
+  fetchTransactionTypes: jest.fn().mockResolvedValue({
+    income: ['sale', 'income'],
+    expense: ['redemption', 'expiration'],
+  }),
+}));
+
 describe('TransactionHistory', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,7 +65,8 @@ describe('TransactionHistory', () => {
         '2023-10-01',
         '2023-10-10',
         1,
-        BACKEND_CHUNK_SIZE
+        BACKEND_CHUNK_SIZE,
+        undefined
       );
       expect(screen.getByText(/Oficina Principal/i)).toBeInTheDocument();
     });

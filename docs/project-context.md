@@ -15,7 +15,7 @@ This document describes the **loyalty-app-vite** frontend application as it exis
 The app supports:
 
 - **Authentication:** Login (traditional and optional Cognito), registration, forgot/reset password, change password.
-- **Customer flows:** Accumulation of points (income), redemption of points (expense with OTP), and transaction history with pagination and filters (Todo / Acumulado / Redimido).
+- **Customer flows:** Accumulation of points (income), redemption of points (expense with OTP), and transaction history with pagination (date range + **Buscar**) and client-side tabs (Todo / Acumulado / Redimido) on loaded rows. Admin history adds optional **transaction type** and **office** filters aligned with the backend query params.
 - **Admin flows:** Full administration (accumulation, redemption, history) for administrators; program administration (program config, tenants, tenant admins, transaction types) for program admins; rules management (engine-api: GET/PUT JSON rules by transaction type).
 
 Roles are enforced by route: **Administrator** (`ROLE_ADMIN`), **Customer** (`ROLE_CUSTOMER`), **Program Admin** (`ROLE_PROGRAM_ADMIN`). Role GUIDs and default paths are defined in `src/constants/auth.ts`.
@@ -74,6 +74,7 @@ loyalty-app-vite/
 │   │   ├── TopBar/
 │   │   ├── rules/           # RulesManager, RuleCard, RuleFormDialog, FactsManager, ConditionBadge
 │   │   └── program/         # ProgramConfigForm, TenantsManager, TenantAdminsManager, TenantOfficesDialog (paginación 10/20/50 + búsqueda)
+│   ├── hooks/               # useTransactionTypesForHistory (tipos de programa para historial admin)
 │   ├── constants/           # auth.ts (roles, default paths), rules.ts, pagination.ts
 │   ├── layouts/             # ProtectedLayout (TopBar + Outlet)
 │   ├── lib/                 # utils.ts (cn for Tailwind)
@@ -113,7 +114,7 @@ loyalty-app-vite/
 
 - **Single SPA:** One React tree; routing via `react-router-dom` with `BrowserRouter`. Public routes (home, login, registration, forgot/reset password) and protected routes (administration, user, rules, program-administration, change-password) are defined in `AppRoutes.tsx`. Protected routes are wrapped in `ProtectedLayout` (TopBar + main content) and `ProtectedRoute` (role check; redirect to `/login` if unauthorized).
 - **State:** No global state library. Auth is held in React Context (`AuthContext`) with a reducer (LOGIN, LOGOUT, STOP_LOADING). User is restored from `localStorage` on load (`authData`). Page-level state is local (useState/useRef/useMemo); no Redux or Zustand.
-- **API access:** All backend calls go through services in `src/services/`. Two Axios instances: `axiosAuth` (auth API base) and `axiosApp` (app/transaction/rules/admin/tenant APIs). Base URLs and paths come from `apiConfig.ts` (env: `VITE_API_BASE_AUTH`, `VITE_API_BASE_APP`, etc.). Interceptors add `x-program-id` and when present `x-access-token` (JWT); no x-api-key. They also handle 401/403 (toast + redirect to login) and other errors (toast). Token and tenant for requests are read from `utils/token.ts` (localStorage + JWT decode).
+- **API access:** All backend calls go through services in `src/services/`. Two Axios instances: `axiosAuth` (auth API base) and `axiosApp` (app/transaction/rules/admin/tenant APIs). Base URLs and paths come from `apiConfig.ts` (env: `VITE_API_BASE_AUTH`, `VITE_API_BASE_APP`, etc.). Interceptors add `x-program-id` and when present `x-access-token` (JWT); no x-api-key. **401** clears `authData`, shows toast, and redirects to `/login`. **403** shows a permission toast and does **not** log the user out (forbidden resource ≠ expired session). Other errors show toasts. Token and tenant for requests are read from `utils/token.ts` (localStorage + JWT decode).
 - **Component structure:** Pages compose layout and feature components. Feature components (e.g. AccumulationForm, RedemptionForm, RulesManager) call services directly. UI primitives live under `components/ui/` and use Tailwind + `cn()` from `lib/utils.ts`. Forms use native form elements plus Radix where needed (e.g. Select).
 - **Errors:** Services throw; components catch and use `getErrorStatus()` and domain-specific helpers (`getAccumulationErrorMessage`, `getRedemptionErrorMessage`) to show user-facing messages via `toast` (sonner).
 
@@ -142,7 +143,7 @@ loyalty-app-vite/
 ## 7. API integration approach
 
 - **Configuration:** `src/services/apiConfig.ts` reads `import.meta.env` (VITE_*). It defines API bases (`API_BASE_AUTH`, `API_BASE_APP`), program id, paths for rules, tenants, admin, transaction-type headers, phone country code, and optional Cognito ids. When `VITE_USE_MSW=true`, bases are forced to `''` so requests hit the same origin and MSW can intercept.
-- **Clients:** `axiosAuth` and `axiosApp` in `axiosInstance.ts` apply the same interceptors (headers, error toasts, 401/403 redirect to login). No x-api-key; auth uses JWT (x-access-token).
+- **Clients:** `axiosAuth` and `axiosApp` in `axiosInstance.ts` apply the same interceptors (headers, error toasts; **401** → logout + redirect to login; **403** → toast only). No x-api-key; auth uses JWT (x-access-token).
 - **Conventions:** Services export async functions that return typed data or throw. Request bodies and responses are aligned with backend Swagger; types in `src/types/` (Transaction, Auth, program, rules) reflect that. No generated API client; services call axios methods with explicit URLs and headers (paths from apiConfig).
 - **Backend alignment:** The repo expects backend APIs as documented in `loyalty-program-serverless` (e.g. auth, income, expense, history, points, rules, admin, tenant). E2E and Swagger alignment are described in `docs/testing/GUIA-ALINEACION-E2E-SWAGGER-FRONTEND.md`.
 

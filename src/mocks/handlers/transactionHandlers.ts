@@ -83,6 +83,8 @@ export const transactionHandlers = [
       const rawLimit = parseInt(url.searchParams.get('limit') ?? '100', 10);
       const allowedLimits = [10, 20, 50, 100];
       const limit = allowedLimits.includes(rawLimit) ? rawLimit : 100;
+      const filterType = (url.searchParams.get('transactionType') ?? '').trim();
+      const filterOfficeId = (url.searchParams.get('officeId') ?? '').trim();
       const base = getMockResponse<'transactions', Transaction[]>(
         'transactions',
         'success'
@@ -90,6 +92,7 @@ export const transactionHandlers = [
       // Para e2e: expandir a 25 ítems para probar paginación (varias páginas)
       // Incluir acumulación, redención y puntos vencidos
       const baseTx = base[0];
+      const officeIds = ['off-e2e-001', 'off-e2e-002', 'off-e2e-003', 'off-e2e-004'];
       const all: Transaction[] =
         base.length < 25
           ? Array.from({ length: 25 }, (_, i) => {
@@ -106,19 +109,28 @@ export const transactionHandlers = [
                     : `Transacción ${i + 1}`;
               const offices = ['Oficina Principal', 'Oficina Centro', 'Oficina Norte', 'Oficina Sur'];
               const officeName = offices[i % offices.length];
+              const officeId = officeIds[i % officeIds.length];
               return {
                 ...baseTx,
                 id: `mock-tx-${i + 1}`,
                 detail,
                 officeName,
+                officeId,
                 points,
                 type,
               };
             })
           : base;
-      const total = all.length;
+      let filtered = all;
+      if (filterType) {
+        filtered = filtered.filter((t) => t.type === filterType);
+      }
+      if (filterOfficeId) {
+        filtered = filtered.filter((t) => (t.officeId ?? '') === filterOfficeId);
+      }
+      const total = filtered.length;
       const start = (page - 1) * limit;
-      const data = all.slice(start, start + limit);
+      const data = filtered.slice(start, start + limit);
       const body: HistoryResponse = { data, total, page, limit };
       return HttpResponse.json(body);
     }

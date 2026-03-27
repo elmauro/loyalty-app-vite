@@ -12,7 +12,6 @@ import { BACKEND_CHUNK_SIZE } from '../constants/pagination';
 import {
   AccumulatePointsRequest,
   RedeemPointsRequest,
-  Transaction,
   PointsResponse,
   HistoryResponse,
   ExpiringPointsResponse,
@@ -81,19 +80,51 @@ export async function redeemPoints(
 
 const DEFAULT_PAGE = 1;
 
+/** Filtros opcionales alineados con query History API: transactionType, officeId */
+export type GetTransactionsOptions = {
+  transactionType?: string;
+  officeId?: string;
+};
+
+/** Devuelve `undefined` si no hay filtros (evita query params vacíos). */
+export function getTransactionsOptionsFromStrings(
+  transactionType: string,
+  officeId: string
+): GetTransactionsOptions | undefined {
+  const tt = transactionType.trim();
+  const oid = officeId.trim();
+  if (!tt && !oid) return undefined;
+  const out: GetTransactionsOptions = {};
+  if (tt) out.transactionType = tt;
+  if (oid) out.officeId = oid;
+  return out;
+}
+
 export async function getTransactions(
   typeId: string,
   document: string,
   startDate: string,
   endDate: string,
   page: number = DEFAULT_PAGE,
-  limit: number = BACKEND_CHUNK_SIZE
+  limit: number = BACKEND_CHUNK_SIZE,
+  options?: GetTransactionsOptions
 ): Promise<HistoryResponse> {
   const token = getAuthToken();
+  const params: Record<string, string | number> = {
+    startDate,
+    endDate,
+    page,
+    limit,
+  };
+  const tt = options?.transactionType?.trim();
+  const oid = options?.officeId?.trim();
+  if (tt) params.transactionType = tt;
+  if (oid) params.officeId = oid;
+
   const response = await axiosApp.get<HistoryResponse>(
     `/history53rv1c3/history/${typeId}/${document}`,
     {
-      params: { startDate, endDate, page, limit },
+      params,
       headers: {
         'x-access-token': token ?? '',
         'x-program-id': PROGRAM_ID,

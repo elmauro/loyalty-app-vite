@@ -7,12 +7,34 @@ export interface TransactionTypes {
   expense: string[];
 }
 
+/** Valores por defecto alineados con `fetchTransactionTypes` y Acumulación. */
+export const DEFAULT_TRANSACTION_TYPES: TransactionTypes = {
+  income: ['sale'],
+  expense: ['redemption'],
+};
+
+/**
+ * Unión de tipos configurados en el programa (income + expense), sin duplicados,
+ * en el mismo orden que en configuración: primero income, luego expense.
+ */
+export function mergeTransactionTypesForHistory(tt: TransactionTypes): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const t of [...(tt.income ?? []), ...(tt.expense ?? [])]) {
+    const v = String(t).trim();
+    if (!v || seen.has(v)) continue;
+    seen.add(v);
+    out.push(v);
+  }
+  return out;
+}
+
 /** Obtiene solo los tipos de transacción. Usa validateAdmin (tenant admins pueden consultar). */
 export async function fetchTransactionTypes(): Promise<TransactionTypes> {
   const { data } = await axiosApp.get<TransactionTypes>(`/${ADMIN_PROGRAM_TRANSACTION_TYPES_PATH}/admin/transaction-types`);
   return {
-    income: Array.isArray(data.income) ? data.income : ['sale'],
-    expense: Array.isArray(data.expense) ? data.expense : ['redemption'],
+    income: Array.isArray(data.income) ? data.income : DEFAULT_TRANSACTION_TYPES.income,
+    expense: Array.isArray(data.expense) ? data.expense : DEFAULT_TRANSACTION_TYPES.expense,
   };
 }
 
@@ -28,8 +50,12 @@ export async function fetchProgram(): Promise<Program> {
     periodValue: Number(data.periodValue) ?? 0,
     ruleEngine: data.ruleEngine ?? 'nools',
     transactionsType: {
-      income: Array.isArray(data.transactionsType?.income) ? data.transactionsType.income : ['sale'],
-      expense: Array.isArray(data.transactionsType?.expense) ? data.transactionsType.expense : ['redemption'],
+      income: Array.isArray(data.transactionsType?.income)
+        ? data.transactionsType.income
+        : DEFAULT_TRANSACTION_TYPES.income,
+      expense: Array.isArray(data.transactionsType?.expense)
+        ? data.transactionsType.expense
+        : DEFAULT_TRANSACTION_TYPES.expense,
     },
   };
 }

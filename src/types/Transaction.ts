@@ -13,6 +13,8 @@ export interface Transaction {
   tenantCode?: string;
   /** Nombre de la oficina donde se realizó la transacción (preferido sobre detail) */
   officeName?: string;
+  /** UUID de oficina (History API) */
+  officeId?: string | null;
 }
 
 // Base común para requests de acumulación (documentNumber)

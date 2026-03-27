@@ -41,10 +41,16 @@ function applyInterceptors(instance: AxiosInstance) {
       const isTenantAdminCreate =
         url.includes(ADMIN_TENANT_ADMINS_PATH) && url.includes('/tenant-admins') && method?.toLowerCase() === 'post';
 
-      if ((status === 401 || status === 403) && window.location.pathname !== '/login') {
+      // Solo 401 = credenciales inválidas o token expirado. 403 = recurso no permitido (no cerrar sesión).
+      if (status === 401 && window.location.pathname !== '/login') {
         toast.error('Sesión expirada...');
         localStorage.removeItem('authData');
         window.location.href = '/login';
+      } else if (status === 403) {
+        toast.error(
+          (error.response?.data as { message?: string } | undefined)?.message ??
+            'No tienes permiso para esta acción'
+        );
       } else if (isTenantAdminCreate && (status === 500 || status === 400)) {
         toast.error('No es posible crear el usuario administrador. Verifica que el email no esté registrado o contacta al administrador.');
       } else if (status === 500) {

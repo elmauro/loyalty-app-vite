@@ -71,12 +71,14 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Tabs Todo/Acumulado/Redimido, filtrado por tipo, badge "Vencido" en expirados | Mismo endpoint | Idem |
 
 **Contrato (Swagger):**
-- **Path:** `docType` (number), `documentNumber` (number). **Query:** `startDate`, `endDate`, `page`, `limit` (enum 10, 20, 50, 100; default 100).
-- **Response 200:** `{ data: Transaction[], total, page, limit }`. Cada transacción incluye `type` (`sale`, `income`, `redemption`, `expiration`). El backend devuelve `points` siempre positivos; el tipo indica acumulación vs redención/expirado.
+- **Path:** `docType` (number), `documentNumber` (number). **Query:** `startDate`, `endDate`, `page`, `limit` (enum 10, 20, 50, 100; default 100), opcionales **`transactionType`**, **`officeId`**. El backend valida `transactionType` contra los tipos del programa en Dynamo (`transactionsType.income` ∪ `expense`); no es un enum fijo en Swagger.
+- **Response 200:** `{ data: Transaction[], total, page, limit }`. Cada transacción incluye `type` según lo configurado en el programa y persistido en BD. El backend devuelve `points` siempre positivos; el tipo indica acumulación vs redención/expirado.
 
-**Frontend:** `getTransactions(typeId, document, startDate, endDate, page, limit)` con `typeId = '1'` y `document` string. La URL es `/history53rv1c3/history/${typeId}/${document}`. La tabla muestra tabs **Todo**, **Acumulado** (sale/income) y **Redimido** (redemption/expiration). Las redenciones y expirados se muestran con signo `-`; los expirados llevan badge "Vencido".
+**Frontend:** `getTransactions(typeId, document, startDate, endDate, page, limit, options?)` donde `options` puede incluir `transactionType` y `officeId` (`transactionService.getTransactionsOptionsFromStrings`). **Administración:** `TransactionHistoryForm` carga tipos con `fetchTransactionTypes()` + `mergeTransactionTypesForHistory` y oficinas con `fetchOfficesByTenant`; envía los filtros en la query. **Usuario (`/user`):** solo fechas + paginación (sin tipo ni oficina). La tabla muestra tabs **Todo**, **Acumulado** (sale/income) y **Redimido** (redemption/expiration) filtrando en cliente la página cargada. Signo `-` y badge "Vencido" como antes.
 
-**Mocks:** Devuelven `{ data, total, page, limit }` y expanden a 25 ítems con tipos `sale`, `income`, `redemption`, `expiration` para probar paginación y filtros. **Alineado.**
+**UX:** botones **Rango rápido** (Últimos 7 días / 30 / Este mes) rellenan fechas y disparan la búsqueda.
+
+**Mocks:** Devuelven `{ data, total, page, limit }` y expanden a 25 ítems con varios `type` y `officeId`; respetan query `transactionType` / `officeId` si vienen. **Alineado.**
 
 ---
 
@@ -84,7 +86,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 | E2E escenario | Endpoint | Swagger |
 |---------------|----------|---------|
-| Dashboard usuario, Puntos Disponibles, Puntos por Vencer, consulta transacciones (fechas), tabs historial, logout | `GET /history53rv1c3/history/...`, `GET /points53rv1c3/points/...`, `GET /pointsExp53rv1c3/points/...` | history, points, pointsExp |
+| Dashboard usuario, Puntos Disponibles, Puntos por Vencer, consulta transacciones (fechas; botón **Buscar**), tabs historial, logout | `GET /history53rv1c3/history/...`, `GET /points53rv1c3/points/...`, `GET /pointsExp53rv1c3/points/...` | history, points, pointsExp |
 
 **Puntos Disponibles:** `GET /points53rv1c3/points/{typeId}/{document}` → `{ points: number }`. El usuario (rol 2) usa su `identification` del JWT como documento.
 
@@ -132,7 +134,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 
 **E2E:** `cypress/e2e/program-administration.cy.ts` — carga de aliados, diálogo de administradores, crear admin, validaciones, desactivar (flujo de confirmación); diálogo de oficinas (búsqueda, paginación 10/20/50 dentro del diálogo con `within`), crear oficina, validaciones, desactivar, reactivar. Mocks en `programHandlers.ts` (oficinas activas extra en MSW para probar dos páginas a 10 filas).
 
-**UI (tablas en cliente):** Los grids de **Aliados**, **Oficinas** (diálogo) y **Administradores** (diálogo) usan la misma barra de paginación que Historial de transacciones (`TablePaginationBar` en `src/components/ui/table-pagination-bar.tsx`: Mostrar 10 / 20 / 50, rango “x–y de total”, anterior / siguiente). Por defecto muestran **10** filas por página; el **Historial de transacciones** sigue usando **20** por defecto (`TransactionHistoryForm`). La búsqueda filtra la lista ya cargada en el navegador (sin nuevos parámetros en los GET anteriores).
+**UI (tablas en cliente):** Los grids de **Aliados**, **Oficinas** (diálogo) y **Administradores** (diálogo) usan la misma barra de paginación que Historial de transacciones (`TablePaginationBar` en `src/components/ui/table-pagination-bar.tsx`: Mostrar 10 / 20 / 50, rango “x–y de total”, anterior / siguiente). Por defecto muestran **10** filas por página; el **Historial de transacciones** sigue usando **20** por defecto (`TransactionHistoryForm`). En esos diálogos, el campo de búsqueda filtra las filas ya cargadas en el cliente (sin nuevos parámetros en los GET de tenants/oficinas/admins).
 
 ---
 
@@ -143,7 +145,7 @@ Este documento relaciona las pruebas E2E de Cypress con la documentación Swagge
 | Auth (login) | ✅ | ✅ | ✅ | Request/response alineados. |
 | Income (acumulación) | ✅ | ✅ | ✅ | 200 con `status`. |
 | Expense (redención) | ✅ | ✅ | ✅ | Incluye 409 en Swagger; frontend puede mostrar error genérico por status. |
-| History | ✅ | ✅ | ✅ | Path: Swagger usa `docType`/`documentNumber` (number); frontend envía string. Tabs Todo/Acumulado/Redimido; badge Vencido para `type: expiration`. |
+| History | ✅ | ✅ | ✅ | Query opcional `transactionType`/`officeId` (admin). Tipos validados en backend según programa (Dynamo). Path: `docType`/`documentNumber`; frontend envía string. Tabs en cliente; badge Vencido para `type: expiration`. |
 | Points | ✅ | ✅ | ✅ | Mismo comentario sobre tipo en path si aplica. |
 | Points Expiring | ✅ | ✅ | ✅ | `GET /pointsExp53rv1c3/points/{typeId}/{document}` → `{ points, expirationDate }`. |
 | OTP | ✅ `otp-api/docs/swagger.yaml` | ✅ | ✅ | Mocks alineados con 200/400/429. |

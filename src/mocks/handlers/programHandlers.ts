@@ -21,7 +21,7 @@ const mockProgram = {
   periodId: 3,
   periodValue: 365,
   ruleEngine: 'jsonrule',
-  transactionsType: { income: ['sale'], expense: ['redemption'] },
+  transactionsType: { income: ['sale', 'income'], expense: ['redemption', 'expiration'] },
 };
 
 const mockTenants = [
@@ -95,7 +95,7 @@ export const programHandlers = [
   http.get(ADMIN_PROGRAM_PATH, () => HttpResponse.json(mockProgram)),
   http.put(ADMIN_PROGRAM_PUT_PATH, () => HttpResponse.json({ programId: 'PCM' })),
   http.get(TRANSACTION_TYPES_PATH, () =>
-    HttpResponse.json({ income: ['sale'], expense: ['redemption'] })
+    HttpResponse.json({ income: ['sale', 'income'], expense: ['redemption', 'expiration'] })
   ),
   http.get(TENANT_ADMINS_PATH, () => HttpResponse.json(mockTenantAdmins)),
   http.post(TENANT_ADMINS_PATH, () => HttpResponse.json({ status: 'created' }, { status: 200 })),

@@ -1,6 +1,10 @@
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { BACKEND_CHUNK_SIZE } from '../../constants/pagination';
-import { getTransactions, getPoints, getExpiringPoints } from '../../services/transactionService';
+import {
+  getTransactions,
+  getPoints,
+  getExpiringPoints,
+} from '../../services/transactionService';
 import { useAuth } from '../../store/AuthContext';
 import TransactionTableWithPagination from '../../components/TransactionsTable/TransactionTableWithPagination';
 import { toast } from 'sonner';
@@ -10,18 +14,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User as UserIcon, Search, RotateCcw, Calendar, Star, TrendingUp, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { DateRangePresetButtons } from '@/components/TransactionHistoryForm/DateRangePresetButtons';
 
 const DEFAULT_PAGE_SIZE = 20;
 
 export default function UserPage() {
   const formRef = useRef<HTMLFormElement>(null);
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
   const { state } = useAuth();
   const [total, setTotal] = useState(0);
   const [chunk, setChunk] = useState<Transaction[]>([]);
   const [backendPage, setBackendPage] = useState(0);
   const [frontendPage, setFrontendPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [lastSearchParams, setLastSearchParams] = useState<{ startDate: string; endDate: string } | null>(null);
+  const [lastSearchParams, setLastSearchParams] = useState<{
+    startDate: string;
+    endDate: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPagingLoading, setIsPagingLoading] = useState(false);
   const [availablePoints, setAvailablePoints] = useState<number | null>(null);
@@ -56,7 +66,6 @@ export default function UserPage() {
     fetchPoints();
   }, [phoneNumber]);
 
-  const totalFrontendPages = Math.max(1, Math.ceil(total / pageSize));
   const requiredBackendPage = total > 0 ? Math.ceil(((frontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE) : 0;
   const displaySlice = useMemo(() => {
     if (chunk.length === 0 || backendPage !== requiredBackendPage) return [];
@@ -143,6 +152,19 @@ export default function UserPage() {
     setLastSearchParams(null);
   };
 
+  const applyDatePreset = useCallback(
+    (range: { startDate: string; endDate: string }) => {
+      if (!phoneNumber.trim()) {
+        toast.error('No se encontró identificación');
+        return;
+      }
+      if (startDateRef.current) startDateRef.current.value = range.startDate;
+      if (endDateRef.current) endDateRef.current.value = range.endDate;
+      formRef.current?.requestSubmit();
+    },
+    [phoneNumber]
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -220,6 +242,7 @@ export default function UserPage() {
               <div className="relative">
                 <Input
                   id="startDate"
+                  ref={startDateRef}
                   name="startDate"
                   type="date"
                   data-testid="user-startDate"
@@ -232,6 +255,7 @@ export default function UserPage() {
               <div className="relative">
                 <Input
                   id="endDate"
+                  ref={endDateRef}
                   name="endDate"
                   type="date"
                   data-testid="user-endDate"
@@ -240,6 +264,11 @@ export default function UserPage() {
               </div>
             </div>
           </div>
+          <DateRangePresetButtons
+            testIdPrefix="user"
+            disabled={isLoading}
+            onApply={applyDatePreset}
+          />
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={isLoading} className="flex-1 sm:flex-none">
               {isLoading ? (
@@ -250,13 +279,13 @@ export default function UserPage() {
               ) : (
                 <>
                   <Search className="h-4 w-4" />
-                  Find
+                  Buscar
                 </>
               )}
             </Button>
             <Button type="button" variant="outline" onClick={handleClear}>
               <RotateCcw className="h-4 w-4" />
-              Clear
+              Limpiar
             </Button>
           </div>
         </form>
