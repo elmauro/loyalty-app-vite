@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 
 interface Props {
   transactions: Transaction[];
+  /** Mostrar columna de número de documento (p. ej. historial de todo el tenant) */
+  showDocumentColumn?: boolean;
 }
 
 export type TransactionFilter = 'all' | 'accumulation' | 'redemption';
@@ -44,10 +46,11 @@ function formatDate(dateString: string): string {
   });
 }
 
-export default function TransactionTable({ transactions }: Props) {
+export default function TransactionTable({ transactions, showDocumentColumn = false }: Props) {
   const [filter, setFilter] = useState<TransactionFilter>('all');
 
   const filtered = transactions.filter((t) => matchesFilter(t, filter));
+  const colSpan = showDocumentColumn ? 4 : 3;
 
   if (!transactions || transactions.length === 0) {
     return (
@@ -72,6 +75,9 @@ export default function TransactionTable({ transactions }: Props) {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
+              {showDocumentColumn ? (
+                <TableHead className="font-semibold">Documento</TableHead>
+              ) : null}
               <TableHead className="font-semibold">Detalle</TableHead>
               <TableHead className="font-semibold">Fecha</TableHead>
               <TableHead className="font-semibold text-right">Puntos</TableHead>
@@ -80,13 +86,18 @@ export default function TransactionTable({ transactions }: Props) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={colSpan} className="text-center text-muted-foreground py-8">
                   No hay transacciones en esta categoría
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((tx) => (
                 <TableRow key={tx.id} className="hover:bg-muted/30">
+                  {showDocumentColumn ? (
+                    <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                      {tx.documentNumber ?? '—'}
+                    </TableCell>
+                  ) : null}
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       {tx.officeName ?? tx.detail}

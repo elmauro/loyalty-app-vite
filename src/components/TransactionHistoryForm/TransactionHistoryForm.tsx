@@ -46,6 +46,8 @@ export default function TransactionHistoryForm() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [lastSearchParams, setLastSearchParams] = useState<{
     document: string;
+    /** true cuando GET /history/{docType} sin número de documento (todo el tenant) */
+    listAllTenant: boolean;
     startDate: string;
     endDate: string;
     transactionType: string;
@@ -90,8 +92,10 @@ export default function TransactionHistoryForm() {
     const endDate = (formData.get('endDate') as string) || '';
     const transactionType = transactionTypeFilter.trim();
     const officeId = ((formData.get('officeId') as string) || '').trim();
+    const docTrim = documentNumber.trim();
+    const listAllTenant = !docTrim && Boolean(tenantId);
 
-    if (!documentNumber) {
+    if (!docTrim && !tenantId) {
       toast.error('Por favor ingresa el número de documento');
       return;
     }
@@ -102,7 +106,7 @@ export default function TransactionHistoryForm() {
     try {
       const res = await getTransactions(
         '1',
-        documentNumber,
+        listAllTenant ? null : docTrim,
         startDate,
         endDate,
         1,
@@ -115,7 +119,8 @@ export default function TransactionHistoryForm() {
       setFrontendPage(1);
       setPageSize(DEFAULT_PAGE_SIZE);
       setLastSearchParams({
-        document: documentNumber,
+        document: docTrim,
+        listAllTenant,
         startDate,
         endDate,
         transactionType,
@@ -148,7 +153,7 @@ export default function TransactionHistoryForm() {
       setIsPagingLoading(true);
       getTransactions(
         '1',
-        lastSearchParams.document,
+        lastSearchParams.listAllTenant ? null : lastSearchParams.document,
         lastSearchParams.startDate,
         lastSearchParams.endDate,
         required,
@@ -178,7 +183,7 @@ export default function TransactionHistoryForm() {
       setIsPagingLoading(true);
       getTransactions(
         '1',
-        lastSearchParams.document,
+        lastSearchParams.listAllTenant ? null : lastSearchParams.document,
         lastSearchParams.startDate,
         lastSearchParams.endDate,
         1,
@@ -224,13 +229,15 @@ export default function TransactionHistoryForm() {
       <form ref={formRef} onSubmit={handleSearch} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="th-doc">Document Number</Label>
+            <Label htmlFor="th-doc">
+              {tenantId ? 'Número de documento (opcional)' : 'Número de documento'}
+            </Label>
             <Input
               id="th-doc"
               name="documentNumber"
               type="text"
               inputMode="numeric"
-              placeholder="Document Number"
+              placeholder={tenantId ? 'Vacío = todas las transacciones del tenant' : 'Document Number'}
               data-testid="th-doc"
             />
           </div>
@@ -348,6 +355,7 @@ export default function TransactionHistoryForm() {
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
             isLoading={isPagingLoading}
+            showDocumentColumn={!!lastSearchParams?.listAllTenant}
           />
         </div>
       )}

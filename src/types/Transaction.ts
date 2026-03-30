@@ -9,6 +9,8 @@ export interface Transaction {
   transactionDate: string; // o Date, si ya lo parseas
   type: TransactionType;
   points: number;
+  /** Presente en respuestas del historial (por documento o listado por tenant) */
+  documentNumber?: string;
   phoneNumber?: string;
   tenantCode?: string;
   /** Nombre de la oficina donde se realizó la transacción (preferido sobre detail) */

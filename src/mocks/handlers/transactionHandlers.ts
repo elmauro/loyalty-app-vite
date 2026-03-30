@@ -10,6 +10,62 @@ import {
   HistoryResponse,
 } from '../../types/Transaction';
 
+function buildHistoryResponse(request: Request, includeDocumentNumbers: boolean): HistoryResponse {
+  const url = new URL(request.url);
+  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+  const rawLimit = parseInt(url.searchParams.get('limit') ?? '100', 10);
+  const allowedLimits = [10, 20, 50, 100];
+  const limit = allowedLimits.includes(rawLimit) ? rawLimit : 100;
+  const filterType = (url.searchParams.get('transactionType') ?? '').trim();
+  const filterOfficeId = (url.searchParams.get('officeId') ?? '').trim();
+  const base = getMockResponse<'transactions', Transaction[]>('transactions', 'success');
+  const baseTx = base[0];
+  const officeIds = ['off-e2e-001', 'off-e2e-002', 'off-e2e-003', 'off-e2e-004'];
+  const all: Transaction[] =
+    base.length < 25
+      ? Array.from({ length: 25 }, (_, i) => {
+          const isRedemption = i % 5 === 2;
+          const isExpiration = i % 7 === 4;
+          const type = isExpiration ? 'expiration' : isRedemption ? 'redemption' : (baseTx.type as Transaction['type']);
+          const points = isExpiration ? -150 - i * 10 : isRedemption ? -100 - i * 5 : (baseTx.points ?? 100) + i;
+          const detail = isExpiration
+            ? 'Puntos vencidos'
+            : isRedemption
+              ? 'Redención de puntos'
+              : i === 0
+                ? baseTx.detail
+                : `Transacción ${i + 1}`;
+          const offices = ['Oficina Principal', 'Oficina Centro', 'Oficina Norte', 'Oficina Sur'];
+          const officeName = offices[i % offices.length];
+          const officeId = officeIds[i % officeIds.length];
+          const row: Transaction = {
+            ...baseTx,
+            id: `mock-tx-${i + 1}`,
+            detail,
+            officeName,
+            officeId,
+            points,
+            type,
+          };
+          if (includeDocumentNumbers) {
+            row.documentNumber = String(1000000000 + i);
+          }
+          return row;
+        })
+      : base;
+  let filtered = all;
+  if (filterType) {
+    filtered = filtered.filter((t) => t.type === filterType);
+  }
+  if (filterOfficeId) {
+    filtered = filtered.filter((t) => (t.officeId ?? '') === filterOfficeId);
+  }
+  const total = filtered.length;
+  const start = (page - 1) * limit;
+  const data = filtered.slice(start, start + limit);
+  return { data, total, page, limit };
+}
+
 export const transactionHandlers = [
   http.post<never, RedeemPointsRequest, TransactionApiResponse>(
     '/expense53rv1c3/expense',
@@ -75,63 +131,15 @@ export const transactionHandlers = [
     }
   ),
 
+  http.get('/history53rv1c3/history/:typeId', async ({ request }) => {
+    const body = buildHistoryResponse(request, true);
+    return HttpResponse.json(body);
+  }),
+
   http.get<{ typeId: string; document: string }>(
     '/history53rv1c3/history/:typeId/:document',
     async ({ request }) => {
-      const url = new URL(request.url);
-      const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
-      const rawLimit = parseInt(url.searchParams.get('limit') ?? '100', 10);
-      const allowedLimits = [10, 20, 50, 100];
-      const limit = allowedLimits.includes(rawLimit) ? rawLimit : 100;
-      const filterType = (url.searchParams.get('transactionType') ?? '').trim();
-      const filterOfficeId = (url.searchParams.get('officeId') ?? '').trim();
-      const base = getMockResponse<'transactions', Transaction[]>(
-        'transactions',
-        'success'
-      );
-      // Para e2e: expandir a 25 ítems para probar paginación (varias páginas)
-      // Incluir acumulación, redención y puntos vencidos
-      const baseTx = base[0];
-      const officeIds = ['off-e2e-001', 'off-e2e-002', 'off-e2e-003', 'off-e2e-004'];
-      const all: Transaction[] =
-        base.length < 25
-          ? Array.from({ length: 25 }, (_, i) => {
-              const isRedemption = i % 5 === 2;
-              const isExpiration = i % 7 === 4;
-              const type = isExpiration ? 'expiration' : isRedemption ? 'redemption' : (baseTx.type as Transaction['type']);
-              const points = isExpiration ? -150 - i * 10 : isRedemption ? -100 - i * 5 : (baseTx.points ?? 100) + i;
-              const detail = isExpiration
-                ? 'Puntos vencidos'
-                : isRedemption
-                  ? 'Redención de puntos'
-                  : i === 0
-                    ? baseTx.detail
-                    : `Transacción ${i + 1}`;
-              const offices = ['Oficina Principal', 'Oficina Centro', 'Oficina Norte', 'Oficina Sur'];
-              const officeName = offices[i % offices.length];
-              const officeId = officeIds[i % officeIds.length];
-              return {
-                ...baseTx,
-                id: `mock-tx-${i + 1}`,
-                detail,
-                officeName,
-                officeId,
-                points,
-                type,
-              };
-            })
-          : base;
-      let filtered = all;
-      if (filterType) {
-        filtered = filtered.filter((t) => t.type === filterType);
-      }
-      if (filterOfficeId) {
-        filtered = filtered.filter((t) => (t.officeId ?? '') === filterOfficeId);
-      }
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const data = filtered.slice(start, start + limit);
-      const body: HistoryResponse = { data, total, page, limit };
+      const body = buildHistoryResponse(request, false);
       return HttpResponse.json(body);
     }
   ),

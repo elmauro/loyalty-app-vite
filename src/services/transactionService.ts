@@ -100,9 +100,12 @@ export function getTransactionsOptionsFromStrings(
   return out;
 }
 
+/**
+ * Historial: con `document` → GET /history/{typeId}/{document}; sin document (solo admin tenant) → GET /history/{typeId}.
+ */
 export async function getTransactions(
   typeId: string,
-  document: string,
+  document: string | null,
   startDate: string,
   endDate: string,
   page: number = DEFAULT_PAGE,
@@ -121,16 +124,26 @@ export async function getTransactions(
   if (tt) params.transactionType = tt;
   if (oid) params.officeId = oid;
 
-  const response = await axiosApp.get<HistoryResponse>(
-    `/history53rv1c3/history/${typeId}/${document}`,
-    {
-      params,
-      headers: {
-        'x-access-token': token ?? '',
-        'x-program-id': PROGRAM_ID,
-      },
+  let path: string;
+  if (document === null) {
+    path = `/history53rv1c3/history/${typeId}`;
+  } else {
+    const doc = String(document).trim();
+    if (!doc) {
+      throw Object.assign(new Error('Número de documento requerido'), {
+        response: { status: 400, data: { error: 'document required' } },
+      });
     }
-  );
+    path = `/history53rv1c3/history/${typeId}/${encodeURIComponent(doc)}`;
+  }
+
+  const response = await axiosApp.get<HistoryResponse>(path, {
+    params,
+    headers: {
+      'x-access-token': token ?? '',
+      'x-program-id': PROGRAM_ID,
+    },
+  });
   return response.data;
 }
 

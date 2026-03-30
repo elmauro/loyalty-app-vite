@@ -13,6 +13,8 @@ interface Props {
   onPageSizeChange: (limit: number) => void;
   /** true mientras se carga otra página o se cambia el tamaño */
   isLoading?: boolean;
+  /** Listado por tenant: mostrar columna de documento */
+  showDocumentColumn?: boolean;
 }
 
 export default function TransactionTableWithPagination({
@@ -23,14 +25,15 @@ export default function TransactionTableWithPagination({
   onPageChange,
   onPageSizeChange,
   isLoading = false,
+  showDocumentColumn = false,
 }: Props) {
   if (!data || data.length === 0) {
-    return <TransactionTable transactions={[]} />;
+    return <TransactionTable transactions={[]} showDocumentColumn={showDocumentColumn} />;
   }
 
   return (
     <div className="space-y-4">
-      <TransactionTable transactions={data} />
+      <TransactionTable transactions={data} showDocumentColumn={showDocumentColumn} />
 
       <TablePaginationBar
         total={total}

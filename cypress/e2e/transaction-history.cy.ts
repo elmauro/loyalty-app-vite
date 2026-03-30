@@ -44,13 +44,12 @@ describe('Transaction History Form', () => {
     cy.contains('Página 1 de 3').should('exist');
   });
 
-  it('muestra error si el documento está vacío', () => {
-    cy.contains('Historial de Transacciones')
-      .parent()
-      .within(() => {
-        cy.contains('Buscar').click();
-      });
-    cy.contains('Por favor ingresa el número de documento').should('exist');
+  it('permite buscar sin documento (todo el tenant) cuando el admin tiene tenant', () => {
+    cy.get('[data-testid="th-startDate"]').type('2023-10-01');
+    cy.get('[data-testid="th-endDate"]').type('2023-10-10');
+    cy.contains('Buscar').click();
+    cy.contains('Oficina Principal', { timeout: 10000 }).should('exist');
+    cy.contains('th', 'Documento').should('exist');
   });
 
   it('muestra error 401 UNAUTHORIZED (redirige a login)', () => {
