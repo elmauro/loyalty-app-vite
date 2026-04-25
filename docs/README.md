@@ -12,6 +12,4 @@ Documentation is organized by purpose:
 | [analysis/](analysis/) | Security and other analyses |
 | [templates/](templates/) | Requirement and feature templates |
 
-- **Project context:** [project-context.md](project-context.md) – system overview, tech stack, frontend–backend interaction.
-- **Cursor / dev rules:** [cursor-rules.md](cursor-rules.md) – conventions for AI-assisted development.
-- **Using Cursor (examples):** [CURSOR-USAGE-EXAMPLES.md](CURSOR-USAGE-EXAMPLES.md) – prompt examples for backend, frontend, and full-stack.
+- **Cursor / IA (repo aparte):** el contexto del frontend, reglas de edición y prompts **no** viven en este repositorio; están en **loyalty-cursor** (monorepo hermano). Ver [CURSOR-USAGE-EXAMPLES.md](CURSOR-USAGE-EXAMPLES.md) para rutas y ejemplos de `@`.
