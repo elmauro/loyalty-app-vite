@@ -12,6 +12,7 @@ interface ImportMetaEnv {
   readonly VITE_COGNITO_USER_POOL_ID?: string;
   readonly VITE_COGNITO_CLIENT_ID?: string;
   readonly VITE_COGNITO_REGION?: string;
+  readonly VITE_COGNITO_ENDPOINT?: string;
   /** 'true' solo al ejecutar pruebas e2e (Cypress); activa MSW. No definir en uso normal. */
   readonly VITE_USE_MSW?: string;
 }
