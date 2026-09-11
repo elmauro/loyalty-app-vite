@@ -8,7 +8,7 @@ Documentation is organized by purpose:
 | [api/](api/) | API usage and contracts |
 | [development/](development/) | Coding standards and conventions |
 | [testing/](testing/) | E2E, unit tests, Swagger alignment |
-| [infrastructure/](infrastructure/) | Deployment (AWS, S3, CloudFront) |
+| [infrastructure/](infrastructure/) | Deployment AWS + [Simulith local](infrastructure/GUIA-DESPLIEGUE-SIMULITH.md) |
 | [analysis/](analysis/) | Security and other analyses |
 | [templates/](templates/) | Requirement and feature templates |
 

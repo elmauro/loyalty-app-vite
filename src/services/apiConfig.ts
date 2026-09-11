@@ -57,6 +57,8 @@ export const PHONE_COUNTRY_CODE = getEnv('VITE_PHONE_COUNTRY_CODE', '57');
 export const COGNITO_USER_POOL_ID = getEnv('VITE_COGNITO_USER_POOL_ID', '');
 export const COGNITO_CLIENT_ID = getEnv('VITE_COGNITO_CLIENT_ID', '');
 export const COGNITO_REGION = getEnv('VITE_COGNITO_REGION', 'us-east-1');
+/** Override Cognito IdP endpoint (Simulith/LocalStack). Omit in prod → AWS default. */
+export const COGNITO_ENDPOINT = getEnv('VITE_COGNITO_ENDPOINT', '');
 
 /** Cuando VITE_USE_MSW=true (Cypress e2e), Cognito se desactiva para usar mocks. */
 export const isCognitoEnabled = (): boolean =>

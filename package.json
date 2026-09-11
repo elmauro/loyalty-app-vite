@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:simulith": "tsc -b && vite build --mode simulith",
+    "deploy:simulith": "bash scripts/deploy-frontend-simulith.sh",
     "test": "jest",
     "lint": "eslint .",
     "preview": "vite preview",
