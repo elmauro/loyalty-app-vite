@@ -1,0 +1,29 @@
+---
+description: Scope context reads without skipping lifecycle gates
+alwaysApply: true
+---
+
+# Context scope (token-aware, process-safe)
+
+Complements `project-context.mdc` and `cursor/docs/AI-Project-Playbook.md`. **Never skip required reads or gates to save tokens.**
+
+## Non-negotiable (always)
+
+- Lifecycle unchanged: intake → analysis → implement → validate → review → close.
+- Before editing this stack, read `cursor/projects/<stack>/project-context.md` and the stack `cursor-rules*.md`.
+- Stack-only work uses `cursor/analysis/features/<area>/<slug>/` in **this** repo.
+- Full-stack work uses `loyalty-cursor/analysis/features/` when that kit is in the workspace.
+- On close: update this repo's manifest + INDEX; hub registry/STORY-LOG if the story is full-stack or came from FW-LOY.
+- Contract changes: update Swagger / REGLAS-NEGOCIO / services / types / MSW / Cypress on the owning side.
+- Run `cursor/scripts/run-feature-gates.mjs` between phases; do not skip a failed gate.
+
+## Scope reads (defer until needed)
+
+- Prefer **one repo per task**.
+- Read **slices**, not catalogs: one registry row, not full `STORY-REGISTRY.md`.
+- Skip by default: agent transcripts, full `loyalty-cursor/docs/cursor-context-map.md`, unrelated APIs.
+- **Ask mode** for roadmap; **Agent** for implementation.
+
+## If scope is ambiguous
+
+Ask one clarifying question. Do not explore the whole monorepo.

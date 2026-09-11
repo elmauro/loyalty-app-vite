@@ -1,0 +1,13 @@
+---
+description: Loyalty frontend project context
+alwaysApply: true
+---
+
+# Project Context
+
+- This repo is **loyalty-app-vite** (LoyalEasy SPA). Code lives at `src/`, not `frontend/`.
+- Read `cursor/context-map.md`, then `cursor/projects/frontend/project-context.md` before changing `src/**`.
+- Stack rules: `cursor/projects/frontend/cursor-rules-frontend.md` and `.cursor/rules/frontend-react.mdc`.
+- Product / full-stack: sibling `loyalty-cursor/company/` and `loyalty-cursor/analysis/features/` when present.
+- Playbook: `cursor/docs/AI-Project-Playbook.md`.
+- Do not modify `loyalty-program-serverless` unless the user asks for a contract sync.

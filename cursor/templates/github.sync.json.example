@@ -1,0 +1,11 @@
+{
+  "pullRequestNumber": null,
+  "pullRequestUrl": null,
+  "issueNumber": null,
+  "issueUrl": null,
+  "featureSlug": "loyalty-app-vite-example-capability",
+  "featureName": "Example capability",
+  "ticket": "LOY-001",
+  "releaseTag": null,
+  "lastSyncedAt": null
+}

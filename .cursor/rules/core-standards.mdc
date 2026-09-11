@@ -1,0 +1,13 @@
+---
+description: Core standards for Loyalty app repos
+alwaysApply: true
+---
+
+# Core Standards
+
+- Keep changes scoped to the requested feature, bug or refactor.
+- Do not commit secrets, tokens, private keys, real `.env` files or Terraform variable files with sensitive values.
+- Prefer existing Loyalty patterns over introducing new abstractions.
+- Update docs, tests, mocks and configuration when behavior or contracts change.
+- This repo has its own `cursor/` and `.cursor/`. Product backlog and full-stack stories live in sibling `loyalty-cursor/` when that folder exists.
+- Do not edit the sibling app in a stack-only task (frontend-only → do not change `loyalty-program-serverless`; backend-only → do not change `loyalty-app-vite`) unless the user explicitly asks for a contract sync.

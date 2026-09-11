@@ -1,0 +1,17 @@
+---
+description: Loyalty frontend React and Vite conventions
+globs: src/**/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Frontend Conventions
+
+Read `cursor/projects/frontend/cursor-rules-frontend.md` before changing `src/**`.
+
+- Routes in `src/routes/`; role IDs in `src/constants/auth.ts`. Do not hardcode paths or role GUIDs.
+- API calls in `src/services/` via `src/services/apiConfig.ts` — no hardcoded URLs or secrets.
+- Request/response shapes in `src/types/`. Keep MSW handlers and Cypress aligned with backend Swagger.
+- UI primitives in `src/components/ui/`. Tailwind + `cn()` from `src/lib/utils.ts`.
+- Auth is the only global state (`src/store/AuthContext.tsx`).
+- Env via `VITE_*` / `import.meta.env`. Document new keys.
+- Unit tests next to components; E2E in `cypress/e2e/`.

@@ -1,0 +1,23 @@
+---
+description: Loyalty company and product context
+alwaysApply: true
+---
+
+# Company & Product Context
+
+When sibling `loyalty-cursor/company/` exists, read `loyalty-cursor/company/README.md` before product, scope or prioritization work.
+
+## Source of truth
+
+| Topic | File |
+| --- | --- |
+| Company index | `loyalty-cursor/company/README.md` |
+| Product backlog | `loyalty-cursor/company/future-work/README.md` |
+| Story registry | `loyalty-cursor/company/future-work/STORY-REGISTRY.md` |
+| Full-stack stories | `loyalty-cursor/analysis/features/` |
+| This repo's stories | `cursor/analysis/features/` |
+| Domain / shipped docs | `docs/` in this repo |
+
+Do not invent backlog IDs. Ticket/story is usually JIRA `LOY-*`. Backlog ID is `FW-LOY-*` when promoted.
+
+If `loyalty-cursor/` is not in the workspace, use this repo's `cursor/company/README.md` and `docs/` only.

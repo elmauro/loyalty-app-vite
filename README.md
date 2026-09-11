@@ -8,7 +8,10 @@ Aplicación de fidelización (loyalty) con acumulación, redención, historial y
 - **Reglas:** Administración de reglas de bonificación por tipo de transacción (engine-api). GET/PUT plain JSON; ver `loyalty-program-serverless/docs/REQUERIMIENTOS-FRONTEND-JSON-RULES.md`.
 - **Administración del Programa:** Configuración del programa y gestión de tipos de transacción (income/expense). Ver `docs/templates/TEMPLATE-REQUERIMIENTO-TRANSACTION-TYPES-FRONTEND.md`.
 
-## Despliegue en AWS (S3 + CloudFront + Route 53)
+## Cursor
+
+Este repo tiene capa `cursor/` + `.cursor/` (misma metodología que el resto de LoyalEasy). Playbook: `cursor/docs/AI-Project-Playbook.md`. El hub `loyalty-cursor` sincroniza el kit: `node ../loyalty-cursor/scripts/sync-cursor-layer.mjs --target frontend`.
+
 
 Hay un flujo de GitHub Actions para desplegar en AWS. Ver **[docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md](docs/infrastructure/GUIA-DESPLIEGUE-AWS-FRONTEND.md)** para secrets, configuración S3/CloudFront y uso.
 
