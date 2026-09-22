@@ -2,7 +2,7 @@
 
 SPA React/Vite servida desde **S3 + CloudFront simulados** en Simulith.
 
-> **Un solo hostname:** SPA, APIs y Cognito usan **`dev.loyaleasy.com:4566`**. En Simulith, el módulo `web/` debe aplicarse con **`dev.simulith.tfvars`** (no `dev.tfvars`, que apunta a `dev.points.loyaleasy.com` en AWS). Usar dos hostnames distintos provoca **CORS** en el login Cognito desde el navegador.
+> **Un solo hostname:** SPA, APIs y Cognito usan **`dev.loyaleasy.com:4567`** (instancia Loyaleasy; dev Simulith repo usa `:4566`). En Simulith, el módulo `web/` debe aplicarse con **`dev.simulith.tfvars`** (no `dev.tfvars`, que apunta a `dev.points.loyaleasy.com` en AWS). Usar dos hostnames distintos provoca **CORS** en el login Cognito desde el navegador.
 
 > **Prerrequisitos (en orden):**
 > 1. [Infra Terraform](../../../loyalty-program-serverless/docs/infrastructure/GUIA_DESPLIEGUE_SIMULITH.md) pasos 0–11
@@ -14,7 +14,7 @@ SPA React/Vite servida desde **S3 + CloudFront simulados** en Simulith.
 ## Mapa del stack local
 
 ```
-Simulith :4566
+Simulith :4567 (Loyaleasy)
 ├── S3 loyaleasy-dev/          ← esta guía (SPA estática)
 ├── API Gateway dev.loyaleasy.com  ← backend Serverless
 ├── Cognito User Pool          ← bootstrap 3 usuarios
@@ -27,7 +27,7 @@ Simulith :4566
 
 | Requisito | Check |
 | --- | --- |
-| Simulith en `:4566` | `curl -s http://127.0.0.1.sslip.io:4566/health` |
+| Simulith Loyaleasy en `:4567` | `source ../loyalty-program-serverless/scripts/simulith-env.sh && curl -s "$ENDPOINT/health"` |
 | Infra `web/` aplicada | bucket `loyaleasy-dev` existe |
 | Backend desplegado | auth-api + APIs que vayas a probar |
 | Seed usuarios (3 roles) | [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md) |
@@ -48,7 +48,7 @@ export AWS_DEFAULT_REGION=us-east-1
 export AWS_CONFIG_FILE="/c/Projects/loyalty-app-ui-vite/loyalty-program-serverless/.aws/config"
 export AWS_SHARED_CREDENTIALS_FILE="/c/Projects/loyalty-app-ui-vite/loyalty-program-serverless/.aws/credentials"
 export MSYS2_ARG_CONV_EXCL="*"
-export ENDPOINT=http://127.0.0.1.sslip.io:4566
+source /c/Projects/loyalty-app-ui-vite/loyalty-program-serverless/scripts/simulith-env.sh
 
 unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_ENDPOINT_URL
 ```
@@ -106,7 +106,7 @@ Archivo: `C:\Windows\System32\drivers\etc\hosts`
 ### F2 — IDs de Cognito (SSM)
 
 ```bash
-export ENDPOINT=http://127.0.0.1.sslip.io:4566
+source /c/Projects/loyalty-app-ui-vite/loyalty-program-serverless/scripts/simulith-env.sh
 
 POOL_ID=$(aws --endpoint-url "$ENDPOINT" ssm get-parameter \
   --name /LOYALEASY/DEV/COGNITO_USER_POOL_ID --query Parameter.Value --output text)
@@ -129,13 +129,13 @@ cp env.simulith.example .env.simulith.local
 Contenido de referencia:
 
 ```env
-VITE_API_BASE_AUTH=http://dev.loyaleasy.com:4566
-VITE_API_BASE_APP=http://dev.loyaleasy.com:4566
+VITE_API_BASE_AUTH=http://dev.loyaleasy.com:4567
+VITE_API_BASE_APP=http://dev.loyaleasy.com:4567
 VITE_PROGRAM_ID=PCM
 VITE_COGNITO_USER_POOL_ID=<POOL_ID>
 VITE_COGNITO_CLIENT_ID=<CLIENT_ID>
 VITE_COGNITO_REGION=us-east-1
-VITE_COGNITO_ENDPOINT=http://dev.loyaleasy.com:4566
+VITE_COGNITO_ENDPOINT=http://dev.loyaleasy.com:4567
 ```
 
 > Vite carga `.env.simulith.local` cuando usas `--mode simulith`.
@@ -165,11 +165,11 @@ aws --endpoint-url "$ENDPOINT" s3 ls s3://loyaleasy-dev/ | head
 ### F6 — Probar en el navegador
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" http://dev.loyaleasy.com:4566/
+curl -s -o /dev/null -w "%{http_code}\n" http://dev.loyaleasy.com:4567/
 # Esperado: 200
 ```
 
-Abrir **http://dev.loyaleasy.com:4566/** e iniciar sesión:
+Abrir **http://dev.loyaleasy.com:4567/** e iniciar sesión:
 
 | Rol | Email | Contraseña | Ruta tras login |
 | --- | --- | --- | --- |
@@ -200,7 +200,7 @@ Abrir `http://127.0.0.1:51730` (proxy Vite). Para paridad con producción local 
 | Síntoma | Solución |
 | --- | --- |
 | **Network error / CORS** en login | SPA y Cognito deben compartir **`dev.loyaleasy.com`** — re-aplicar `web/` con `dev.simulith.tfvars`, no abrir `dev.points.loyaleasy.com` |
-| Login Cognito falla | `VITE_COGNITO_ENDPOINT` = mismo origen que la SPA (`http://dev.loyaleasy.com:4566`) |
+| Login Cognito falla | `VITE_COGNITO_ENDPOINT` = mismo origen que la SPA (`http://dev.loyaleasy.com:4567`) |
 | APIs 404 | Backend no desplegado o URL base incorrecta en `.env.simulith.local` |
 | SPA 404 en rutas (`/administration`) | Re-sync S3; CloudFront custom errors sirven `index.html` |
 | Build sin Cognito | `.env.simulith.local` ausente o modo incorrecto — usar `build:simulith` |

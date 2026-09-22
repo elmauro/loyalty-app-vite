@@ -5,9 +5,14 @@ set -euo pipefail
 
 export MSYS2_ARG_CONV_EXCL="${MSYS2_ARG_CONV_EXCL:-*}"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SERVERLESS_ROOT="${SERVERLESS_ROOT:-$(cd "$ROOT/../loyalty-program-serverless" 2>/dev/null && pwd || true)}"
-ENDPOINT="${ENDPOINT:-http://127.0.0.1.sslip.io:4566}"
+FRONTEND_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SERVERLESS_ROOT="${SERVERLESS_ROOT:-$(cd "$FRONTEND_ROOT/../loyalty-program-serverless" 2>/dev/null && pwd || true)}"
+if [[ -n "$SERVERLESS_ROOT" && -f "$SERVERLESS_ROOT/scripts/simulith-env.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$SERVERLESS_ROOT/scripts/simulith-env.sh"
+fi
+ENDPOINT="${ENDPOINT:-${SIMULITH_ENDPOINT:-http://127.0.0.1.sslip.io:4567}}"
+SIMULITH_HOST_PORT="${SIMULITH_HOST_PORT:-4567}"
 BUCKET="${S3_BUCKET:-loyaleasy-dev}"
 REGION="${AWS_DEFAULT_REGION:-us-east-1}"
 
@@ -23,7 +28,7 @@ export AWS_SDK_LOAD_CONFIG=1
 AWS_OPTS=(--region "$REGION" --endpoint-url "$ENDPOINT")
 
 echo "=== Deploy frontend Simulith ==="
-echo "  Root:     $ROOT"
+echo "  Root:     $FRONTEND_ROOT"
 echo "  Endpoint: $ENDPOINT"
 echo "  Bucket:   s3://$BUCKET"
 
@@ -32,9 +37,9 @@ POOL_ID="${VITE_COGNITO_USER_POOL_ID:-$(aws "${AWS_OPTS[@]}" ssm get-parameter \
 CLIENT_ID="${VITE_COGNITO_CLIENT_ID:-$(aws "${AWS_OPTS[@]}" ssm get-parameter \
   --name /LOYALEASY/DEV/COGNITO_CLIENT_ID --query Parameter.Value --output text)}"
 
-ENV_FILE="$ROOT/.env.simulith.local"
+ENV_FILE="$FRONTEND_ROOT/.env.simulith.local"
 # Un solo hostname (SPA + APIs + Cognito) evita CORS en el navegador.
-APP_ORIGIN="${APP_ORIGIN:-http://dev.loyaleasy.com:4566}"
+APP_ORIGIN="${APP_ORIGIN:-http://dev.loyaleasy.com:${SIMULITH_HOST_PORT}}"
 cat > "$ENV_FILE" <<EOF
 # Generado por deploy-frontend-simulith.sh — no commitear
 VITE_API_BASE_AUTH=$APP_ORIGIN
@@ -47,7 +52,7 @@ VITE_COGNITO_ENDPOINT=$APP_ORIGIN
 EOF
 echo "  Env:      $ENV_FILE"
 
-cd "$ROOT"
+cd "$FRONTEND_ROOT"
 if [[ ! -d node_modules ]]; then
   echo "=== npm ci ==="
   npm ci
