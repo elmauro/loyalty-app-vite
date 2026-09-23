@@ -1,6 +1,15 @@
+import { isSimulithBackend } from '../support/backend';
+import {
+  getUserE2EData,
+  waitForUserDashboardReady,
+  runUserHistorySearch,
+  assertUserPointsCards,
+} from '../support/userFlow';
+
 describe('User flow (rol 2)', () => {
   beforeEach(() => {
     cy.loginAsUser();
+    waitForUserDashboardReady();
   });
 
   it('accede correctamente al dashboard de usuario', () => {
@@ -9,29 +18,30 @@ describe('User flow (rol 2)', () => {
   });
 
   it('muestra Puntos Disponibles y Puntos por Vencer', () => {
-    cy.get('[data-testid="user-card-puntos-disponibles"]', { timeout: 5000 }).should('be.visible');
-    cy.get('[data-testid="user-card-puntos-por-vencer"]').should('be.visible');
-    cy.get('[data-testid="user-card-puntos-disponibles"]').contains('1.500');
-    cy.get('[data-testid="user-card-puntos-por-vencer"]').contains('400');
-    cy.get('[data-testid="user-card-puntos-por-vencer"]').contains(/Vencen el/);
+    getUserE2EData().then((data) => {
+      assertUserPointsCards(data);
+    });
   });
 
   it('consulta transacciones exitosamente', () => {
-    cy.contains('Historial de Transacciones').should('be.visible');
-    cy.get('[data-testid="user-startDate"]').type('2023-10-01');
-    cy.get('[data-testid="user-endDate"]').type('2023-10-10');
-    cy.contains('Buscar').click();
-    cy.contains('Oficina Principal', { timeout: 10000 }).should('exist');
+    getUserE2EData().then((data) => {
+      if (isSimulithBackend()) {
+        cy.intercept('GET', '**/history53rv1c3/**').as('userHistory');
+      }
+      runUserHistorySearch(data);
+      if (isSimulithBackend()) {
+        cy.wait('@userHistory', { timeout: 30000 }).its('response.statusCode').should('eq', 200);
+      }
+    });
   });
 
   it('muestra tabs Todo, Acumulado y Redimido en historial', () => {
-    cy.get('[data-testid="user-startDate"]').type('2023-10-01');
-    cy.get('[data-testid="user-endDate"]').type('2023-10-10');
-    cy.contains('Buscar').click();
-    cy.contains('Oficina Principal', { timeout: 10000 }).should('exist');
-    cy.get('[data-testid="tx-tab-all"]').should('contain', 'Todo');
-    cy.get('[data-testid="tx-tab-accumulation"]').should('contain', 'Acumulado');
-    cy.get('[data-testid="tx-tab-redemption"]').should('contain', 'Redimido');
+    getUserE2EData().then((data) => {
+      runUserHistorySearch(data);
+      cy.get('[data-testid="tx-tab-all"]').should('contain', 'Todo');
+      cy.get('[data-testid="tx-tab-accumulation"]').should('contain', 'Acumulado');
+      cy.get('[data-testid="tx-tab-redemption"]').should('contain', 'Redimido');
+    });
   });
 
   it('puede cerrar sesión', () => {

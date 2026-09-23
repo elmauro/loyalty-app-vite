@@ -189,3 +189,4 @@ Tras cambios en el backend, puedes comprobar que las E2E responden bien contra l
 2. **Documentar el endpoint OTP** en Swagger (auth-api o el módulo que corresponda) para mantener un único contrato.
 3. **Revisar tipos de path** en history/points (`docType`, `documentNumber`): si el backend solo acepta número, ajustar frontend o documentar que acepta string.
 4. **Mantener los mocks** alineados con los esquemas y códigos de estado de Swagger (incl. 409 y 429 en expense) para que las E2E con MSW sigan siendo útiles cuando no se use el backend real.
+5. **Simulith local:** [GUIA-E2E-SIMULITH.md](./GUIA-E2E-SIMULITH.md) — `npm run cy:e2e:run:simulith`; registrar fallos en [E2E-SIMULITH-BACKLOG.md](./E2E-SIMULITH-BACKLOG.md). Plan de migración: [PLAN-E2E-SIMULITH-MSW.md](./PLAN-E2E-SIMULITH-MSW.md).

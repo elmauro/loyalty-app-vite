@@ -35,7 +35,7 @@ export function ProgramConfigForm({ program, onSave }: Props) {
     }
     setSaving(true);
     try {
-      await onSave(form);
+      await onSave({ ...form, ruleEngine: 'jsonrule' });
       setEditing(false);
       toast.success('Programa actualizado correctamente');
     } catch {
@@ -179,11 +179,10 @@ export function ProgramConfigForm({ program, onSave }: Props) {
           </div>
           <div className="space-y-1">
             <Label>Motor de Reglas</Label>
-            <Input
-              value={form.ruleEngine}
-              disabled={!editing}
-              onChange={(e) => update('ruleEngine', e.target.value)}
-            />
+            <Input value="jsonrule" disabled />
+            <p className="text-xs text-muted-foreground">
+              json-rules-engine. La pantalla de reglas y la acumulación usan este motor.
+            </p>
           </div>
           <div className="space-y-3 sm:col-span-2 lg:col-span-3">
             <Label>Tipos de Transacción (Acumulación y Redención)</Label>

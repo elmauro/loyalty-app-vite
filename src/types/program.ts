@@ -65,7 +65,7 @@ export const MOCK_PROGRAM: Program = {
   pointsMoneyRatio: 7,
   periodId: 3,
   periodValue: 6,
-  ruleEngine: 'nools',
+  ruleEngine: 'jsonrule',
   transactionsType: {
     income: ['sale'],
     expense: ['redemption'],

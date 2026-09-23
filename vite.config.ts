@@ -6,11 +6,12 @@ import path from 'path';
 // Variables de entorno (prefijo VITE_): VITE_API_BASE_AUTH, VITE_API_BASE_APP,
 // VITE_PROGRAM_ID, VITE_API_KEY, VITE_TRANSACTION_TYPE_*,
 // VITE_USE_MSW (solo e2e). Ver .env.example
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   envPrefix: 'VITE_',
   plugins: [react()],
   server: {
-    host: '127.0.0.1',
+    // Simulith E2E: same hostname as API/Cognito (hosts → 127.0.0.1 dev.loyaleasy.com)
+    host: mode === 'simulith' ? 'dev.loyaleasy.com' : '127.0.0.1',
     port: 51730,
     proxy: {
       // Proxy en dev: peticiones a localhost → Vite reenvía al backend.
@@ -284,4 +285,4 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, 'src/utils'),
     }
   },
-});
+}));

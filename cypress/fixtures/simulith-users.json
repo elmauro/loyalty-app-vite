@@ -1,0 +1,21 @@
+{
+  "password": "Test1234!",
+  "programId": "PCM",
+  "users": {
+    "tenant_admin": {
+      "email": "tenant.admin@loyaleasy.test",
+      "givenName": "Tenant",
+      "frontendPath": "/administration"
+    },
+    "program_admin": {
+      "email": "program.admin@loyaleasy.test",
+      "givenName": "Program",
+      "frontendPath": "/program-administration"
+    },
+    "customer": {
+      "email": "customer@loyaleasy.test",
+      "givenName": "Test",
+      "frontendPath": "/user"
+    }
+  }
+}

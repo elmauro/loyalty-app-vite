@@ -7,10 +7,10 @@ export interface TransactionTypes {
   expense: string[];
 }
 
-/** Valores por defecto alineados con `fetchTransactionTypes` y Acumulación. */
+/** Valores por defecto alineados con PCM seed y `fetchTransactionTypes`. */
 export const DEFAULT_TRANSACTION_TYPES: TransactionTypes = {
-  income: ['sale'],
-  expense: ['redemption'],
+  income: ['sale', 'rule'],
+  expense: ['redemption', 'rule'],
 };
 
 /**
@@ -48,7 +48,7 @@ export async function fetchProgram(): Promise<Program> {
     pointsMoneyRatio: Number(data.pointsMoneyRatio) ?? 0,
     periodId: Number(data.periodId) ?? 0,
     periodValue: Number(data.periodValue) ?? 0,
-    ruleEngine: data.ruleEngine ?? 'nools',
+    ruleEngine: data.ruleEngine ?? 'jsonrule',
     transactionsType: {
       income: Array.isArray(data.transactionsType?.income)
         ? data.transactionsType.income

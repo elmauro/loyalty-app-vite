@@ -4,17 +4,17 @@ import { BookOpen, Plus, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { paths } from '@/routes/paths';
 import { toast } from 'sonner';
-import { fetchTransactionTypes } from '@/services/programService';
+import { DEFAULT_TRANSACTION_TYPES, fetchTransactionTypes } from '@/services/programService';
 import { RulesManager } from '@/components/rules/RulesManager';
 
 export default function Rules() {
-  const [transactionTypes, setTransactionTypes] = useState<string[]>(['sale']);
-  const [selectedType, setSelectedType] = useState<string>('sale');
-  const [loadingTypes, setLoadingTypes] = useState(true);
+  const [transactionTypes, setTransactionTypes] = useState<string[]>(
+    DEFAULT_TRANSACTION_TYPES.income
+  );
+  const [selectedType, setSelectedType] = useState<string>(DEFAULT_TRANSACTION_TYPES.income[0]);
 
   useEffect(() => {
     let cancelled = false;
-    setLoadingTypes(true);
     fetchTransactionTypes()
       .then((tt) => {
         if (!cancelled && tt.income?.length) {
@@ -26,20 +26,9 @@ export default function Rules() {
         if (!cancelled) {
           toast.error('No se pudieron cargar los tipos de transacción');
         }
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingTypes(false);
       });
     return () => { cancelled = true; };
   }, []);
-
-  if (loadingTypes) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

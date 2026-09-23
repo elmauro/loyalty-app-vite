@@ -1,18 +1,25 @@
+function visitRulesReady() {
+  cy.visit('/rules');
+  cy.url({ timeout: 15000 }).should('include', '/rules');
+  cy.contains('Reglas de Bonificación', { timeout: 20000 }).should('exist');
+  cy.get('[data-testid="rules-transaction-type"]', { timeout: 10000 }).should('contain.text', 'sale');
+  cy.contains('CompraGrande', { timeout: 60000 }).should('exist');
+}
+
 describe('Reglas de Bonificación', () => {
   beforeEach(() => {
     cy.loginAsAdmin();
-    cy.visit('/rules');
-    cy.url({ timeout: 10000 }).should('include', '/rules');
+    visitRulesReady();
   });
 
   it('carga la página y muestra reglas existentes', () => {
     cy.contains('Reglas de Bonificación').should('exist');
-    cy.contains('CompraGrande', { timeout: 5000 }).should('exist');
+    cy.contains('CompraGrande').should('exist');
     cy.contains(/2[.,]?000 pts/).should('exist');
   });
 
   it('abre el diálogo de nueva regla', () => {
-    cy.contains('CompraGrande', { timeout: 5000 }).should('exist');
+    cy.contains('CompraGrande').should('exist');
     cy.get('[data-testid="rules-new-rule"]').click();
     cy.get('[data-testid="rule-form-dialog"]', { timeout: 8000 }).should('be.visible');
     cy.get('[data-testid="rule-form-name"]').should('be.visible');
@@ -24,6 +31,7 @@ describe('Reglas de Bonificación', () => {
   });
 
   it('crea una nueva regla', () => {
+    cy.intercept('PUT', '**/rulesPut53rv1c3/engines/jsonrule**').as('putRules');
     cy.get('[data-testid="rules-new-rule"]').click();
     cy.get('[data-testid="rule-form-name"]').type('BonoTest');
     cy.get('[data-testid="rule-form-points"]').type('500');
@@ -31,20 +39,21 @@ describe('Reglas de Bonificación', () => {
     cy.get('[role="option"]').contains('Monto').click({ force: true });
     cy.get('[data-testid="rule-form-condition-value"]').clear().type('5000');
     cy.get('[data-testid="rule-form-save"]').click();
-    cy.contains('Regla creada', { timeout: 8000 }).should('exist');
-    cy.contains('BonoTest').should('exist');
+    cy.wait('@putRules', { timeout: 45000 }).its('response.statusCode').should('eq', 204);
+    cy.contains('BonoTest', { timeout: 10000 }).should('exist');
     cy.contains('500 pts').should('exist');
   });
 
   it('edita una regla existente', () => {
+    cy.intercept('PUT', '**/rulesPut53rv1c3/engines/jsonrule**').as('putRules');
     cy.get('[data-testid="rule-card-0"]').within(() => {
       cy.get('[data-testid="rule-card-edit"]').click();
     });
     cy.contains('Editar regla', { timeout: 3000 }).should('exist');
     cy.get('[data-testid="rule-form-name"]').clear().type('CompraGrandeEditada');
     cy.get('[data-testid="rule-form-save"]').click();
-    cy.contains('Regla actualizada', { timeout: 5000 }).should('exist');
-    cy.contains('CompraGrandeEditada').should('exist');
+    cy.wait('@putRules', { timeout: 45000 }).its('response.statusCode').should('eq', 204);
+    cy.contains('CompraGrandeEditada', { timeout: 10000 }).should('exist');
   });
 
   it('cambia a la pestaña Facts', () => {
@@ -57,7 +66,7 @@ describe('Reglas de Bonificación', () => {
 
   describe('Facts', () => {
     beforeEach(() => {
-      cy.contains('CompraGrande', { timeout: 5000 }).should('exist');
+      cy.contains('CompraGrande').should('exist');
       cy.get('[data-testid="rules-tab-facts"]').click({ force: true });
       cy.contains('Facts disponibles').should('be.visible');
       cy.get('[data-testid="facts-add-form"]', { timeout: 8000 }).should('be.visible');
