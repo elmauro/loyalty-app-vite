@@ -1,4 +1,6 @@
-describe('Flujos de autenticación (Registro, Forgot, Reset, Change)', () => {
+import { describeWhenMsw } from '../support/backend';
+
+describeWhenMsw('Flujos de autenticación (Registro, Forgot, Reset, Change)', () => {
   describe('Registro (mock)', () => {
     it('muestra el formulario de registro completo', () => {
       cy.visit('/registration');

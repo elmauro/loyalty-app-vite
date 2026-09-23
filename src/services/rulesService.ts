@@ -1,6 +1,9 @@
 // src/services/rulesService.ts
 // Engine API: GET/PUT /engines/jsonrule
 //
+// La UI de /rules solo soporta json-rules-engine. program.ruleEngine debe ser "jsonrule"
+// para que acumulación y edición de reglas usen el mismo motor.
+//
 // DocumentClient devuelve plain JSON. Formato: { attributes, decisions } según json-rules-engine.
 import axiosApp from './axiosInstance';
 import { PROGRAM_ID, RULES_GET_API_PATH, RULES_UPDATE_API_PATH, TRANSACTION_TYPE_INCOME } from './apiConfig';

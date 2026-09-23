@@ -1,3 +1,5 @@
+import { describeWhenMsw, describeWhenSimulith } from '../support/backend';
+
 describe('Login flow', () => {
   it('muestra el formulario de login', () => {
     cy.visit('/login');
@@ -10,23 +12,6 @@ describe('Login flow', () => {
     cy.visit('/login');
     cy.get('button[type="submit"]').click();
     cy.contains('Credenciales inválidas').should('exist');
-  });
-
-  it('permite login como admin (8288221)', () => {
-    cy.visit('/login');
-    cy.get('[data-testid="login-username"]').type('8288221');
-    cy.get('[data-testid="login-password"]').type('8221');
-    cy.get('button[type="submit"]').click();
-    cy.url({ timeout: 10000 }).should('include', '/administration');
-    cy.contains('Bienvenido, AdminUser').should('exist');
-  });
-
-  it('permite login como usuario normal (55555555)', () => {
-    cy.visit('/login');
-    cy.get('[data-testid="login-username"]').type('55555555');
-    cy.get('[data-testid="login-password"]').type('5555');
-    cy.get('button[type="submit"]').click();
-    cy.url({ timeout: 10000 }).should('include', '/user');
   });
 
   it('permite navegar a registro', () => {
@@ -48,5 +33,41 @@ describe('Login flow', () => {
     cy.get('[data-testid="login-password"]').should('have.attr', 'type', 'text');
     cy.get('button[aria-label="Ocultar contraseña"]').click();
     cy.get('[data-testid="login-password"]').should('have.attr', 'type', 'password');
+  });
+});
+
+describeWhenMsw('Login flow — MSW legacy', () => {
+  it('permite login como admin (8288221)', () => {
+    cy.visit('/login');
+    cy.get('[data-testid="login-username"]').type('8288221');
+    cy.get('[data-testid="login-password"]').type('8221');
+    cy.get('button[type="submit"]').click();
+    cy.url({ timeout: 10000 }).should('include', '/administration');
+    cy.contains('Bienvenido, AdminUser').should('exist');
+  });
+
+  it('permite login como usuario normal (55555555)', () => {
+    cy.visit('/login');
+    cy.get('[data-testid="login-username"]').type('55555555');
+    cy.get('[data-testid="login-password"]').type('5555');
+    cy.get('button[type="submit"]').click();
+    cy.url({ timeout: 10000 }).should('include', '/user');
+  });
+});
+
+describeWhenSimulith('Login flow — Simulith Cognito', () => {
+  it('permite login como tenant admin', () => {
+    cy.loginViaSimulith('tenant_admin');
+    cy.contains('Bienvenido').should('exist');
+  });
+
+  it('permite login como program admin', () => {
+    cy.loginViaSimulith('program_admin');
+    cy.contains('Bienvenido').should('exist');
+  });
+
+  it('permite login como customer', () => {
+    cy.loginViaSimulith('customer');
+    cy.contains('Bienvenido').should('exist');
   });
 });

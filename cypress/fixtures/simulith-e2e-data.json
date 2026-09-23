@@ -1,0 +1,12 @@
+{
+  "comment": "Align with loyalty-program-serverless seed (otp.json, test-users.simulith.json). accumulationValue >= conversionValue Comfama (1000) para points > 0.",
+  "accumulationDocument": "10000003",
+  "accumulationValue": "5000",
+  "redemptionDocument": "10000003",
+  "redemptionPoints": "200",
+  "customerDocument": "10000003",
+  "historyDocument": "10000003",
+  "historyOfficeName": "Comfama Centro",
+  "programAdminTenantName": "Comfama",
+  "programAdminTenantId": "2ee8faa4-c9e8-4c66-a30d-f92e6708ac37"
+}
