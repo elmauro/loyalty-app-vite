@@ -52,12 +52,26 @@ Ver [GUIA-E2E-SIMULITH.md](./GUIA-E2E-SIMULITH.md). Plan de fases: [PLAN-E2E-SIM
 | 2026-09-23 | user.cy.ts | Puntos / historial MSW | Valores fijos `1.500`/`400`, `Oficina Principal` | e2e-test | Puntos reales + rango dinámico + `Comfama Centro` | fixed |
 | 2026-09-23 | user.cy.ts | Carga puntos async | Assert antes de `.text-3xl` | e2e-test | Timeout 20s en valor numérico | fixed |
 | 2026-09-23 | user.cy.ts | Suite Simulith | — | — | 5/5 pass (~53s) | pass |
+| 2026-09-23 | — (manual) | Registro web `/registration` | `POST :4567/` → `ValidationException: Unsupported operation: SignUp` | **simulith** | Implementar Cognito `SignUp` (+ `ConfirmSignUp`) | fixed (Simulith Docker 2026-09-24) |
+| 2026-09-23 | — (manual) | Cambio contraseña `/change-password` | `Unsupported operation: ChangePassword` | **simulith** | Implementar `ChangePassword` | fixed (Simulith Docker 2026-09-24) |
+| 2026-09-24 | — (manual) | Cognito self-service | SignUp/ChangePassword en Simulith ≥0.209.0 | **loyaleasy** | Smoke UI en **0.211.0** | closed |
+| 2026-09-24 | — (infra) | Upgrade Simulith | Pin **0.211.0**; volúmenes `simulith-data` + RDS | **loyaleasy** | `simulith-start.sh` + `simulith-ensure-rds.sh` | closed |
+| 2026-09-24 | — (manual) | Registro / código email | Código en Console SES `:9081`, no Gmail real | **simulith** | Esperado en local; ver [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md) | closed |
+| 2026-09-24 | — (manual) | PostConfirmation trigger | `UserLambdaValidationException` (stdout / DynamoDB endpoint) | **loyaleasy-backend** | Fix Lambdas PreSignUp/PostConfirmation + deploy Simulith | fixed |
+
+## Simulith emulador (cierre 2026-09-24)
+
+Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.211.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
+
+Operación local: [GUIA_DESPLIEGUE_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/GUIA_DESPLIEGUE_SIMULITH.md) · seed [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md).
+
+Pendiente **producto** (no bloquea): migrar `auth-flows.cy.ts` a Simulith — [PLAN-E2E-SIMULITH-MSW.md](./PLAN-E2E-SIMULITH-MSW.md) §4.
 
 ## Known gaps (antes del primer run)
 
 | Spec | Riesgo | Notas |
 | --- | --- | --- |
-| `auth-flows.cy.ts` | — | Omitido en run Simulith (solo MSW) |
+| `auth-flows.cy.ts` | loyaleasy | Omitido en run Simulith (solo MSW); Cognito self-service **implemented** en Simulith 2026-09-24 — validar UI y evaluar migración spec |
 | `login.cy.ts` | e2e-test | MSW usa doc 8288221; Simulith usa email Cognito |
 | `rules.cy.ts` | — | 11/11 pass (2026-03-23) |
 | `accumulation.cy.ts` | — | 4/4 pass (2026-09-23) |
