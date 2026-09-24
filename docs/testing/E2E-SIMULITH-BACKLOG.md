@@ -61,7 +61,7 @@ Ver [GUIA-E2E-SIMULITH.md](./GUIA-E2E-SIMULITH.md). Plan de fases: [PLAN-E2E-SIM
 
 ## Simulith emulador (cierre 2026-09-24)
 
-Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.211.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
+Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.214.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
 
 Operación local: [GUIA_DESPLIEGUE_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/GUIA_DESPLIEGUE_SIMULITH.md) · seed [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md).
 
