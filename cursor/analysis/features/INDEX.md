@@ -22,7 +22,7 @@ Ruta:
 
 | Ticket | Backlog ID | Slug | Name | Area | Stage |
 | --- | --- | --- | --- | --- | --- |
-| — | — | — | — | — | — |
+| n/a | n/a | historial-fechas-zona-programa-y-carga-inicial | Historial: fechas zona programa y carga inicial (UI) | product | validation |
 
 ## Como actualizar
 

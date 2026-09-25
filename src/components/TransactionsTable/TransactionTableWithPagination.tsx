@@ -15,6 +15,8 @@ interface Props {
   isLoading?: boolean;
   /** Listado por tenant: mostrar columna de documento */
   showDocumentColumn?: boolean;
+  /** Texto bajo el estado vacío (p. ej. ampliar rango de fechas) */
+  emptyHint?: string;
 }
 
 export default function TransactionTableWithPagination({
@@ -26,9 +28,16 @@ export default function TransactionTableWithPagination({
   onPageSizeChange,
   isLoading = false,
   showDocumentColumn = false,
+  emptyHint,
 }: Props) {
   if (!data || data.length === 0) {
-    return <TransactionTable transactions={[]} showDocumentColumn={showDocumentColumn} />;
+    return (
+      <TransactionTable
+        transactions={[]}
+        showDocumentColumn={showDocumentColumn}
+        emptyHint={emptyHint}
+      />
+    );
   }
 
   return (

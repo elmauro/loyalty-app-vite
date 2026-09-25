@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { History, Search, RotateCcw } from 'lucide-react';
 import { DateRangePresetButtons } from './DateRangePresetButtons';
+import { getDefaultHistoryDateRange, HISTORY_EMPTY_RANGE_HINT } from '@/utils/dateRangePresets';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -77,6 +78,16 @@ export default function TransactionHistoryForm() {
     };
   }, [tenantId]);
 
+  useEffect(() => {
+    const range = getDefaultHistoryDateRange();
+    if (startDateRef.current && !startDateRef.current.value) {
+      startDateRef.current.value = range.startDate;
+    }
+    if (endDateRef.current && !endDateRef.current.value) {
+      endDateRef.current.value = range.endDate;
+    }
+  }, []);
+
   const requiredBackendPage = total > 0 ? Math.ceil(((frontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE) : 0;
   const displaySlice = useMemo(() => {
     if (chunk.length === 0 || backendPage !== requiredBackendPage) return [];
@@ -127,7 +138,7 @@ export default function TransactionHistoryForm() {
         officeId,
       });
       if (res.data.length === 0) {
-        toast.info('No se encontraron transacciones');
+        toast.info(HISTORY_EMPTY_RANGE_HINT);
       }
     } catch (err: unknown) {
       const status = getErrorStatus(err);
@@ -356,6 +367,7 @@ export default function TransactionHistoryForm() {
             onPageSizeChange={handlePageSizeChange}
             isLoading={isPagingLoading}
             showDocumentColumn={!!lastSearchParams?.listAllTenant}
+            emptyHint={hasSearched ? HISTORY_EMPTY_RANGE_HINT : undefined}
           />
         </div>
       )}
