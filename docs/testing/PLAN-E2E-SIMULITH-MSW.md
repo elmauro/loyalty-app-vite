@@ -172,7 +172,7 @@ flowchart LR
 
 **Recomendación:** **A hasta Fase 4**; revisar **B** solo si registro es crítico en producto.
 
-**Actualización 2026-09-24:** Simulith (≥0.209.0, pin **0.211.0**) implementa Cognito self-service y flujos usados en Loyaleasy. Tras smoke manual en `:4567`, reabrir **opción B** para `auth-flows.cy.ts` (registro en [E2E-SIMULITH-BACKLOG.md](./E2E-SIMULITH-BACKLOG.md)).
+**Actualización 2026-09-24:** Simulith (≥0.209.0, pin **0.226.0** en `.simulith.env`) implementa Cognito self-service y flujos usados en Loyaleasy. Tras smoke manual en `:4567`, reabrir **opción B** para `auth-flows.cy.ts` (registro en [E2E-SIMULITH-BACKLOG.md](./E2E-SIMULITH-BACKLOG.md)).
 
 ---
 

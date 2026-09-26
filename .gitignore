@@ -24,5 +24,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Cypress (artefactos locales de corridas fallidas)
+cypress/screenshots
+cypress/videos
+
 # Cursor kit (local GitHub project config)
 cursor/scripts/github-story.config.json

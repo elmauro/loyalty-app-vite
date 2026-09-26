@@ -56,12 +56,17 @@ Ver [GUIA-E2E-SIMULITH.md](./GUIA-E2E-SIMULITH.md). Plan de fases: [PLAN-E2E-SIM
 | 2026-09-23 | — (manual) | Cambio contraseña `/change-password` | `Unsupported operation: ChangePassword` | **simulith** | Implementar `ChangePassword` | fixed (Simulith Docker 2026-09-24) |
 | 2026-09-24 | — (manual) | Cognito self-service | SignUp/ChangePassword en Simulith ≥0.209.0 | **loyaleasy** | Smoke UI en **0.211.0** | closed |
 | 2026-09-24 | — (infra) | Upgrade Simulith | Pin **0.211.0**; volúmenes `simulith-data` + RDS | **loyaleasy** | `simulith-start.sh` + `simulith-ensure-rds.sh` | closed |
+| 2026-09-25 | — (infra) | Upgrade Simulith | Pin **0.216.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + `simulith-connect-rds.sh` + `simulith-dbeaver-bridge.sh` si usas DBeaver | closed |
+| 2026-09-26 | — (infra) | Upgrade Simulith | Pin **0.221.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + `simulith-dbeaver-bridge.sh` | closed |
+| 2026-09-26 | — (infra) | Upgrade Simulith | Pin **0.223.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + bridge DBeaver | closed |
+| 2026-09-27 | — (infra) | Upgrade Simulith | Pin **0.225.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + bridge DBeaver | closed |
+| 2026-09-27 | — (infra) | Upgrade Simulith | Pin **0.226.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + bridge DBeaver | closed |
 | 2026-09-24 | — (manual) | Registro / código email | Código en Console SES `:9081`, no Gmail real | **simulith** | Esperado en local; ver [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md) | closed |
 | 2026-09-24 | — (manual) | PostConfirmation trigger | `UserLambdaValidationException` (stdout / DynamoDB endpoint) | **loyaleasy-backend** | Fix Lambdas PreSignUp/PostConfirmation + deploy Simulith | fixed |
 
 ## Simulith emulador (cierre 2026-09-24)
 
-Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.214.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
+Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.226.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
 
 Operación local: [GUIA_DESPLIEGUE_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/GUIA_DESPLIEGUE_SIMULITH.md) · seed [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md).
 
