@@ -59,12 +59,13 @@ Ver [GUIA-E2E-SIMULITH.md](./GUIA-E2E-SIMULITH.md). Plan de fases: [PLAN-E2E-SIM
 | 2026-09-25 | — (infra) | Upgrade Simulith | Pin **0.216.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + `simulith-connect-rds.sh` + `simulith-dbeaver-bridge.sh` si usas DBeaver | closed |
 | 2026-09-26 | — (infra) | Upgrade Simulith | Pin **0.221.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + `simulith-dbeaver-bridge.sh` | closed |
 | 2026-09-26 | — (infra) | Upgrade Simulith | Pin **0.223.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + bridge DBeaver | closed |
+| 2026-09-27 | — (infra) | Upgrade Simulith | Pin **0.225.0** (runtime + console) | **loyaleasy** | `./scripts/simulith-start.sh --with-console` + SSM RDS + bridge DBeaver | closed |
 | 2026-09-24 | — (manual) | Registro / código email | Código en Console SES `:9081`, no Gmail real | **simulith** | Esperado en local; ver [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md) | closed |
 | 2026-09-24 | — (manual) | PostConfirmation trigger | `UserLambdaValidationException` (stdout / DynamoDB endpoint) | **loyaleasy-backend** | Fix Lambdas PreSignUp/PostConfirmation + deploy Simulith | fixed |
 
 ## Simulith emulador (cierre 2026-09-24)
 
-Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.223.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
+Gaps de emulador Cognito/RDS usados por Loyaleasy **cerrados** con Simulith **≥0.209.0** (pin **`0.225.0`** en [`.simulith.env`](../../../loyalty-program-serverless/.simulith.env)): self-service Cognito, RDS sidecar vía `simulith-ensure-rds.sh`, triggers Loyaleasy ajustados.
 
 Operación local: [GUIA_DESPLIEGUE_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/GUIA_DESPLIEGUE_SIMULITH.md) · seed [SEED_SIMULITH.md](../../../loyalty-program-serverless/docs/infrastructure/SEED_SIMULITH.md).
 
