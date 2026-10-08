@@ -16,6 +16,7 @@ interface Props {
   transactions: Transaction[];
   /** Mostrar columna de número de documento (p. ej. historial de todo el tenant) */
   showDocumentColumn?: boolean;
+  emptyHint?: string;
 }
 
 export type TransactionFilter = 'all' | 'accumulation' | 'redemption';
@@ -46,7 +47,11 @@ function formatDate(dateString: string): string {
   });
 }
 
-export default function TransactionTable({ transactions, showDocumentColumn = false }: Props) {
+export default function TransactionTable({
+  transactions,
+  showDocumentColumn = false,
+  emptyHint,
+}: Props) {
   const [filter, setFilter] = useState<TransactionFilter>('all');
 
   const filtered = transactions.filter((t) => matchesFilter(t, filter));
@@ -57,6 +62,9 @@ export default function TransactionTable({ transactions, showDocumentColumn = fa
       <div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
         <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
         <p className="text-muted-foreground">No se encontraron transacciones</p>
+        {emptyHint ? (
+          <p className="text-sm text-muted-foreground/80 mt-2 max-w-md mx-auto">{emptyHint}</p>
+        ) : null}
       </div>
     );
   }

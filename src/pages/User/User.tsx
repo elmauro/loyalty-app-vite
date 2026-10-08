@@ -15,6 +15,10 @@ import { Label } from '@/components/ui/label';
 import { User as UserIcon, Search, RotateCcw, Calendar, Star, TrendingUp, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DateRangePresetButtons } from '@/components/TransactionHistoryForm/DateRangePresetButtons';
+import {
+  getDefaultHistoryDateRange,
+  HISTORY_EMPTY_RANGE_HINT,
+} from '@/utils/dateRangePresets';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -66,6 +70,38 @@ export default function UserPage() {
     fetchPoints();
   }, [phoneNumber]);
 
+  const runHistorySearch = useCallback(
+    async (startDate: string, endDate: string) => {
+      if (!phoneNumber.trim()) return;
+      try {
+        setIsLoading(true);
+        const res = await getTransactions('1', phoneNumber, startDate, endDate, 1, BACKEND_CHUNK_SIZE);
+        setTotal(res.total);
+        setChunk(res.data);
+        setBackendPage(1);
+        setFrontendPage(1);
+        setPageSize(DEFAULT_PAGE_SIZE);
+        setLastSearchParams({ startDate, endDate });
+        if (res.total === 0) {
+          toast.info(HISTORY_EMPTY_RANGE_HINT);
+        }
+      } catch {
+        toast.error('Error al consultar transacciones');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [phoneNumber]
+  );
+
+  useEffect(() => {
+    if (!phoneNumber.trim()) return;
+    const range = getDefaultHistoryDateRange();
+    if (startDateRef.current) startDateRef.current.value = range.startDate;
+    if (endDateRef.current) endDateRef.current.value = range.endDate;
+    void runHistorySearch(range.startDate, range.endDate);
+  }, [phoneNumber, runHistorySearch]);
+
   const requiredBackendPage = total > 0 ? Math.ceil(((frontendPage - 1) * pageSize + 1) / BACKEND_CHUNK_SIZE) : 0;
   const displaySlice = useMemo(() => {
     if (chunk.length === 0 || backendPage !== requiredBackendPage) return [];
@@ -78,21 +114,7 @@ export default function UserPage() {
     const formData = new FormData(e.currentTarget);
     const startDate = (formData.get('startDate') as string) || '';
     const endDate = (formData.get('endDate') as string) || '';
-
-    try {
-      setIsLoading(true);
-      const res = await getTransactions('1', phoneNumber, startDate, endDate, 1, BACKEND_CHUNK_SIZE);
-      setTotal(res.total);
-      setChunk(res.data);
-      setBackendPage(1);
-      setFrontendPage(1);
-      setPageSize(DEFAULT_PAGE_SIZE);
-      setLastSearchParams({ startDate, endDate });
-    } catch {
-      toast.error('Error al consultar transacciones');
-    } finally {
-      setIsLoading(false);
-    }
+    await runHistorySearch(startDate, endDate);
   };
 
   const handlePageChange = (newFrontendPage: number) => {
@@ -299,6 +321,7 @@ export default function UserPage() {
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
             isLoading={isPagingLoading}
+            emptyHint={lastSearchParams ? HISTORY_EMPTY_RANGE_HINT : undefined}
           />
         </div>
       </div>

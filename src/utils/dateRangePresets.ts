@@ -8,9 +8,19 @@ export function formatDateInputLocal(d: Date): string {
 
 export type DateRangePresetId = 'last7' | 'last30' | 'thisMonth';
 
+/** Rango por defecto al abrir historial (alineado con HIS-08 en transaction-api). */
+export const DEFAULT_HISTORY_PRESET: DateRangePresetId = 'last30';
+
+export function getDefaultHistoryDateRange(): { startDate: string; endDate: string } {
+  return getDateRangePreset(DEFAULT_HISTORY_PRESET);
+}
+
 /**
  * Rangos rápidos (fecha fin = hoy local; inicio según preset).
  */
+export const HISTORY_EMPTY_RANGE_HINT =
+  'Prueba ampliar el rango de fechas (por ejemplo, «Últimos 30 días»).';
+
 export function getDateRangePreset(preset: DateRangePresetId): { startDate: string; endDate: string } {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
